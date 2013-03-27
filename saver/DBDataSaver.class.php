@@ -1,8 +1,13 @@
 <?php
 
 namespace db_utils\saver;
+
+use db_utils\table\RDBTable;
+
 /**
  * @todo autoloader 
+ * @todo возможно стоит разрешить добавлять записи без указания колонок (
+ *	включать каким-нибудь флагом такое поведение)
  */
 
 require_once __DIR__ . '/iDBDataSaver.class.php';
@@ -13,7 +18,9 @@ require_once __DIR__ . '/iDBDataSaver.class.php';
  * @uses iDBDataSaver
  * @author Sergey Lisenkov <sergli@nigma.ru> 
  */
-abstract class DBDataSaver implements iDBDataSaver {
+abstract class DBDataSaver implements iDBDataSaver, 
+									\ArrayAccess,
+									\Countable {
 
 	protected $_db = null;
 	/**
@@ -50,7 +57,7 @@ abstract class DBDataSaver implements iDBDataSaver {
 
 	protected $_sql = '';
 
-	protected static $_debug = false;
+	public static $_debug = false;
 
 	const E_NO_TABLE_NAME = 10;
 	const E_NO_STRUCTURE = 11;
@@ -92,6 +99,12 @@ abstract class DBDataSaver implements iDBDataSaver {
 	abstract protected function _generateSql();
 
 
+	/**
+	 * setOptions 
+	 * 
+	 * @param array $option 
+	 * @todo реализовать либо выпилить
+	 */
 	public function setOptions(array $option) {
 		return;
 	}
@@ -269,5 +282,41 @@ abstract class DBDataSaver implements iDBDataSaver {
 			return;
 		}
 		echo $text . "\n";
+	}
+
+	//////////////////////	ArrayAccess	//////////////////////////
+
+	public function offsetExists($offset) {
+		return isset($this->_values[$offset]);
+	}
+
+	public function offsetGet($offset) {
+		throw new \Exception(
+			'Чтение внутренних данных запрещено реализацией');
+	}
+
+	public function offsetSet($offset, $row) {
+		if (is_null($offset)) {	//	в конец
+			$offset = $this->_count;
+		}
+		else {
+			$offset = (int) $offset;
+		}
+		$ind = $this->_count;	//	в этот индекс добавляем
+		if ($offset !== $ind) {
+			throw new \Exception(
+				'Добавить новую запись можно только в конец очереди');
+		}
+		$this->add($row);
+	}
+
+	public function offsetUnset($offset) {
+		throw new \Exception(
+			'Удаление из внутренних данных запрещено реализацией');
+	}
+
+	/////////////////////	Countable	/////////////////////////
+	public function count() {
+		return $this->_count;
 	}
 }
