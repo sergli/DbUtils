@@ -38,14 +38,18 @@ final class Mysql extends \mysqli implements adapter\iRDBAdapter {
 	 * @param string $sql 
 	 * @param int $resultMode 
 	 * @access public
-	 * @return db_autils\adapter\select\mysql\MysqlSelect
+	 * @return db_autils\adapter\select\mysql\MysqlSelect | true
+	 * @throws \Exception
 	 */
 	public function query($sql, $resultMode = \MYSQLI_STORE_RESULT) {
-		return new db_utils\adapter\select\mysql\MysqlSelect(
-			parent::query($sql, $resultMode));
+		$r = parent::query($sql, $resultMode);
+		if (!$r instanceof \mysqli_result) {
+			return $r;
+		}
+		return new db_utils\adapter\select\mysql\MysqlSelect($r);
 	}
 
-	public function getInstance($tag = 0, $options = []) {
+	public static function getInstance($tag = 0, $options = []) {
 		if (is_string($options)) {
 			$options = [ 'dbname' => $options ];
 		}
@@ -57,7 +61,7 @@ final class Mysql extends \mysqli implements adapter\iRDBAdapter {
 	}
 
 
-	public function setOptions(array $options = []) {
+	public static function setOptions(array $options = []) {
 
 		if (!$options) {
 			return;
