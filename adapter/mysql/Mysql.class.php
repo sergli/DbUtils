@@ -101,4 +101,34 @@ final class Mysql extends \mysqli implements adapter\iRDBAdapter {
 	public function fetchAll($sql) {
 		return parent::query($sql)->fetch_all(MYSQLI_ASSOC);
 	}
+
+    /**
+     * Обертка \mysqli::$info
+	 *
+     * @return array массив с некоторыми фиксированными ключами
+     * @access public
+     */
+	public function info() {
+		$info = $this->info;
+
+		$def = [
+			'Records' => 0,
+			'Duplicates' => 0,
+			'Warnings' => 0,
+			'Skipped' => 0,
+			'Deleted' => 0,
+			'Rows matched' => 0,
+			'Changed' => 0
+		];
+
+		if (empty($info)) {
+			return $def;
+		}
+		$pattern = '/(' . implode('|', array_keys($def)) .'): (\d+)/';
+		preg_match_all($pattern, $info, $matches);
+		$info = array_combine($matches[1], $matches[2]);
+		
+		return array_merge($def, $info);
+	}
+
 }
