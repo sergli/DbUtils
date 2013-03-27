@@ -15,11 +15,11 @@ interface iDBDataSaver {
 	/**
 	 * Устанавливает доп. опции
 	 * 
-	 * @param array $options 
+	 * @param int $options 
 	 * @access public
 	 * @return void
 	 */
-	public function setOptions(array $options);
+	public function setOptions($options);
 
 	/**
 	 * Добавляет запись в буфер

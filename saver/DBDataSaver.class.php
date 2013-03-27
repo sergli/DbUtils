@@ -22,6 +22,14 @@ abstract class DBDataSaver implements iDBDataSaver,
 									\ArrayAccess,
 									\Countable {
 
+	/**
+	 * Дополнительные опции сейвера. Битовая маска
+	 * 
+	 * @var int
+	 * @access protected
+	 */
+	protected $_options = 0;
+
 	protected $_db = null;
 	/**
 	 * Таблица
@@ -100,13 +108,12 @@ abstract class DBDataSaver implements iDBDataSaver,
 
 
 	/**
-	 * setOptions 
+	 * Устанавливает дополнительные опции
 	 * 
-	 * @param array $option 
-	 * @todo реализовать либо выпилить
+	 * @param int $option битовая маска констант
 	 */
-	public function setOptions(array $option) {
-		return;
+	public function setOptions($options) {
+		$this->_options = (int) $options;
 	}
 
 	/**
@@ -116,7 +123,7 @@ abstract class DBDataSaver implements iDBDataSaver,
 	 * @return void
 	 */
 	public function __destruct() {
-		$this->save();
+//		$this->save();
 	}
 
 	/**
@@ -302,8 +309,7 @@ abstract class DBDataSaver implements iDBDataSaver,
 		else {
 			$offset = (int) $offset;
 		}
-		$ind = $this->_count;	//	в этот индекс добавляем
-		if ($offset !== $ind) {
+		if ($offset !== $this->_count) {
 			throw new \Exception(
 				'Добавить новую запись можно только в конец очереди');
 		}
