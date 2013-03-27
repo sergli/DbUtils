@@ -3,17 +3,17 @@
 namespace db_utils\adapter\mysql;
 
 use db_utils;
-use db_utils\adapter;
-use db_utils\table\mysql\MysqlTable;
+use	db_utils\adapter;
 
-require_once __DIR__ . '/../iRDBAdapter.class.php';
 require_once __DIR__ . '/../RDBAdapter.class.php';
 require_once __DIR__ . '/../../Singleton.class.php';
-#require_once __DIR__ . '/../../table/mysql/MysqlTable.class.php';
+require_once __DIR__ . '/../select/mysql/MysqlSelect.class.php';
+require_once __DIR__ . '/MysqlStatement.class.php';
+require_once __DIR__ . '/../../table/mysql/MysqlTable.class.php';
 
 
 
-final class Mysql extends \mysqli implements \db_utils\adapter\iRDBAdapter {
+final class Mysql extends \mysqli implements adapter\iRDBAdapter {
 
 	protected static $_tableClass = 'db_utils\table\mysql\MysqlTable';
 
@@ -27,20 +27,24 @@ final class Mysql extends \mysqli implements \db_utils\adapter\iRDBAdapter {
 	use db_utils\Singleton, db_utils\adapter\RDBAdapter {
 		db_utils\Singleton::getInstance as private _getInstance;
 	}
-/*
-	public function query($sql) {
-		return new \ArrayIterator([
-			[1, 'a', 'A',],
-			[2, 'b', 'B',],
-			[3, 'c', 'C',],
-			[4, 'd', 'D',],
-			[5, 'e', 'E',],
-			[6, 'f', 'F',],
-			[7, 'g', 'G',],
-			[8, 'h', 'H',],
-		]);
+
+	public function prepare($sql) {
+		return new db_utils\adapter\mysql\MysqlStatement($this, $sql);
 	}
-*/
+
+	/**
+	 * query 
+	 * 
+	 * @param string $sql 
+	 * @param int $resultMode 
+	 * @access public
+	 * @return db_autils\adapter\select\mysql\MysqlSelect
+	 */
+	public function query($sql, $resultMode = \MYSQLI_STORE_RESULT) {
+		return new db_utils\adapter\select\mysql\MysqlSelect(
+			parent::query($sql, $resultMode));
+	}
+
 	public function getInstance($tag = 0, $options = []) {
 		if (is_string($options)) {
 			$options = [ 'dbname' => $options ];
@@ -91,6 +95,6 @@ final class Mysql extends \mysqli implements \db_utils\adapter\iRDBAdapter {
 	}
 
 	public function fetchAll($sql) {
-		return $this->query($sql)->fetch_all(MYSQLI_ASSOC);
+		return parent::query($sql)->fetch_all(MYSQLI_ASSOC);
 	}
 }
