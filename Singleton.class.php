@@ -19,7 +19,8 @@ trait Singleton {
 		static::_init();
 	}
 
-	abstract protected static function _init();
+	protected static function _init() {
+	}
 
 
 	final private function __clone() {
