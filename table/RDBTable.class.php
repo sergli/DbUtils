@@ -2,7 +2,10 @@
 
 namespace db_utils\table;
 
+use db_utils\adapter\iRDBAdapter;
+
 require_once __DIR__ . '/iRDBTable.class.php';
+require_once __DIR__ . '/../adapter/iRDBAdapter.class.php';
 
 
 /**
@@ -19,6 +22,8 @@ abstract class RDBTable implements iRDBTable {
 	const CONTYPE_PRIMARY = 'PRIMARY KEY';
 	const CONTYPE_CHECK = 'CHECK';
 
+	protected $_db;
+
 	protected $_name;
 	protected $_schema;
 
@@ -30,6 +35,14 @@ abstract class RDBTable implements iRDBTable {
 	abstract protected function _getIndices();
 	abstract protected function _getColumns();
 	abstract protected function _getConstraints();
+
+	public function __construct(iRDBAdapter $db, $tableName) {
+		$this->_db = $db;
+		$info = $this->_getBaseInfo($tableName);
+
+		$this->_name = $info['name'];
+		$this->_schema = $info['schema'];
+	}
 
 	/**
 	 * Возвращает ограничения, кеширует результат
