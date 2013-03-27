@@ -3,6 +3,7 @@
 namespace db_utils\saver;
 
 use db_utils\table\RDBTable;
+use db_utils\adapter\RDBAdapter;
 
 /**
  * @todo autoloader 
@@ -21,7 +22,6 @@ require_once __DIR__ . '/iDBDataSaver.class.php';
 abstract class DBDataSaver implements iDBDataSaver, 
 									\ArrayAccess,
 									\Countable {
-
 	/**
 	 * Дополнительные опции сейвера. Битовая маска
 	 * 
@@ -30,6 +30,12 @@ abstract class DBDataSaver implements iDBDataSaver,
 	 */
 	protected $_options = 0;
 
+	/**
+	 * Адаптер для работы с БД
+	 * 
+	 * @var RDBAdapter
+	 * @access protected
+	 */
 	protected $_db = null;
 	/**
 	 * Таблица
@@ -58,11 +64,17 @@ abstract class DBDataSaver implements iDBDataSaver,
 	/**
 	 * Размер порции для вставки (0 - неограниченный)
 	 * 
-	 * @var float
+	 * @var int
 	 * @access protected
 	 */
 	protected $_batchSize = 5000;
 
+	/**
+	 * sql-запрос для вставки данных (или его статическая часть) 
+	 * 
+	 * @var string
+	 * @access protected
+	 */
 	protected $_sql = '';
 
 	public static $_debug = false;
@@ -98,13 +110,48 @@ abstract class DBDataSaver implements iDBDataSaver,
 	 */
 	abstract protected function _add(array $record);
 	/**
-	 * Создаёт необходимый sql-запрос
+	 * Создаёт необходимый sql-запрос (возможно, часть sql)
 	 * 
 	 * @abstract
 	 * @access protected
 	 * @return void
+	 * @see $_sql
 	 */
 	abstract protected function _generateSql();
+
+	/**
+	 * Сохраняет буфер
+	 * 
+	 * @abstract
+	 * @access protected
+	 * @return int кол-во добавленных записей
+	 */
+	abstract protected function _save();
+
+	/**
+	 * Сохраняет буфер, обнуляет его
+	 * 
+	 * @access public
+	 * @return int
+	 * @throws \Exception
+	 */
+	public function save() {
+		
+		if (0 === $this->_count) {
+			return 0;
+		}
+
+		try {
+			$cnt = $this->_save();
+			$this->reset();
+			return $cnt;
+		}
+		catch (\Exception $e) {
+			throw new \Exception(
+				"Ошибка при вставке данных:\n{$e->getMessage()}"
+			);
+		}
+	}
 
 
 	/**
@@ -113,7 +160,11 @@ abstract class DBDataSaver implements iDBDataSaver,
 	 * @param int $option битовая маска констант
 	 */
 	public function setOptions($options) {
-		$this->_options = (int) $options;
+		$options = (int) $options;
+		if ($options !== $this->_options) {
+			$this->_options = $options;
+			$this->_generateSql();
+		}
 	}
 
 	/**
@@ -123,7 +174,7 @@ abstract class DBDataSaver implements iDBDataSaver,
 	 * @return void
 	 */
 	public function __destruct() {
-//		$this->save();
+		$this->save();
 	}
 
 	/**
@@ -230,8 +281,9 @@ abstract class DBDataSaver implements iDBDataSaver,
 	 * @see getColumns()
 	 * @see getConnection()
 	 */
-	public function __construct(RDBTable $table,  array $columns = null) {
 
+	public function __construct(RDBTable $table,  array $columns = null) {
+		
 		$this->_table = $table;
 		$this->_count = 0;
 
@@ -294,7 +346,9 @@ abstract class DBDataSaver implements iDBDataSaver,
 	//////////////////////	ArrayAccess	//////////////////////////
 
 	public function offsetExists($offset) {
-		return isset($this->_values[$offset]);
+		throw new \Exception(
+			'Чтение внутренних данных запрещено реализацией'
+		);
 	}
 
 	public function offsetGet($offset) {

@@ -10,11 +10,20 @@ require_once __DIR__ . '/../../table/mysql/MysqlTable.class.php';
 
 class MysqlBulkInsertSaver extends DBDataSaver {
 
-	protected $_values = array();
+	/**
+	 * Временный буфер с данными
+	 * 
+	 * @var array
+	 */
+	private $_values = array();
 
-	protected $_sql = '';
-
+	/**
+	 * @type int добавляет к запросу слово IGNORE
+	 */
 	const OPT_IGNORE = 1;
+	/**
+	* @type int добавляет к запросу слово DELAYED
+	*/
 	const OPT_DELAYED = 2;
 
 	/**
@@ -24,27 +33,19 @@ class MysqlBulkInsertSaver extends DBDataSaver {
 	 */
 	protected $_options = 3;
 
-	public function setOptions($options) {
-		$options = (int) $options;
-		if ($options !== $this->_options) {
-			$this->_options = $options;
-			$this->_generateSql();
-		}
-		
-	}
-
-
 	protected function _quote($column, $value) {
 		if (null === $value) {
 			return 'NULL';
 		}
-		else if (true === $value) {
+		if (true === $value) {
 			return 1;
 		}
-		else if (false === $value) {
+		if (false === $value) {
 			return 0;
 		}
-
+		if (is_numeric($value)) {
+			return $value;
+		}
 		return "'{$this->_db->real_escape_string($value)}'";
 	}
 
@@ -58,6 +59,11 @@ class MysqlBulkInsertSaver extends DBDataSaver {
 	 */
 	public function __construct(MysqlTable $table, array $columns =null) {
 		parent::__construct($table, $columns);
+	}
+
+	public function reset() {
+		$this->_values = array();
+		$this->_count = 0;
 	}
 
 	protected function _generateSql() {
@@ -90,31 +96,14 @@ class MysqlBulkInsertSaver extends DBDataSaver {
 		$this->_values[] = $values;
 	}
 
-	public function reset() {
-		$this->_values = array();
-		$this->_count = 0;
-	}
 
-	public function save() {
+	protected function _save() {
 
-		if (empty($this->_values)) {
-			return 0;
-		}
 		$sql = $this->_sql . 
 			"\nVALUES \n\t" . implode(",\n\t", $this->_values) . ";";
-	var_dump($sql);
-		$this->_values = array();
-		$this->_count = 0;
 
-		try {
-			$r = $this->_db->query($sql);
-			return $this->_db->affected_rows;
-		}
-		catch (\mysqli_sql_exception $e) {
-			throw new \Exception(
-				"Ошибка при вставке данных:\n{$e->getMessage()}",
-				$e->getCode()
-			);
-		}
+		$r = $this->_db->query($sql);
+
+		return $this->_db->affected_rows;
 	}
 }
