@@ -63,6 +63,17 @@ interface iRDBAdapter {
 	public function fetchPairs($sql);
 
 	/**
+	 * Возвращает набор значений заданной колонки
+	 * 
+	 * @param string $sql 
+	 * @param int $colNum номер колонки (от 1)
+	 * @access public
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function fetchColumn($sql, $colNum = 1);
+
+	/**
 	 * Возвращает объект класса Таблица
 	 * Если таблица не существует, бросает исключение
 	 * 

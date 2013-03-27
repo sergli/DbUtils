@@ -96,4 +96,33 @@ trait RDBAdapter {
 		$it->free();
 		return $all;
 	}
+
+	/**
+	 * fetchColumn 
+	 * 
+	 * @param string $sql 
+	 * @param int $colNum 
+	 * @access public
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function fetchColumn($sql, $colNum = 1) {
+		
+		if ($colNum < 1) {
+			throw new \Exception('Неверный номер колонки');
+		}
+
+		$it = $this->query($sql);
+		$ret = [];
+		$flag = true;	//	чтоб сто раз не вызывать count
+		foreach ($it as $row) {
+			if ($flag && count($row) < $colNum) {
+				throw new \Exception('Неверный номер колонки');
+			}
+			$flag = false;
+			$ret[] = $row[array_keys($row)[$colNum - 1]];
+		}
+		$it->free();
+		return $ret;
+	}
 }
