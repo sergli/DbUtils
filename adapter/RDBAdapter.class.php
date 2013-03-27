@@ -3,6 +3,7 @@
 namespace db_utils\adapter;
 use db_utils\table;
 
+require_once __DIR__ . '/iRDBAdapter.class.php';
 
 trait RDBAdapter {
 
@@ -12,7 +13,7 @@ trait RDBAdapter {
 	 * @param string $sql 
 	 * @abstract
 	 * @access public
-	 * @return Traversable
+	 * @return db_utils\adapter\select\iSelect
 	 */
 	abstract public function query($sql);
 
@@ -21,6 +22,14 @@ trait RDBAdapter {
 	}
 
 
+	/**
+	 * getTable 
+	 * 
+	 * @param string $tableName 
+	 * @access public
+	 * @return db_utils\table\RDBTable
+	 * @throws \Exception
+	 */
 	public function getTable($tableName) {
 		$tableClass = static::getTableClass();
 		return new $tableClass($this, $tableName);
@@ -44,6 +53,7 @@ trait RDBAdapter {
 			return null;
 		}
 		foreach ($it as $row) {
+			$it->free();
 			return $row;
 		}
 	}
@@ -51,9 +61,9 @@ trait RDBAdapter {
 	/**
 	 * fetchOne 
 	 * 
-	 * @param mixed $sql 
+	 * @param string $sql 
 	 * @access public
-	 * @return mixed
+	 * @return string|null
 	 */
 	public function fetchOne($sql) {
 		
@@ -67,13 +77,14 @@ trait RDBAdapter {
 
 	public function fetchPairs($sql) {
 		$it = $this->query($sql);
-		$pairs = array();
+		$pairs = [];
 		foreach ($it as $row) {
 			if (count($row) < 2) {
 				throw new \Exception("Количество колонок меньше двух");
 			}
 			$pairs[current($row)] = next($row);
 		}
+		$it->free();
 
 		return $pairs;
 	}
@@ -81,15 +92,8 @@ trait RDBAdapter {
 
 	public function fetchAll($sql) {
 		$it = $this->query($sql);
-		return iterator_to_array($it);
-	}
-
-
-	public function getTableColumns($tableName) {
-		return $this->getTable($tableName)->getColumns();
-	}
-
-	public function getTableIndices($tableName) {
-		return $this->getTable($tableName)->getIndices();
+		$all = iterator_to_array($it);
+		$it->free();
+		return $all;
 	}
 }

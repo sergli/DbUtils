@@ -2,6 +2,7 @@
 
 namespace db_utils\adapter;
 
+use db_utils\adapter\select\iSelect;
 
 
 /**
@@ -16,7 +17,7 @@ interface iRDBAdapter {
 	 * 
 	 * @param string $sql 
 	 * @access public
-	 * @return Traversable итератор
+	 * @return iSelect итератор
 	 * @throws \Exception
 	 */
 	public function query($sql);
@@ -81,24 +82,4 @@ interface iRDBAdapter {
 	 * @throws \Exception
 	 */
 	public function tableExists($tableName);
-
-	/**
-	 * Возвращает массив колонок таблицы
-	 * 
-	 * @param string $tableName имя таблицы
-	 * @access public
-	 * @return array
-	 * @throws \Exception
-	 */
-	public function getTableColumns($tableName);
-
-	/**
-	 * Возвращает массив индексов таблицы 
-	 * 
-	 * @param string $tableName имя таблицы
-	 * @access public
-	 * @return array
-	 * @throws \Exception
-	 */
-	public function getTableIndices($tableName);
 }
