@@ -2,13 +2,13 @@
 
 namespace db_utils\saver\mysql;
 
-use db_utils\saver\DBDataSaver,
+use db_utils\saver\Saver,
 	db_utils\table\mysql\MysqlTable;
 
-require_once __DIR__ . '/../DBDataSaver.class.php';
+require_once __DIR__ . '/../Saver.class.php';
 require_once __DIR__ . '/../../table/mysql/MysqlTable.class.php';
 
-class MysqlLoadDataSaver extends DBDataSaver {
+class MysqlLoadDataSaver extends Saver {
 
     /**
      * Файл, в кот. записываются данные

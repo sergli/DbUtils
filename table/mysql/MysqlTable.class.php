@@ -3,13 +3,13 @@
 namespace db_utils\table\mysql;
 
 use db_utils\adapter\mysql\Mysql;
-use db_utils\table\RDBTable;
+use db_utils\table\Table;
 
 require_once __DIR__ . '/../../adapter/mysql/Mysql.class.php';
-require_once __DIR__ . '/../RDBTable.class.php';
+require_once __DIR__ . '/../Table.class.php';
 
 
-class MysqlTable extends RDBTable {
+class MysqlTable extends Table {
 
 	public function __construct(Mysql $db, $tableName) {
 		parent::__construct($db, $tableName);

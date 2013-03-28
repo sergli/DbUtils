@@ -5,7 +5,7 @@ namespace db_utils\adapter\mysql;
 use db_utils;
 use	db_utils\adapter;
 
-require_once __DIR__ . '/../RDBAdapter.class.php';
+require_once __DIR__ . '/../Adapter.class.php';
 require_once __DIR__ . '/../../Singleton.class.php';
 require_once __DIR__ . '/../select/mysql/MysqlSelect.class.php';
 require_once __DIR__ . '/MysqlStatement.class.php';
@@ -13,7 +13,7 @@ require_once __DIR__ . '/../../table/mysql/MysqlTable.class.php';
 
 
 
-final class Mysql extends \mysqli implements adapter\iRDBAdapter {
+final class Mysql extends \mysqli implements adapter\iAdapter {
 
 	protected static $_tableClass = 'db_utils\table\mysql\MysqlTable';
 
@@ -24,7 +24,8 @@ final class Mysql extends \mysqli implements adapter\iRDBAdapter {
 		'dbname'	=>	'',
 	];
 
-	use db_utils\Singleton, db_utils\adapter\RDBAdapter {
+	use db_utils\adapter\Adapter;
+	use db_utils\Singleton {
 		db_utils\Singleton::getInstance as private _getInstance;
 	}
 
