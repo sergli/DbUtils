@@ -15,7 +15,7 @@ class MysqlBulkInsertSaver extends Saver {
 	 * 
 	 * @var array
 	 */
-	private $_values = array();
+	protected $_values = array();
 
 	/**
 	 * @type int добавляет к запросу слово IGNORE
@@ -57,7 +57,8 @@ class MysqlBulkInsertSaver extends Saver {
 	 * @access public
 	 * @return void
 	 */
-	public function __construct(MysqlTable $table, array $columns =null) {
+	public function __construct(MysqlTable $table, 
+		array $columns =null) {
 		parent::__construct($table, $columns);
 	}
 
