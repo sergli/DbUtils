@@ -7,12 +7,15 @@ use db_utils\table\Table;
 
 require_once __DIR__ . '/../saver/Saver.class.php';
 
-abstract class Updater extends Saver {
+trait Updater {
 
-	const E_NONE_KEY = 71;
-
+	/**
+	 * Колонки уник. ключа
+	 * 
+	 * @var string[]
+	 * @access protected
+	 */
 	protected $_key = [];
-
 
 	public function update() {
 		return $this->save();
@@ -28,7 +31,7 @@ abstract class Updater extends Saver {
 	 * @access protected
 	 * @return string[]|null
 	 */
-	protected function _findKey() {
+	private function _findKey() {
 		$pk = $this->_table->getPrimaryKey();
 		$columns = array_keys($this->_columns);
 		if ($pk) {
@@ -50,11 +53,10 @@ abstract class Updater extends Saver {
 	}
 
 
-	public function __construct(Table $table, array $columns = null) {
-		
-		parent::__construct($table, $column);
-
+	protected function _setColumns(array $columns) {
+		parent::_setColumns($columns);
 		$key = $this->_findKey();
+
 		if (!$key) {
 			throw new \Exception('Нет подходящего ключа', 
 				self::E_NONE_KEY);
