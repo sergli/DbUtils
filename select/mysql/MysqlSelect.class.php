@@ -1,8 +1,8 @@
 <?php
 
-namespace db_utils\adapter\select\mysql;
+namespace db_utils\select\mysql;
 
-use db_utils\adapter\select\iSelect;
+use db_utils\select\iSelect;
 
 require_once __DIR__ . '/../iSelect.class.php';
 
