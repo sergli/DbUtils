@@ -5,13 +5,11 @@ use db_utils\adapter\mysql\Mysql;
 
 require_once __DIR__ . '/MysqlTable.class.php';
 
-$opts = [
-	'user'		=>	'root',
-	'password'	=>	'Chipikavoc5',
-	'dbname'	=>	'clicklog',
-];
+$opts = include __DIR__ . '/../../config.php';
+$opts = $opts['mysql'];
 
 $db =  Mysql::getInstance(1, $opts);
+
 
 $table = new MysqlTable($db, 'popularity');
 

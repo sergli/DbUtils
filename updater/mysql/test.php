@@ -8,11 +8,13 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../../adapter/mysql/Mysql.class.php';
 require_once __DIR__ . '/MysqlBulkUpdater.class.php';
 
-$db = Mysql::getInstance(1, $opts = [
+Mysql::setOptions([
 	'user'		=> 'root',
 	'password'	=> 'Chipikavoc5',
 	'dbname'	=>	'test',
 ]);
+
+$db = Mysql::getInstance();
 
 $tableName = 'documents';
 $table = Mysql::getInstance(2, $opts)->getTable($tableName);

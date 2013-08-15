@@ -18,7 +18,11 @@ class MysqlSelect extends iSelect {
 		return $this->_result;
 	}
 
+	public function count() {
+		return $this->_result->num_rows;
+	}
+
 	public function free() {
-		$this->_result->free();
+		return $this->_result->free();
 	}
 }
