@@ -89,7 +89,7 @@ trait Adapter {
 		return $pairs;
 	}
 
-
+//TODO возвращать итератор
 	public function fetchAll($sql) {
 		$it = $this->query($sql);
 		$all = iterator_to_array($it);

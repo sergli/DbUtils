@@ -2,18 +2,23 @@
 
 namespace db_utils\adapter\mysql;
 
-use db_utils;
-use	db_utils\adapter;
+use db_utils\adapter\iAdapter,
+	db_utils\adapter\Adapter,
+	db_utils\adapter\mysql\MysqlStatement,
+	db_utils\DBSingleton,
+	db_utils\select\mysql\MysqlSelect,
+	db_utils\table\mysql\MysqlTable;
 
+require_once __DIR__ . '/../iAdapter.class.php';
 require_once __DIR__ . '/../Adapter.class.php';
-require_once __DIR__ . '/../../Singleton.class.php';
-require_once __DIR__ . '/../select/mysql/MysqlSelect.class.php';
 require_once __DIR__ . '/MysqlStatement.class.php';
+require_once __DIR__ . '/../../DBSingleton.class.php';
+require_once __DIR__ . '/../../select/mysql/MysqlSelect.class.php';
 require_once __DIR__ . '/../../table/mysql/MysqlTable.class.php';
 
 
 
-final class Mysql extends \mysqli implements adapter\iAdapter {
+final class Mysql extends \mysqli implements iAdapter {
 
 	protected static $_tableClass = 'db_utils\table\mysql\MysqlTable';
 
@@ -24,13 +29,11 @@ final class Mysql extends \mysqli implements adapter\iAdapter {
 		'dbname'	=>	'',
 	];
 
-	use db_utils\adapter\Adapter;
-	use db_utils\Singleton {
-		db_utils\Singleton::getInstance as private _getInstance;
-	}
+	use Adapter;
+	use DBSingleton;
 
 	public function prepare($sql) {
-		return new db_utils\adapter\mysql\MysqlStatement($this, $sql);
+		return new MysqlStatement($this, $sql);
 	}
 
 	/**
@@ -39,7 +42,7 @@ final class Mysql extends \mysqli implements adapter\iAdapter {
 	 * @param string $sql 
 	 * @param int $resultMode 
 	 * @access public
-	 * @return db_autils\adapter\select\mysql\MysqlSelect | true
+	 * @return MysqlSelect | true
 	 * @throws \Exception
 	 */
 	public function query($sql, $resultMode = \MYSQLI_STORE_RESULT) {
@@ -47,40 +50,9 @@ final class Mysql extends \mysqli implements adapter\iAdapter {
 		if (!$r instanceof \mysqli_result) {
 			return $r;
 		}
-		return new db_utils\adapter\select\mysql\MysqlSelect($r);
+		return new MysqlSelect($r);
 	}
 
-	public static function getInstance($tag = 0, $options = []) {
-		if (is_string($options)) {
-			$options = [ 'dbname' => $options ];
-		}
-		$options = (array) $options;
-
-		static::setOptions($options);
-
-		return static::_getInstance($tag);
-	}
-
-
-	public static function setOptions(array $options = []) {
-
-		if (!$options) {
-			return;
-		}
-		//	только валидные ключи
-		$options = array_intersect_key($options, static::$_options);
-
-		//	ничего нового
-		if (!array_diff_assoc($options, static::$_options)) {
-			return;
-		}
-		
-		if (!empty(static::$_instances)) {
-			throw new \Exception('Соединения уже установлены');
-		}
-
-		static::$_options = $options + static::$_options;
-	}
 
 	protected function _init() {
 		
@@ -89,6 +61,7 @@ final class Mysql extends \mysqli implements adapter\iAdapter {
 		$driver = new \mysqli_driver;
 		$driver->report_mode = 
 			MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT;
+
 		parent::__construct($o['host'], $o['user'], 
 			$o['password'], $o['dbname']);
 
