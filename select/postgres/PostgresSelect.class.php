@@ -11,8 +11,22 @@ class PostgresSelect extends iSelect {
 
 	private $_result;
 
+	/**
+	 * Конструктор
+	 * 
+	 * @param resource $result 
+	 * @access public
+	 * @return void
+	 */
 	public function __construct($result) {
-		$this->_result = $result;
+		if (is_resource($result) && 
+			get_resource_type($result) == 'pgsql result') {
+			$this->_result = $result;
+		}
+		else {
+			throw new InvalidArgumentException(
+				'Expects $result to be resource of type pgsql result');
+		}
 	}
 
 	public function count() {
@@ -25,5 +39,9 @@ class PostgresSelect extends iSelect {
 
 	public function getIterator() {
 		return new PostgresResultIterator($this->_result);
+	}
+
+	public function getResult() {
+		return $this->_result;
 	}
 }

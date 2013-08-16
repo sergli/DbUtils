@@ -52,6 +52,7 @@ trait Adapter {
 		if (!$it) {
 			return null;
 		}
+		//	Возвращаем первую же строку
 		foreach ($it as $row) {
 			$it->free();
 			return $row;
@@ -89,7 +90,7 @@ trait Adapter {
 		return $pairs;
 	}
 
-//TODO возвращать итератор
+
 	public function fetchAll($sql) {
 		$it = $this->query($sql);
 		$all = iterator_to_array($it);

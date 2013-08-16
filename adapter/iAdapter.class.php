@@ -59,6 +59,7 @@ interface iAdapter {
 	 * @access public
 	 * @return array
 	 * @throws \Exception
+	 * @todo возвращать итератор ?
 	 */
 	public function fetchPairs($sql);
 
