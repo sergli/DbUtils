@@ -8,10 +8,12 @@ require_once __DIR__ . '/MysqlTable.class.php';
 $opts = include __DIR__ . '/../../config.php';
 $opts = $opts['mysql'];
 
+$opts['dbname'] = 'test';
+
 $db =  Mysql::getInstance(1, $opts);
 
 
-$table = new MysqlTable($db, 'popularity');
+$table = new MysqlTable($db, 'tableB');
 
 var_dump('table', $table);
 
@@ -26,3 +28,5 @@ var_dump('schema', $table->getSchema());
 var_dump('recalculate', $table->recalculate());
 
 var_dump('primary_key', $table->getPrimaryKey(), $table->getPK());
+
+var_dump('constraints', $table->getConstraints());

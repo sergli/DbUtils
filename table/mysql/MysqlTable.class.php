@@ -88,8 +88,11 @@ SQL;
 		while ($stmt->fetch()) {
 			$con = [];
 			$name = $row['CONSTRAINT_NAME'];
+
 			if (!isset($constraints[$name])) {
 				$con['name'] = $name;
+				$con['columns'] = [];
+				$con['ref_col'] = [];
 				switch ($row['CONSTRAINT_TYPE']) {
 				case 'UNIQUE':
 					$con['type'] = self::CONTYPE_UNIQUE;
@@ -100,14 +103,17 @@ SQL;
 				case 'FOREIGN KEY':
 					$con['type'] = self::CONTYPE_FOREIGN;
 					$con['ref_table'] = $row['REFERENCED_TABLE_NAME'];
-					$con['ref_col'] = $row['REFERENCED_COLUMN_NAME'];
 					break;
 				}
-				$con['columns'] = [];
 				$constraints[$name] = $con;
 			}
-			
-			$constraints[$name] ['columns'][] = $row['COLUMN_NAME'];
+		
+			//	соберём имена колонок, участвующих в ограничении
+			$constraints[$name]['columns'][] = $row['COLUMN_NAME'];
+			//	для внешних ключей соберём и связанные колонки
+			if ($ref_col = $row['REFERENCED_COLUMN_NAME']) {
+				$constraints[$name]['ref_col'][] = $ref_col;
+			}
 		}
 
 		return $constraints;
@@ -117,23 +123,23 @@ SQL;
 
         $sql = "SHOW INDEX FROM {$this->getFullName()};";
 		$rows = $this->_db->fetchAll($sql);
-		$indexes = array();
+		$indices = array();
 		foreach ($rows as $row) {
 			$index = array();
 			$name = $row['Key_name'];
-			if (!isset($indexes[$name])) {
+			if (!isset($indices[$name])) {
 				$index['is_primary'] = ($name == 'PRIMARY');
 				$index['is_unique'] = !$row['Non_unique'];
 				$index['type'] = $row['Index_type'];
 				$index['columns'] = array();
 
-				$indexes[$row['Key_name']] = $index;
+				$indices[$row['Key_name']] = $index;
 			}
-			$indexes[$name]['columns'][$row['Column_name']] =
+			$indices[$name]['columns'][$row['Column_name']] =
 				$row['Sub_part'];
 		}
 		
-		return $indexes;
+		return $indices;
     }
 
 
@@ -149,16 +155,3 @@ SQL;
 	}
 }
 
-
-/*
-$db = Mysqli::getInstance('clicklog');
-$table = new MysqlTable($db, 'test');
-var_dump('exists', MysqlTable::exists($db, 'clicklog.test'));
-var_dump('indexes', $table->getIndices());
-//var_dump('columns', $table->getColumns());
-//var_dump('constraints', $table->getConstraints());
-var_dump('pk', $table->getPrimaryKey());
-var_dump('uniques', $table->getUniques());
-$table->recalculate();
-var_dump($table->getFullName(), $table->getName(), $table->getSchema());
-*/
