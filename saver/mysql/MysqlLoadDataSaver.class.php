@@ -56,6 +56,16 @@ class MysqlLoadDataSaver extends Saver {
 	 */
 	const OPT_DELAYED = 8;
 
+	/**
+	 * Имя используемого временного файла
+	 * 
+	 * @access public
+	 * @return string
+	 */
+	public function getFileName() {
+		return $this->_file->getPathName();
+	}
+
 	protected function _quote($column, $value) {
 		if (null === $value) {
 			return '\N';
@@ -73,6 +83,7 @@ class MysqlLoadDataSaver extends Saver {
 			return '\\\N';
 		}
 
+		//todo или всё же addcslashes ?
 		$value = str_replace(
 			["\\", "\0", "\t", "\n"],
 			["\\\\", "\\\0", "\\\t", "\\\n"],
@@ -91,7 +102,8 @@ class MysqlLoadDataSaver extends Saver {
 	 * @access public
 	 * @return void
 	 */
-	public function __construct(MysqlTable $table, array $columns =null) {
+	public function __construct(MysqlTable $table, 
+		array $columns = null) {
 		parent::__construct($table, $columns);
 
 		$this->_createTempFile();
@@ -123,6 +135,7 @@ class MysqlLoadDataSaver extends Saver {
 			implode(",\n\t", array_keys($this->_columns)) . "\n)";
 
 		$this->_sql = $sql;
+		unset($sql);
 	}
 
 
@@ -131,6 +144,7 @@ class MysqlLoadDataSaver extends Saver {
     }
 
 	public function _save() {
+		//todo	или выполнять всё же?
 		/*
 		$this->_db->query('SET SESSION net_write_timeout := 1200');
 		$this->_db->query(

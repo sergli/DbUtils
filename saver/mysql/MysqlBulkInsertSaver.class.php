@@ -58,7 +58,7 @@ class MysqlBulkInsertSaver extends Saver {
 	 * @return void
 	 */
 	public function __construct(MysqlTable $table, 
-		array $columns =null) {
+		array $columns = null) {
 		parent::__construct($table, $columns);
 	}
 
@@ -81,6 +81,7 @@ class MysqlBulkInsertSaver extends Saver {
 			implode(",\n\t", array_keys($this->_columns)) . "\n)";
 
 		$this->_sql = $sql;
+		unset($sql);
 	}
 
 	protected function _add(array $record) {
@@ -91,6 +92,7 @@ class MysqlBulkInsertSaver extends Saver {
 			$values .= $br . $field;
 			$br = ', ';
 		}
+		unset($record);
 
 		$values = "($values)";
 

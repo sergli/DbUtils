@@ -8,11 +8,11 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/MysqlBulkInsertSaver.class.php';
 require_once __DIR__ . '/MysqlLoadDataSaver.class.php';
 
-$db = Mysql::getInstance(1, $opts = [
-	'user'		=> 'root',
-	'password'	=> 'Chipikavoc5',
-	'dbname'	=>	'test',
-]);
+$opts = include __DIR__ . '/../../config.php';
+$opts = $opts['mysql'];
+$opts['dbname'] = 'test';
+
+$db = Mysql::getInstance(1, $opts);
 
 $tableName = 'documents';
 $table = Mysql::getInstance(2, $opts)->getTable($tableName);
@@ -21,7 +21,11 @@ var_dump($table->getFullName(),
 	$table->getColumns(), $table->getConstraints());
 
 //$saver = new MysqlBulkInsertSaver($table);
-$saver = new MysqlLoadDataSaver($table);
+//$saver = new MysqlLoadDataSaver($table);
+$filename = '';
+$saver = new MysqlBulkInsertSaver($table);
+
+//var_dump('filename', $filename = $saver->getFileName());
 
 var_dump($saver->getSize(), $saver->getBatchSize());
 
@@ -75,5 +79,4 @@ var_dump(count($saver));
 $saver->save();
 var_dump('COUNT', count($saver));
 
-
-
+var_dump('filename', stat($filename));
