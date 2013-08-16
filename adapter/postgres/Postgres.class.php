@@ -47,12 +47,12 @@ final class Postgres implements iAdapter {
 			$dsn .= " password={$o['password']}";
 		}
 	
-		//	fixme		
+		//	fixme надо что-то с этим делать. Восстанавливать кто будет ?
 		set_error_handler(function($errno, $errstr, $errfile, $errline) {
 			throw new \ErrorException($errstr, $errno, 0, 
 				$errfile, $errline);
 		});
-		$this->_db = pg_connect($dsn);
+		$this->_db = pg_connect($dsn, PGSQL_CONNECT_FORCE_NEW);
 
 		pg_query($this->_db, 'SET client_encoding TO UTF8');
 
@@ -65,5 +65,17 @@ final class Postgres implements iAdapter {
 		catch (\ErrorException $e) {
 			throw $e;
 		}
+	}
+
+	/**
+	 * quote 
+	 * 
+	 * @param string $text 
+	 * @access public
+	 * @return string
+	 * @fixme pg_escape_literal ? bytea ?
+	 */
+	public function quote($text) {
+		return "'" . pg_escape_string($this->_db, $text) . "'";
 	}
 }
