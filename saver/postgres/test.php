@@ -4,6 +4,7 @@ namespace db_utils\saver\postgres;
 use db_utils\adapter\postgres\Postgres;
 
 error_reporting(E_ALL);
+ini_set('memory_limit', '256M');
 
 require_once __DIR__ . '/PostgresBulkInsertSaver.class.php';
 
@@ -53,6 +54,8 @@ for ($i = 1; $i <= 10000; $i++) {
 }
 var_dump('count of saver: ' . count($saver));
 
+$db->query('truncate table ' . $tableName);
+
 /*
 try {
 	$saver['lalaa'] = 'test';
@@ -64,9 +67,7 @@ catch (\Exception $e) {
 */
 $saver->setBatchSize(1);
 $saver[] = array_combine($keys, [1,2,3,4]);
-var_dump($saver);
-var_dump(count($saver));
-exit('test');
+
 $saver[] = array_combine($keys, [1,2,3,4]);
 $saver[] = array_combine($keys, [1,2,3,4]);
 $saver[] = array_combine($keys, [1,2,3,4]);

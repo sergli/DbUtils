@@ -6,7 +6,7 @@ use db_utils\table\Table;
 use db_utils\adapter\Adapter;
 
 /**
- * @todo autoloader 
+ * @todo autoloader
  * @todo возможно стоит разрешить добавлять записи без указания колонок (
  *	включать каким-нибудь флагом такое поведение)
  */
@@ -15,16 +15,15 @@ require_once __DIR__ . '/iSaver.class.php';
 
 /**
  * Абстрактный класс для сохранения данных в БД
- * 
+ *
  * @uses iSaver
- * @author Sergey Lisenkov <sergli@nigma.ru> 
+ * @author Sergey Lisenkov <sergli@nigma.ru>
  */
-abstract class Saver implements iSaver, 
-								\ArrayAccess,
-								\Countable {
+abstract class Saver implements iSaver,
+							\ArrayAccess {
 	/**
 	 * Дополнительные опции сейвера. Битовая маска
-	 * 
+	 *
 	 * @var int
 	 * @access protected
 	 */
@@ -32,14 +31,14 @@ abstract class Saver implements iSaver,
 
 	/**
 	 * Адаптер для работы с БД
-	 * 
+	 *
 	 * @var Adapter
 	 * @access protected
 	 */
 	protected $_db = null;
 	/**
 	 * Таблица
-	 * 
+	 *
 	 * @var Table
 	 * @access protected
 	 */
@@ -47,7 +46,7 @@ abstract class Saver implements iSaver,
 
 	/**
 	 * Колонки, в которые сохраняем данные
-	 * 
+	 *
 	 * @var string[]
 	 * @access protected
 	 */
@@ -55,7 +54,7 @@ abstract class Saver implements iSaver,
 
 	/**
 	 * Текущее кол-во записей в буфере
-	 * 
+	 *
 	 * @var int
 	 * @access protected
 	 */
@@ -63,15 +62,15 @@ abstract class Saver implements iSaver,
 
 	/**
 	 * Размер порции для вставки (0 - неограниченный)
-	 * 
+	 *
 	 * @var int
 	 * @access protected
 	 */
 	protected $_batchSize = 5000;
 
 	/**
-	 * sql-запрос для вставки данных (или его статическая часть) 
-	 * 
+	 * sql-запрос для вставки данных (или его статическая часть)
+	 *
 	 * @var string
 	 * @access protected
 	 */
@@ -87,12 +86,15 @@ abstract class Saver implements iSaver,
 	const E_INCORRECT_BATCH_SIZE = 15;
 	const E_NONE_KEY = 16;
 
-	const MIN_BATCH_SIZE = 0;	//	0 - отмена автомат. сохранения
+	/**
+	 * @type int	0 - отмена автомат. сохранения
+	 */
+	const MIN_BATCH_SIZE = 0;
 	const MAX_BATCH_SIZE = 50000;
 
 	/**
 	 * Экранирует спец.символы
-	 * 
+	 *
 	 * @param string $column столбец
 	 * @param mixed $value значение столбца
 	 * @abstract
@@ -103,7 +105,7 @@ abstract class Saver implements iSaver,
 	/**
 	 * Добавляет новую запись в буфер
 	 *
-	 * @param array $record 
+	 * @param array $record уже нужным образом заквоченная запись
 	 * @abstract
 	 * @access protected
 	 * @return void
@@ -112,7 +114,7 @@ abstract class Saver implements iSaver,
 	abstract protected function _add(array $record);
 	/**
 	 * Создаёт необходимый sql-запрос (возможно, часть sql)
-	 * 
+	 *
 	 * @abstract
 	 * @access protected
 	 * @return void
@@ -122,7 +124,7 @@ abstract class Saver implements iSaver,
 
 	/**
 	 * Сохраняет буфер
-	 * 
+	 *
 	 * @abstract
 	 * @access protected
 	 * @return int кол-во добавленных записей
@@ -131,13 +133,13 @@ abstract class Saver implements iSaver,
 
 	/**
 	 * Сохраняет буфер, обнуляет его
-	 * 
+	 *
 	 * @access public
 	 * @return int
 	 * @throws \Exception
 	 */
 	public function save() {
-		
+
 		if (0 === $this->_count) {
 			return 0;
 		}
@@ -148,6 +150,7 @@ abstract class Saver implements iSaver,
 			return $cnt;
 		}
 		catch (\Exception $e) {
+			//todo бросать другой тип исключения
 			throw new \Exception(
 				"Ошибка при вставке данных:\n{$e->getMessage()}"
 			);
@@ -158,7 +161,7 @@ abstract class Saver implements iSaver,
 	/**
 	 * Устанавливает дополнительные опции
 	 * ЕСЛИ был установлен $_sql, пересчитывает его
-	 * 
+	 *
 	 * @param int $option битовая маска констант
 	 */
 	public function setOptions($options) {
@@ -175,7 +178,7 @@ abstract class Saver implements iSaver,
 
 	/**
 	 * При уничтожении объекта сохраняем остатки в буфере
-	 * 
+	 *
 	 * @access public
 	 * @return void
 	 */
@@ -186,7 +189,7 @@ abstract class Saver implements iSaver,
 	/**
 	 * Подготавливает запись
 	 *
-	 * @param array $row 
+	 * @param array $row
 	 * @access private
 	 * @return array
 	 * @see _quote()
@@ -198,7 +201,7 @@ abstract class Saver implements iSaver,
 		foreach ($this->_columns as $field => $dataType) {
 			if (!array_key_exists($field, $row)) {
 				throw new \Exception(
-					"Необходимо поле $field у записи " . 
+					"Необходимо поле $field у записи " .
 						substr(print_r($row, 1), 5),
 					self::E_COLUMN_NOT_EXISTS
 				);
@@ -212,7 +215,7 @@ abstract class Saver implements iSaver,
 	/**
 	 * Добавляет запись в буфер
 	 *
-	 * @param array $row 
+	 * @param array $row
 	 * @access public
 	 * @return void
 	 * @see _add()
@@ -225,7 +228,7 @@ abstract class Saver implements iSaver,
 			$this->_setColumns(array_keys($row));
 			$this->_generateSql();
 		}
-		
+
 		if (count($row) !== count($this->_columns)) {
 			throw new \Exception(
 				"Неверное кол-во полей у записи\n" . print_r($row, true),
@@ -237,19 +240,19 @@ abstract class Saver implements iSaver,
 		unset($row);
 
 		$this->_add($record);
-		
+
 		$this->_count++;
 
-		if (0 !== $this->_batchSize 
-			&& $this->_count >= $this->_batchSize) {
+		if (0 !== $this->_batchSize
+			&& $this->_count > $this->_batchSize) {
 			$this->save();
 		}
 
 	}
-	
+
 	/**
 	 * Устанавливает, в какие поля будут сохраняться данные
-	 * 
+	 *
 	 * @param string[] $columns названия полей
 	 * @access protected
 	 * @return void
@@ -261,7 +264,7 @@ abstract class Saver implements iSaver,
 			throw new \Exception("Пустой массив полей",
 				self::E_NO_COLUMNS);
 		}
-		
+
 		$all = $this->_table->getColumns();
 		foreach ($columns as $column) {
 			if (is_string($column) && isset($all[$column])) {
@@ -289,10 +292,11 @@ abstract class Saver implements iSaver,
 	 */
 
 	public function __construct(Table $table,  array $columns = null) {
-		
+
 		$this->_table = $table;
 		$this->_count = 0;
 
+		//	fixme
 		//	вообщето плохая идея, тк, бывает, новый запрос не будет
 		//	работать, пока не закроется пред. курсор
 		// note нужно просто неск. соединений открывать
@@ -307,7 +311,7 @@ abstract class Saver implements iSaver,
 
 	/**
 	 * Возвращает текущий размер буфера
-	 * 
+	 *
 	 * @access public
 	 * @return int
 	 */
@@ -317,7 +321,7 @@ abstract class Saver implements iSaver,
 
 	/**
 	 * Возвращает размер порции
-	 * 
+	 *
 	 * @access public
 	 * @return int
 	 */
@@ -335,7 +339,7 @@ abstract class Saver implements iSaver,
 	 */
 	public function setBatchSize($size) {
 		$size = (int) $size;
-		if ($size >= self::MIN_BATCH_SIZE && 
+		if ($size >= self::MIN_BATCH_SIZE &&
 				$size <= self::MAX_BATCH_SIZE) {
 			return $this->_batchSize = $size;
 		}
@@ -383,6 +387,7 @@ abstract class Saver implements iSaver,
 	}
 
 	/////////////////////	Countable	/////////////////////////
+
 	public function count() {
 		return $this->_count;
 	}

@@ -15,7 +15,7 @@ class MysqlBulkInsertSaver extends Saver {
 	 * 
 	 * @var array
 	 */
-	protected $_values = array();
+	protected $_values = [];
 
 	/**
 	 * @type int добавляет к запросу слово IGNORE
@@ -46,7 +46,7 @@ class MysqlBulkInsertSaver extends Saver {
 		if (is_numeric($value)) {
 			return $value;
 		}
-		return "'{$this->_db->real_escape_string($value)}'";
+		return $this->_db->quote($value);
 	}
 
 	/**

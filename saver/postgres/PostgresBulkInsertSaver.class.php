@@ -9,10 +9,10 @@ require_once __DIR__ . '/../Saver.class.php';
 require_once __DIR__ . '/../../table/postgres/PostgresTable.class.php';
 
 /**
- * PostgresBulkInsertSaver 
- * 
+ * PostgresBulkInsertSaver
+ *
  * @uses Saver
- * @author Sergey Lisenkov <sergli@nigma.ru> 
+ * @author Sergey Lisenkov <sergli@nigma.ru>
  * @todo Занаследовать MysqlBulkInsertSaver ?
  */
 class PostgresBulkInsertSaver extends Saver {
@@ -34,18 +34,21 @@ class PostgresBulkInsertSaver extends Saver {
 		}
 
 		switch ($this->_columns[$column]) {
-		case 'integer':
-			return (int) $value;
-		case 'boolean':
-			return (boolean) $value;
-		default:
-			break;
+			case 'integer':
+				return (int) $value;
+			case 'boolean':
+				return (boolean) $value;
+			case 'bytea':
+				$text = bin2hex($text);
+				return "decode('$text', 'hex')";
+			default:
+				break;
 		}
 
 		return $this->_db->quote($value);
 	}
 
-	public function __construct(PostgresTable $table, 
+	public function __construct(PostgresTable $table,
 		array $columns = null) {
 		parent::__construct($table, $columns);
 	}
@@ -59,7 +62,7 @@ class PostgresBulkInsertSaver extends Saver {
 
 		$sql = 'INSERT';
 		$sql .= " INTO {$this->_table->getFullName()}";
-		$sql .= "\n(\n\t" . 
+		$sql .= "\n(\n\t" .
 			implode(",\n\t", array_keys($this->_columns)) . "\n)";
 
 		$this->_sql = $sql;
@@ -67,7 +70,7 @@ class PostgresBulkInsertSaver extends Saver {
 	}
 
 	protected function _add(array $record) {
-	
+
 		$values = '';
 		$br = '';
 		foreach ($record as $field) {
@@ -83,7 +86,7 @@ class PostgresBulkInsertSaver extends Saver {
 
 	protected function _save() {
 
-		$sql = $this->_sql . 
+		$sql = $this->_sql .
 			"\nVALUES \n\t" . implode(",\n\t", $this->_values) . ";";
 
 		$r = $this->_db->query($sql);
