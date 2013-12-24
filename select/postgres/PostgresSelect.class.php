@@ -7,19 +7,21 @@ use db_utils\select\iSelect;
 require_once __DIR__ . '/../iSelect.class.php';
 require_once __DIR__ . '/PostgresResultIterator.class.php';
 
-class PostgresSelect extends iSelect {
+class PostgresSelect implements iSelect {
 
+	/**
+	 * @var resource of type pgsql result
+	 */
 	private $_result;
 
 	/**
 	 * Конструктор
-	 * 
-	 * @param resource $result 
+	 *
+	 * @param resource $result pgsql result
 	 * @access public
-	 * @return void
 	 */
 	public function __construct($result) {
-		if (is_resource($result) && 
+		if (is_resource($result) &&
 			get_resource_type($result) == 'pgsql result') {
 			$this->_result = $result;
 		}
@@ -37,10 +39,16 @@ class PostgresSelect extends iSelect {
 		return pg_free_result($this->_result);
 	}
 
+
 	public function getIterator() {
-		return new PostgresResultIterator($this->_result);
+		return new PostgresResultIterator($this);
 	}
 
+	/**
+	 * Возвращает внутреннее представление: pgsql select
+	 *
+	 * @return resource
+	 */
 	public function getResult() {
 		return $this->_result;
 	}
