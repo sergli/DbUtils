@@ -15,12 +15,12 @@ require_once __DIR__ . '/../../select/postgres/PostgresSelect.class.php';
 
 final class Postgres implements iAdapter {
 
-	protected static $_tableClass = 'db_utils\table\postgres\PgTable';
+	protected static $_tableClass = 'db_utils\table\postgres\PostgresTable';
 
 	private static $_options = [
 		'host'		=>	'127.0.0.1',
 		'user'		=>	'sergli',
-		'password'	=>	'',
+		'password'	=>	'12345',
 		'dbname'	=>	'sergli',
 	];
 
@@ -46,10 +46,10 @@ final class Postgres implements iAdapter {
 		if (isset($o['password'])) {
 			$dsn .= " password={$o['password']}";
 		}
-	
+
 		//	fixme надо что-то с этим делать. Восстанавливать кто будет ?
 		set_error_handler(function($errno, $errstr, $errfile, $errline) {
-			throw new \ErrorException($errstr, $errno, 0, 
+			throw new \ErrorException($errstr, $errno, 0,
 				$errfile, $errline);
 		});
 		$this->_db = pg_connect($dsn, PGSQL_CONNECT_FORCE_NEW);
@@ -57,10 +57,11 @@ final class Postgres implements iAdapter {
 		pg_query($this->_db, 'SET client_encoding TO UTF8');
 
 	}
-
+//FIXME переделать.
 	public function query($sql) {
 		try {
-			return new PostgresSelect(pg_query($sql));
+			$r = pg_query($this->_db, $sql);
+			return new PostgresSelect($r, $sql);
 		}
 		catch (\ErrorException $e) {
 			throw $e;
@@ -68,9 +69,9 @@ final class Postgres implements iAdapter {
 	}
 
 	/**
-	 * quote 
-	 * 
-	 * @param string $text 
+	 * quote
+	 *
+	 * @param string $text
 	 * @access public
 	 * @return string
 	 * @fixme pg_escape_literal ? bytea ?

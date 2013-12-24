@@ -18,7 +18,7 @@ require_once __DIR__ . '/../../table/mysql/MysqlTable.class.php';
 
 
 
-final class Mysql extends \mysqli implements iAdapter {
+final class Mysql Extends \mysqli implements iAdapter {
 
 	protected static $_tableClass = 'db_utils\table\mysql\MysqlTable';
 
@@ -32,15 +32,21 @@ final class Mysql extends \mysqli implements iAdapter {
 	use Adapter;
 	use DBSingleton;
 
+	/**
+	 * Обычный mysqli_prepare, только можно связывать массив
+	 *
+	 * @param sql $sql текст sql-запроса
+	 * @return MysqlStatement
+	 */
 	public function prepare($sql) {
 		return new MysqlStatement($this, $sql);
 	}
 
 	/**
-	 * query 
-	 * 
-	 * @param string $sql 
-	 * @param int $resultMode 
+	 * query
+	 *
+	 * @param string $sql
+	 * @param int $resultMode
 	 * @access public
 	 * @return MysqlSelect | true
 	 * @throws \Exception
@@ -55,14 +61,14 @@ final class Mysql extends \mysqli implements iAdapter {
 
 
 	protected function _init() {
-		
+
 		$o = static::$_options;
-		
+
 		$driver = new \mysqli_driver;
-		$driver->report_mode = 
+		$driver->report_mode =
 			MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT;
 
-		parent::__construct($o['host'], $o['user'], 
+		parent::__construct($o['host'], $o['user'],
 			$o['password'], $o['dbname']);
 
 		$this->set_charset('utf-8');
@@ -85,14 +91,15 @@ final class Mysql extends \mysqli implements iAdapter {
 	public function info() {
 		$info = $this->info;
 
+		//	по умолчанию неизвестно
 		$def = [
-			'Records' => 0,
-			'Duplicates' => 0,
-			'Warnings' => 0,
-			'Skipped' => 0,
-			'Deleted' => 0,
-			'Rows matched' => 0,
-			'Changed' => 0
+			'Records'		=> null,
+			'Duplicates'	=> null,
+			'Warnings'		=> null,
+			'Skipped'		=> null,
+			'Deleted'		=> null,
+			'Rows matched'	=> null,
+			'Changed'		=> null,
 		];
 
 		if (empty($info)) {
@@ -101,8 +108,11 @@ final class Mysql extends \mysqli implements iAdapter {
 		$pattern = '/(' . implode('|', array_keys($def)) .'): (\d+)/';
 		preg_match_all($pattern, $info, $matches);
 		$info = array_combine($matches[1], $matches[2]);
-		
+
 		return array_merge($def, $info);
 	}
 
+	public function quote($text) {
+		return "'{$this->real_escape_string($text)}'";
+	}
 }

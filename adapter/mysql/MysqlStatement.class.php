@@ -13,7 +13,7 @@ class MysqlStatement extends \mysqli_stmt {
 
 
 	/**
-	 * Привязывает массив к подготов. выражению
+	 * Связывает массив с подготовл. выражением
 	 * 
 	 * @param array $row 
 	 * @access public

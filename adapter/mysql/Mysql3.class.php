@@ -6,6 +6,7 @@ use db_utils\table\mysql;
 require_once __DIR__ . '/MysqlException.class.php';
 require_once __DIR__ . '../../table/mysql/MysqlTable.class.php';
 
+//	всякие разные доп.функции, мб пригодятся ?
 
 /**
  * Синглтон, расширяет функц-ть mysqli 
