@@ -8,9 +8,9 @@ require_once __DIR__ . '/iAdapter.class.php';
 trait Adapter {
 
 	/**
-	 * query 
-	 * 
-	 * @param string $sql 
+	 * Выполняет sql-запрос
+	 *
+	 * @param string $sql текст sql-запроса
 	 * @abstract
 	 * @access public
 	 * @return db_utils\select\iSelect
@@ -23,9 +23,9 @@ trait Adapter {
 
 
 	/**
-	 * getTable 
-	 * 
-	 * @param string $tableName 
+	 * getTable
+	 *
+	 * @param string $tableName
 	 * @access public
 	 * @return db_utils\table\Table
 	 * @throws \Exception
@@ -41,9 +41,9 @@ trait Adapter {
 	}
 
 	/**
-	 * fetchRow 
-	 * 
-	 * @param string $sql 
+	 * fetchRow
+	 *
+	 * @param string $sql
 	 * @access public
 	 * @return array
 	 */
@@ -60,19 +60,19 @@ trait Adapter {
 	}
 
 	/**
-	 * fetchOne 
-	 * 
-	 * @param string $sql 
+	 * fetchOne
+	 *
+	 * @param string $sql
 	 * @access public
 	 * @return string|null
 	 */
 	public function fetchOne($sql) {
-		
+
 		$row = $this->fetchRow($sql);
 		if (empty($row)) {
 			return null;
 		}
-		
+
 		return current($row);
 	}
 
@@ -99,16 +99,16 @@ trait Adapter {
 	}
 
 	/**
-	 * fetchColumn 
-	 * 
-	 * @param string $sql 
-	 * @param int $colNum 
+	 * fetchColumn
+	 *
+	 * @param string $sql
+	 * @param int $colNum
 	 * @access public
 	 * @return array
 	 * @throws \Exception
 	 */
 	public function fetchColumn($sql, $colNum = 1) {
-		
+
 		if ($colNum < 1) {
 			throw new \Exception('Неверный номер колонки');
 		}

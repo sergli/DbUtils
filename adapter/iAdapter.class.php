@@ -7,15 +7,15 @@ use db_utils\select\iSelect;
 
 /**
  * Интерфейс адаптера рел. базы данных
- * 
- * @author Sergey Lisenkov <sergli@nigma.ru> 
+ *
+ * @author Sergey Lisenkov <sergli@nigma.ru>
  */
 interface iAdapter {
 
 	/**
 	 * Выполняет sql-запрос
-	 * 
-	 * @param string $sql 
+	 *
+	 * @param string $sql
 	 * @access public
 	 * @return iSelect итератор
 	 * @throws \Exception
@@ -24,8 +24,8 @@ interface iAdapter {
 
 	/**
 	 * Извлекает первую ячейку из набора записей
-	 * 
-	 * @param string $sql 
+	 *
+	 * @param string $sql
 	 * @access public
 	 * @return mixed
 	 * @throws \Exception
@@ -34,8 +34,8 @@ interface iAdapter {
 
 	/**
 	 * Возвращает первую запись из набора
-	 * 
-	 * @param string $sql 
+	 *
+	 * @param string $sql
 	 * @access public
 	 * @return array
 	 * @throws \Exception
@@ -43,9 +43,9 @@ interface iAdapter {
 	public function fetchRow($sql);
 
 	/**
-	 * Возвращает весь результ. набор данных 
-	 * 
-	 * @param string $sql 
+	 * Возвращает весь результ. набор данных
+	 *
+	 * @param string $sql
 	 * @access public
 	 * @return array[]
 	 * @throws \Exception
@@ -54,8 +54,8 @@ interface iAdapter {
 
 	/**
 	 * Возвращает набор пар типа ячейка1=>ячейка2
-	 * 
-	 * @param string $sql 
+	 *
+	 * @param string $sql
 	 * @access public
 	 * @return array
 	 * @throws \Exception
@@ -65,8 +65,8 @@ interface iAdapter {
 
 	/**
 	 * Возвращает набор значений заданной колонки
-	 * 
-	 * @param string $sql 
+	 *
+	 * @param string $sql
 	 * @param int $colNum номер колонки (от 1)
 	 * @access public
 	 * @return array
@@ -77,7 +77,7 @@ interface iAdapter {
 	/**
 	 * Возвращает объект класса Таблица
 	 * Если таблица не существует, бросает исключение
-	 * 
+	 *
 	 * @param string $tableName имя таблицы
 	 * @access public
 	 * @return iTable
@@ -87,11 +87,20 @@ interface iAdapter {
 
 	/**
 	 * Проверяет, существует ли таблица
-	 * 
+	 *
 	 * @param string $tableName имя таблицы
 	 * @access public
 	 * @return boolean
 	 * @throws \Exception
 	 */
 	public function tableExists($tableName);
+
+	/**
+	 * Экранирует строку для использования в sql
+	 *
+	 * @param string $text
+	 * @access public
+	 * @return string
+	 */
+	public function quote($text);
 }
