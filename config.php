@@ -10,7 +10,7 @@ $config = [
 	'postgres'	=>	[
 		'host'		=>	'127.0.0.1',
 		'user'		=>	'sergli',
-		'password'	=>	'Chipikavoc5',
+		'password'	=>	'12345',
 		'dbname'	=>	'sergli',
 	]
 ];
