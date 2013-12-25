@@ -4,15 +4,8 @@ namespace DbUtils\Adapter\Postgres;
 
 use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
-use DbUtils\DBSingletonTrait;
+use DbUtils\Adapter\DBSingletonTrait;
 use DbUtils\Select\Postgres\Select as PostgresSelect;
-
-require_once __DIR__ . '/../../Table/Postgres/Table.php';
-require_once __DIR__ . '/../AdapterInterface.php';
-require_once __DIR__ . '/../AdapterTrait.php';
-require_once __DIR__ . '/../../DBSingletonTrait.php';
-require_once __DIR__ . '/../../Select/Postgres/Select.php';
-
 
 final class Adapter implements AdapterInterface {
 

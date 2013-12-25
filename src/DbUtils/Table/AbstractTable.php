@@ -4,9 +4,6 @@ namespace DbUtils\Table;
 
 use DbUtils\Adapter\AdapterInterface;
 
-require_once __DIR__ . '/TableInterface.php';
-require_once __DIR__ . '/../Adapter/AdapterInterface.php';
-
 /**
  * Абстрактный класс, описывающий таблицу в реляц. базе данных
  *

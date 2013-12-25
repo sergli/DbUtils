@@ -11,8 +11,6 @@ use DbUtils\Table\TableInterface;
  *	включать каким-нибудь флагом такое поведение)
  */
 
-require_once __DIR__ . '/SaverInterface.php';
-
 /**
  * Абстрактный класс для сохранения данных в БД
  *

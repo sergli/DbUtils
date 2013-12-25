@@ -4,8 +4,6 @@ namespace DbUtils\Select\Mysql;
 
 use DbUtils\Select\SelectInterface;
 
-require_once __DIR__ . '/../SelectInterface.php';
-
 class Select implements SelectInterface {
 
 	/**

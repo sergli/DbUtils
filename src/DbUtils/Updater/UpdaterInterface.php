@@ -4,8 +4,6 @@ namespace DbUtils\Updater;
 
 use DbUtils\Saver\SaverInterface;
 
-require_once __DIR__ . '/../Saver/SaverInterface.php';
-
 /**
  * Интерфейс Updater'а
  * Повторяет Saver

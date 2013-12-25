@@ -5,9 +5,6 @@ namespace DbUtils\Table\Postgres;
 use DbUtils\Table\AbstractTable;
 use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
 
-require_once __DIR__ . '/../../Adapter/Postgres/Adapter.php';
-require_once __DIR__ . '/../AbstractTable.php';
-
 class Table extends AbstractTable {
 
 	public function __construct(PostgresAdapter $db, $tableName) {

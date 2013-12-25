@@ -4,9 +4,6 @@ namespace DbUtils\Select\Postgres;
 
 use DbUtils\Select\SelectInterface;
 
-require_once __DIR__ . '/../SelectInterface.php';
-require_once __DIR__ . '/ResultIterator.php';
-
 class Select implements SelectInterface {
 
 	/**

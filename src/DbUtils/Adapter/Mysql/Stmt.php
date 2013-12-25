@@ -2,8 +2,6 @@
 
 namespace DbUtils\Adapter\Mysql;
 
-require_once __DIR__ . '/Adapter.php';
-
 class Stmt extends \Mysqli_Stmt {
 
 

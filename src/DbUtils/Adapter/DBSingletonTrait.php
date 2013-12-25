@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils;
+namespace DbUtils\Adapter;
 
 trait DBSingletonTrait {
 

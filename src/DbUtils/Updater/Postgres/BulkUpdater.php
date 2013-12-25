@@ -6,10 +6,6 @@ use DbUtils\Updater\UpdaterInterface;
 use DbUtils\Updater\UpdaterTrait;
 use DbUtils\Saver\Postgres\BulkInsertSaver as PostgresBulkInsertSaver;
 
-require_once __DIR__ . '/../UpdaterInterface.php';
-require_once __DIR__ . '/../UpdaterTrait.php';
-require_once __DIR__ .  '/../../Saver/Postgres/BulkInsertSaver.php';
-
 class BulkUpdater extends PostgresBulkInsertSaver
 	implements UpdaterInterface {
 

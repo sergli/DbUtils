@@ -4,15 +4,8 @@ namespace DbUtils\Adapter\Mysql;
 
 use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
-use DbUtils\DBSingletonTrait;
+use DbUtils\Adapter\DBSingletonTrait;
 use DbUtils\Select\Mysql\Select as MysqlSelect;
-
-require_once __DIR__ . '/../../Table/Mysql/Table.php';
-require_once __DIR__ . '/../AdapterInterface.php';
-require_once __DIR__ . '/../AdapterTrait.php';
-require_once __DIR__ . '/Stmt.php';
-require_once __DIR__ . '/../../DBSingletonTrait.php';
-require_once __DIR__ . '/../../Select/Mysql/Select.php';
 
 final class Adapter extends \Mysqli implements AdapterInterface {
 

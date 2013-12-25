@@ -5,10 +5,6 @@ namespace DbUtils\Table\Mysql;
 use DbUtils\Table\AbstractTable;
 use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
 
-require_once __DIR__ . '/../../Adapter/Mysql/Adapter.php';
-require_once __DIR__ . '/../AbstractTable.php';
-
-
 class Table extends AbstractTable {
 
 	public function __construct(MysqlAdapter $db, $tableName) {

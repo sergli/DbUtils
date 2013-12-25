@@ -5,9 +5,6 @@ namespace DbUtils\Saver\Mysql;
 use DbUtils\Saver\AbstractSaver;
 use DbUtils\Table\Mysql\Table as MysqlTable;
 
-require_once __DIR__ . '/../AbstractSaver.php';
-require_once __DIR__ . '/../../Table/Mysql/Table.php';
-
 class BulkInsertSaver extends AbstractSaver {
 
 	/**

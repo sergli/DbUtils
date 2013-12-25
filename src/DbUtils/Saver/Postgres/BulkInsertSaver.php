@@ -5,9 +5,6 @@ namespace DbUtils\Saver\Postgres;
 use DbUtils\Saver\AbstractSaver;
 use DbUtils\Table\Postgres\Table as PostgresTable;;
 
-require_once __DIR__ . '/../AbstractSaver.php';
-require_once __DIR__ . '/../../Table/Postgres/Table.php';
-
 /**
  * BulkInsertSaver
  *
