@@ -2,9 +2,9 @@
 
 use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
 
-require_once __DIR__ . '/Adapter.php';
+require_once '../vendor/autoload.php';
 
-$opts = include __DIR__ . '/../../config.php';
+$opts = include '../config.php';
 $opts = $opts['postgres'];
 
 PostgresAdapter::setOptions($opts);

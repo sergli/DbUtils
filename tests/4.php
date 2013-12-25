@@ -1,16 +1,11 @@
 <?php
 
-namespace DbUtils\Updater\Mysql;
-
 use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
 use DbUtils\Updater\Mysql\BulkUpdater as MysqlBulkUpdater;
 
-error_reporting(E_ALL);
+require_once '../vendor/autoload.php';
 
-require_once __DIR__ . '/../../Adapter/Mysql/Adapter.php';
-require_once __DIR__ . '/BulkUpdater.php';
-
-$opts = include __DIR__ . '/../../config.php';
+$opts = include '../config.php';
 $opts = $opts['mysql'];
 $opts['dbname'] = 'test';
 

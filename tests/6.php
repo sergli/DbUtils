@@ -1,32 +1,25 @@
 <?php
 
-namespace DbUtils\Saver\Mysql;
+use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
+use DbUtils\Saver\Postgres\BulkInsertSaver as PostgresBulkInsertSaver;
 
-use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
+ini_set('memory_limit', '256M');
 
-error_reporting(E_ALL);
+require_once '../vendor/autoload.php';
 
-require_once __DIR__ . '/BulkInsertSaver.php';
-require_once __DIR__ . '/LoadDataSaver.php';
+$opts = include '../config.php';
+$opts = $opts['postgres'];
+$opts['dbname'] = 'sergli';
 
-$opts = include __DIR__ . '/../../config.php';
-$opts = $opts['mysql'];
-$opts['dbname'] = 'test';
-
-$db = MysqlAdapter::getInstance(1, $opts);
+$db = PostgresAdapter::getInstance(1, $opts);
 
 $tableName = 'documents';
-$table = MysqlAdapter::getInstance(2, $opts)->getTable($tableName);
+//	это уже другое соединение! (должно быть)
+$table = PostgresAdapter::getInstance(2, $opts)->getTable($tableName);
 
 var_dump($table->getFullName(),
 	$table->getColumns(), $table->getConstraints());
-
-//$saver = new MysqlBulkInsertSaver($table);
-//$saver = new MysqlLoadDataSaver($table);
-$filename = '';
-$saver = new BulkInsertSaver($table);
-
-//var_dump('filename', $filename = $saver->getFileName());
+$saver = new PostgresBulkInsertSaver($table);
 
 var_dump($saver->getSize(), $saver->getBatchSize());
 
@@ -35,7 +28,7 @@ $saver->setBatchSize(5000);
 $saver::$_debug = true;
 var_dump($saver->getBatchSize());
 
-var_dump($table->getConnection()->fetchColumn('show tables', 1));
+var_dump($table->getConnection()->fetchColumn('show search_path'));
 
 $db = $table->getConnection();
 
@@ -60,6 +53,8 @@ for ($i = 1; $i <= 10000; $i++) {
 }
 var_dump('count of saver: ' . count($saver));
 
+$db->query('truncate table ' . $tableName);
+
 /*
 try {
 	$saver['lalaa'] = 'test';
@@ -69,15 +64,15 @@ catch (\Exception $e) {
 	var_dump($e->getMessage());
 }
 */
+$saver->setBatchSize(1);
 $saver[] = array_combine($keys, [1,2,3,4]);
+
 $saver[] = array_combine($keys, [1,2,3,4]);
 $saver[] = array_combine($keys, [1,2,3,4]);
 $saver[] = array_combine($keys, [1,2,3,4]);
 
 var_dump('lalalalalalalalala');
 //$saver->setOptions($saver::OPT_DELAYED*0);
-var_dump(count($saver));
 $saver->save();
 var_dump('COUNT', count($saver));
 
-var_dump('filename', stat($filename));

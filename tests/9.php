@@ -1,13 +1,11 @@
 <?php
 
-namespace DbUtils\Table\Mysql;
-
 use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
 use DbUtils\Table\Mysql\Table as MysqlTable;
 
-require_once __DIR__ . '/Table.php';
+require_once '../vendor/autoload.php';
 
-$opts = include __DIR__ . '/../../config.php';
+$opts = include '../config.php';
 $opts = $opts['mysql'];
 
 $opts['dbname'] = 'test';

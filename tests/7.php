@@ -1,16 +1,11 @@
 <?php
 
-namespace DbUtils\Adapter\Mysql;
-
 use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
 
-require_once __DIR__ . '/Adapter.php';
+require_once '../vendor/autoload.php';
 
-$opts = [
-	'user'		=>	'root',
-	'password'	=>	'Chipikavoc5',
-	'dbname'	=>	'clicklog',
-];
+$opts = include '../config.php';
+$opts = $opts['mysql'];
 $db = MysqlAdapter::getInstance(1, $opts);
 
 

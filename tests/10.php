@@ -1,12 +1,11 @@
 <?php
 
-namespace DbUtils\Table\Postgres;
 use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
 use DbUtils\Table\Postgres\Table as PostgresTable;
 
-require_once __DIR__ . '/Table.php';
+include '../vendor/autoload.php';
 
-$opts = include __DIR__ . '/../../config.php';
+$opts = include __DIR__ . '/../config.php';
 $opts = $opts['postgres'];
 $opts['dbname'] = 'wiki';
 
