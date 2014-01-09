@@ -5,6 +5,10 @@ namespace DbUtils\Saver;
 use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Table\TableInterface;
 
+use Monolog\Logger;
+use Monolog\Handler\NullHandler;
+use Monolog\Handler\StreamHandler;
+
 
 /**
  * @todo возможно стоит разрешить добавлять записи без указания колонок (
@@ -74,7 +78,10 @@ abstract class AbstractSaver implements SaverInterface,
 	 */
 	protected $_sql = '';
 
-	public static $_debug = false;
+	/**
+	 * @var Monolog\Logger
+	 */
+	protected $_logger;
 
 	const E_NO_TABLE_NAME = 10;
 	const E_NO_STRUCTURE = 11;
@@ -139,15 +146,18 @@ abstract class AbstractSaver implements SaverInterface,
 	public function save() {
 
 		if (0 === $this->_count) {
+			$this->_logger->addInfo('Saving... buffer is empty');
 			return 0;
 		}
 
 		try {
 			$cnt = $this->_save();
 			$this->reset();
+			$this->_logger->addInfo('Saving...', [ 'count' => $cnt ]);
 			return $cnt;
 		}
 		catch (\Exception $e) {
+			$this->_logger->addError('Saving... Exception!', [ 'exception' => $e ]);
 			//todo бросать другой тип исключения
 			throw new \Exception(
 				"Ошибка при вставке данных:\n{$e->getMessage()}"
@@ -175,12 +185,13 @@ abstract class AbstractSaver implements SaverInterface,
 	}
 
 	/**
-	 * При уничтожении объекта сохраняем остатки в буфере
+	 * При уничтожении объекта сохраняем оставшееся
 	 *
 	 * @access public
 	 * @return void
 	 */
 	public function __destruct() {
+		$this->_logger->addInfo('Destruct.)');
 		$this->save();
 	}
 
@@ -241,6 +252,8 @@ abstract class AbstractSaver implements SaverInterface,
 
 		$this->_count++;
 
+		$this->_logger->addDebug('Add record', [ 'count' => $this->_count ]);
+
 		if (0 !== $this->_batchSize
 			&& $this->_count > $this->_batchSize) {
 			$this->save();
@@ -294,6 +307,8 @@ abstract class AbstractSaver implements SaverInterface,
 		$this->_table = $table;
 		$this->_count = 0;
 
+		$this->setLogger();
+
 		//	fixme
 		//	вообщето плохая идея, тк, бывает, новый запрос не будет
 		//	работать, пока не закроется пред. курсор
@@ -305,6 +320,33 @@ abstract class AbstractSaver implements SaverInterface,
 			$this->_generateSql();
 			$all = $this->_table->getColumns();
 		}
+	}
+
+	/**
+	 * Устанавливает логгер
+	 *
+	 * @param Logger $logger
+	 * @return void
+	 */
+	public function setLogger(Logger $logger = null) {
+		if (is_null($logger)) {
+			$channel = get_class($this);
+			$logger = new Logger($channel);
+			$logger->pushHandler(new NullHandler);
+		}
+
+		$this->_logger = $logger;
+
+		$this->_logger->addInfo('New logger', [ 'class' => get_class($logger) ]);
+	}
+
+	/**
+	 * Возврвщает установленный логгер
+	 *
+	 * @return Logger
+	 */
+	public function getLogger() {
+		return $this->_logger;
 	}
 
 	/**
@@ -345,12 +387,6 @@ abstract class AbstractSaver implements SaverInterface,
 			self::E_INCORRECT_BANCH_SIZE);
 	}
 
-	protected static function _log($text) {
-		if (!static::$_debug) {
-			return;
-		}
-		echo $text . "\n";
-	}
 
 	//////////////////////	ArrayAccess	//////////////////////////
 

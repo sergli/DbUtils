@@ -22,13 +22,17 @@ var_dump($table->getFullName(),
 $filename = '';
 $saver = new MysqlBulkInsertSaver($table);
 
+$logger = $saver->getLogger();
+$logger->pushHandler(new Monolog\Handler\StreamHandler('./app.log', Monolog\Logger::INFO));
+
+$saver->setLogger($logger);
+
 //var_dump('filename', $filename = $saver->getFileName());
 
 var_dump($saver->getSize(), $saver->getBatchSize());
 
 $saver->setBatchSize(5000);
 
-$saver::$_debug = true;
 var_dump($saver->getBatchSize());
 
 var_dump($table->getConnection()->fetchColumn('show tables', 1));
@@ -55,7 +59,7 @@ for ($i = 1; $i <= 10000; $i++) {
 	$saver[] = $rec;
 }
 var_dump('count of saver: ' . count($saver));
-
+exit;
 /*
 try {
 	$saver['lalaa'] = 'test';
