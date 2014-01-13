@@ -4,7 +4,6 @@ namespace DbUtils\Adapter\Postgres;
 
 use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
-use DbUtils\Adapter\DBSingletonTrait;
 use DbUtils\Select\Postgres\Select as PostgresSelect;
 
 final class Adapter implements AdapterInterface {
@@ -12,44 +11,50 @@ final class Adapter implements AdapterInterface {
 	protected static $_tableClass =
 		'DbUtils\Table\Postgres\Table';
 
-	private static $_options = [
-		'host'		=>	'127.0.0.1',
-		'user'		=>	'sergli',
-		'password'	=>	'12345',
-		'dbname'	=>	'sergli',
-	];
-
 	use AdapterTrait;
-	use DBSingletonTrait;
 
 	private $_db;
 
-	protected function _init() {
+	public function __construct(array $opt = []) {
+		$o = [];
 
-		$o = static::$_options;
+		$o['host'] = isset($opt['host'])
+			? $opt['host'] : 'localhost';
+		if (isset($opt['dbname'])) {
+			$o['dbname'] = $opt['dbname'];
+		}
+		if (isset($opt['port'])) {
+			$o['port'] = $opt['port'];
+		}
+		if (isset($opt['user'])) {
+			$o['user'] = $opt['user'];
+		}
+		if (isset($opt['password'])) {
+			$o['password'] = $opt['password'];
+		}
 
-		$dsn = "host={$o['host']}";
-		if (!empty($o['port'])) {
-			$dsn .= " port={$o['port']}";
+		$dsn = '';
+		foreach ($o as $key => $val) {
+			$dsn .= " $key=$val";
 		}
-		if (!empty($o['dbname'])) {
-			$dsn .= " dbname={$o['dbname']}";
-		}
-		if (!empty($o['user'])) {
-			$dsn .= " user={$o['user']}";
-		}
-		if (isset($o['password'])) {
-			$dsn .= " password={$o['password']}";
-		}
+		$dsn = ltrim($dsn);
 
-		//	fixme надо что-то с этим делать. Восстанавливать кто будет ?
-		set_error_handler(function($errno, $errstr, $errfile, $errline) {
+		//	FIXME надо что-то с этим делать.
+		//	Восстанавливать кто будет ?
+		//
+		set_error_handler(function($errno, $errstr,
+			$errfile, $errline) {
 			throw new \ErrorException($errstr, $errno, 0,
 				$errfile, $errline);
 		});
-		$this->_db = pg_connect($dsn, PGSQL_CONNECT_FORCE_NEW);
+		$this->_db = pg_connect($dsn,
+			PGSQL_CONNECT_FORCE_NEW);
 
-		pg_query($this->_db, 'SET client_encoding TO UTF8');
+		$o['charset'] = !empty($opt['charset'])
+			? $opt['charset'] : 'UTF8';
+
+		pg_query($this->_db,
+			"SET client_encoding TO {$o['charset']}");
 
 	}
 

@@ -4,22 +4,13 @@ namespace DbUtils\Adapter\Mysql;
 
 use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
-use DbUtils\Adapter\DBSingletonTrait;
 use DbUtils\Select\Mysql\Select as MysqlSelect;
 
 final class Adapter extends \Mysqli implements AdapterInterface {
 
 	protected static $_tableClass = 'DbUtils\Table\Mysql\Table';
 
-	private static $_options = [
-		'host'		=>	'localhost',
-		'user'		=>	'root',
-		'password'	=>	'',
-		'dbname'	=>	'',
-	];
-
 	use AdapterTrait;
-	use DBSingletonTrait;
 
 	/**
 	 * Обычный mysqli_prepare, только можно связывать массив
@@ -49,22 +40,37 @@ final class Adapter extends \Mysqli implements AdapterInterface {
 	}
 
 
-	protected function _init() {
-
-		$o = static::$_options;
-
+	public function __construct(array $opt = []) {
 		$driver = new \Mysqli_Driver;
 		$driver->report_mode =
 			MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT;
 
-		parent::__construct($o['host'], $o['user'],
-			$o['password'], $o['dbname']);
+		$o = [];
+		$o['host'] = isset($opt['host'])
+			? $opt['host'] : ini_get('mysqli.default_host');
+		$o['user'] = isset($opt['user'])
+			? $opt['user'] : ini_get('mysqli.default_user');
+		$o['password'] = isset($opt['password'])
+			? $opt['password']: ini_get('mysqli.default_pw');
+		$o['dbname'] = isset($opt['dbname'])
+			? $opt['dbname'] : '';
+		$o['port'] = isset($opt['port'])
+			? $opt['port'] : ini_get('mysqli.default_port');
+		$o['socket'] = isset($opt['socket'])
+			? $opt['socket'] : ini_get('mysqli.default_socket');
+		$o['charset'] = !empty($opt['charset'])
+			? $opt['charset'] : 'utf8';
 
-		$this->set_charset('utf-8');
-	}
+		parent::__construct(
+			$o['host'],
+			$o['user'],
+			$o['password'],
+			$o['dbname'],
+			$o['port'],
+			$o['socket']
+		);
 
-	private function __construct() {
-		$this->_init();
+		$this->set_charset($o['charset']);
 	}
 
 	public function fetchAll($sql) {
