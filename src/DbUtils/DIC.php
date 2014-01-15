@@ -2,13 +2,20 @@
 
 namespace DbUtils;
 
+use Pimple;
+
 use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
 use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
 use DbUtils\Table\Mysql\Table as MysqlTable;
 use DbUtils\Table\Postgres\Table as PostgresTable;
 
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Processor\MemoryPeakUsageProcessor;
+use Monolog\Processor\MemoryUsageProcessor;
 
-class DIC extends \Pimple {
+
+class DIC extends Pimple {
 
 	public function __construct() {
 
@@ -50,6 +57,16 @@ class DIC extends \Pimple {
 			return new PostgresTable(
 				$ci['postgres-new'], $ci['postgres.table_name']
 			);
+		};
+
+		$this['monolog'] = function($ci) {
+			$logger = new Logger('DbUtils');
+			$logger->pushHandler(
+				new StreamHandler('php://stderr',
+				\Monolog\Logger::INFO));
+			$logger->pushProcessor(new MemoryPeakUsageProcessor());
+
+			return $logger;
 		};
 	}
 }
