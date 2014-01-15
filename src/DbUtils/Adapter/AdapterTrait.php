@@ -23,7 +23,7 @@ trait AdapterTrait {
 
 
 	/**
-	 * getTable
+	 * Возвращает объект таблицы
 	 *
 	 * @param string $tableName
 	 * @access public
@@ -35,6 +35,12 @@ trait AdapterTrait {
 		return new $tableClass($this, $tableName);
 	}
 
+	/**
+	 * Проверяет, существует ли таблица
+	 *
+	 * @param string $tableName имя таблицы
+	 * @return boolean
+	 */
 	public function tableExists($tableName) {
 		$tableClass = static::getTableClass();
 		return $tableClass::exists($this, $tableName);

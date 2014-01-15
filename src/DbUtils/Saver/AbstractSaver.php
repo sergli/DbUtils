@@ -438,6 +438,6 @@ abstract class AbstractSaver implements SaverInterface,
 	/////////////////////	Countable	/////////////////////////
 
 	public function count() {
-		return $this->_count;
+		return $this->getSize();
 	}
 }

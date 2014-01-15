@@ -76,8 +76,8 @@ interface AdapterInterface {
 	public function fetchColumn($sql, $colNum = 1);
 
 	/**
-	 * Возвращает объект класса Таблица
-	 * Если таблица не существует, бросает исключение
+	 * Возвращает объект таблицы.
+	 * Если таблица не существует, бросает исключение.
 	 *
 	 * @param string $tableName имя таблицы
 	 * @access public
@@ -87,17 +87,7 @@ interface AdapterInterface {
 	public function getTable($tableName);
 
 	/**
-	 * Проверяет, существует ли таблица
-	 *
-	 * @param string $tableName имя таблицы
-	 * @access public
-	 * @return boolean
-	 * @throws \Exception
-	 */
-	public function tableExists($tableName);
-
-	/**
-	 * Экранирует строку для использования в sql
+	 * Экранирует параметр-строку для использования в sql
 	 *
 	 * @param string $text
 	 * @access public

@@ -71,12 +71,4 @@ interface SaverInterface extends \Countable {
 	 * @throws \Exception orlly?
 	 */
 	public function setBatchSize($size);
-
-	/**
-	 * Число записей в буфере
-	 *
-	 * @access public
-	 * @return int
-	 */
-	public function count();
 }
