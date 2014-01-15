@@ -139,11 +139,16 @@ abstract class AbstractTable implements TableInterface {
 		);
 	}
 
+	public function truncate() {
+		$sql = "TRUNCATE TABLE {$this->getFullName()}";
+		$this->_db->query($sql);
+	}
+
 	/**
-	 * getConnection
+	 * Возвращает используемое таблицей соединение с БД
 	 *
 	 * @access public
-	 * @return mixed
+	 * @return AdapterInterface
 	 */
 	public function getConnection() {
 		return $this->_db;
