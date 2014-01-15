@@ -68,7 +68,7 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @var int
 	 * @access protected
 	 */
-	protected $_batchSize = 5000;
+	protected $_batchSize = self::DEFAULT_BATCH_SIZE;
 
 	/**
 	 * sql-запрос для вставки данных (или его статическая часть)
@@ -88,7 +88,6 @@ abstract class AbstractSaver implements SaverInterface,
 	const E_INCORRECT_COLUMNS_COUNT = 12;
 	const E_COLUMN_NOT_EXISTS = 13;
 	const E_TABLE_NOT_EXISTS = 14;
-	const E_INCORRECT_BATCH_SIZE = 15;
 	const E_NONE_KEY = 16;
 
 	/**
@@ -96,6 +95,7 @@ abstract class AbstractSaver implements SaverInterface,
 	 */
 	const MIN_BATCH_SIZE = 0;
 	const MAX_BATCH_SIZE = 50000;
+	const DEFAULT_BATCH_SIZE = 5000;
 
 	/**
 	 * Экранирует спец.символы
@@ -135,6 +135,14 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @return int кол-во добавленных записей
 	 */
 	abstract protected function _save();
+
+	abstract protected function _reset();
+
+	public function reset() {
+		$this->_reset();
+		$this->_logger->addInfo(sprintf(
+			'Reset saver. New buffer size is %d', $this->_count));
+	}
 
 	/**
 	 * Сохраняет буфер, обнуляет его
@@ -191,7 +199,7 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @return void
 	 */
 	public function __destruct() {
-		$this->_logger->addInfo('Destruct.)');
+		$this->_logger->addInfo('Destruct.');
 		$this->save();
 	}
 
@@ -255,7 +263,7 @@ abstract class AbstractSaver implements SaverInterface,
 		$this->_logger->addDebug('Add record', [ 'count' => $this->_count ]);
 
 		if (0 !== $this->_batchSize
-			&& $this->_count > $this->_batchSize) {
+			&& $this->_count >= $this->_batchSize) {
 			$this->save();
 		}
 
@@ -296,23 +304,22 @@ abstract class AbstractSaver implements SaverInterface,
 	 *
 	 * @param TableInterface экземпляр таблицы
 	 * @param string[] $columns поля, в кот. будут сохраняться данные
-	 * 	если не указано - определятеся по первому запуску add()
-	 * return void
+	 * если не указано - определятеся по первому запуску add()
+	 *
+	 * @return void
 	 * @see getColumns()
 	 * @see getConnection()
 	 */
 
-	public function __construct(TableInterface $table,  array $columns = null) {
+	public function __construct(TableInterface $table,
+		array $columns = null) {
 
 		$this->_table = $table;
 		$this->_count = 0;
 
 		$this->setLogger();
+		$this->setBatchSize();
 
-		//	fixme
-		//	вообщето плохая идея, тк, бывает, новый запрос не будет
-		//	работать, пока не закроется пред. курсор
-		// note нужно просто неск. соединений открывать
 		$this->_db = $this->_table->getConnection();
 
 		if ($columns) {
@@ -377,14 +384,22 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @return int новый размер
 	 * @throws \Exception
 	 */
-	public function setBatchSize($size) {
+	public function setBatchSize($size = self::DEFAULT_BATCH_SIZE) {
 		$size = (int) $size;
 		if ($size >= self::MIN_BATCH_SIZE &&
-				$size <= self::MAX_BATCH_SIZE) {
-			return $this->_batchSize = $size;
+			$size <= self::MAX_BATCH_SIZE) {
+
+			$this->_batchSize = $size;
+
+			$this->_logger->addInfo(sprintf(
+				'New batch size is %d', $this->_batchSize));
+
+			return $this->_batchSize;
+
 		}
-		throw new \Exception("Неверное значение для параметра",
-			self::E_INCORRECT_BANCH_SIZE);
+		throw new \OutOfRangeException(
+			'Размер буфера должен быть в пределах от ' .
+			self::MIN_BATCH_SIZE . ' до ' . self::MAX_BATCH_SIZE);
 	}
 
 

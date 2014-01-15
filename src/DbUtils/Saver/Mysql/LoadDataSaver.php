@@ -107,7 +107,7 @@ class LoadDataSaver extends AbstractSaver {
 	}
 
 
-	public function reset() {
+	protected function _reset() {
 		$this->_file->ftruncate(0);
         $this->_count = 0;;
     }
@@ -162,8 +162,14 @@ class LoadDataSaver extends AbstractSaver {
 			return;
 		}
 
+		$this->_file->flock(LOCK_UN);
+
 		$fileName = $this->_file->getPathName();
 		$this->_file = null;
+
+		$this->_logger->addNotice(sprintf(
+			'Remove temp file: %s', $fileName));
+
         @unlink($fileName);
     }
 
@@ -180,6 +186,13 @@ class LoadDataSaver extends AbstractSaver {
 		$fileName = uniqid('PHP.' . $this->_table->getFullName() . '_');
 		$fileName = $dirName . '/' . $fileName . '.txt';
 
-		$this->_file = new \SplFileObject($fileName, 'w');
+		$this->_file = new \SplFileObject($fileName, 'a+b');
+		//	Не хотелось бы, чтоб другой php-процесс запорол файл
+		if ($this->_file->flock(LOCK_EX)) {
+			$this->_file->ftruncate(0);
+		}
+		else {
+			throw new \Exception("Не могу установить блокировку файлу {$fileName}");
+		}
 	}
 }

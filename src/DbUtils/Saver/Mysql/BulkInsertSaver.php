@@ -59,7 +59,7 @@ class BulkInsertSaver extends AbstractSaver {
 		parent::__construct($table, $columns);
 	}
 
-	public function reset() {
+	protected function _reset() {
 		$this->_values = array();
 		$this->_count = 0;
 	}
