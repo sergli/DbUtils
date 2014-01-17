@@ -3,11 +3,11 @@
 namespace DbUtils\Table\Postgres;
 
 use DbUtils\Table\AbstractTable;
-use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
+use DbUtils\Adapter\AdapterInterface;
 
 class Table extends AbstractTable {
 
-	public function __construct(PostgresAdapter $db, $tableName) {
+	public function __construct(AdapterInterface $db, $tableName) {
 		parent::__construct($db, $tableName);
 	}
 

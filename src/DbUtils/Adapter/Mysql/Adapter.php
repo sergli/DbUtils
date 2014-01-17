@@ -12,6 +12,10 @@ final class Adapter extends \Mysqli implements AdapterInterface {
 
 	use AdapterTrait;
 
+	public function getTableClass() {
+		return static::$_tableClass;
+	}
+
 	/**
 	 * Обычный mysqli_prepare, только можно связывать массив
 	 *
@@ -54,8 +58,12 @@ final class Adapter extends \Mysqli implements AdapterInterface {
 			? $opt['password']: ini_get('mysqli.default_pw');
 		$o['dbname'] = isset($opt['dbname'])
 			? $opt['dbname'] : '';
+
 		$o['port'] = isset($opt['port'])
 			? $opt['port'] : ini_get('mysqli.default_port');
+		$o['port'] = (int) $o['port'];
+
+
 		$o['socket'] = isset($opt['socket'])
 			? $opt['socket'] : ini_get('mysqli.default_socket');
 		$o['charset'] = !empty($opt['charset'])

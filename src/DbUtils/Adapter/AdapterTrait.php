@@ -7,20 +7,7 @@ use DbUtils\Table\TableInterface;
 
 trait AdapterTrait {
 
-	/**
-	 * Выполняет sql-запрос
-	 *
-	 * @param string $sql текст sql-запроса
-	 * @abstract
-	 * @access public
-	 * @return SelectInterface
-	 */
-	abstract public function query($sql);
-
-	public static function getTableClass() {
-		return static::$_tableClass;
-	}
-
+	abstract public function getTableClass();
 
 	/**
 	 * Возвращает объект таблицы
@@ -31,7 +18,7 @@ trait AdapterTrait {
 	 * @throws \Exception
 	 */
 	public function getTable($tableName) {
-		$tableClass = static::getTableClass();
+		$tableClass = $this->getTableClass();
 		return new $tableClass($this, $tableName);
 	}
 
@@ -42,7 +29,7 @@ trait AdapterTrait {
 	 * @return boolean
 	 */
 	public function tableExists($tableName) {
-		$tableClass = static::getTableClass();
+		$tableClass = $this->getTableClass();
 		return $tableClass::exists($this, $tableName);
 	}
 
@@ -131,5 +118,9 @@ trait AdapterTrait {
 		}
 		$it->free();
 		return $ret;
+	}
+
+	public function fetchCol($sql, $column = 1) {
+		return $this->fetchColumn($sql, $column);
 	}
 }

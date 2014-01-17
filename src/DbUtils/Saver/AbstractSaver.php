@@ -344,7 +344,8 @@ abstract class AbstractSaver implements SaverInterface,
 
 		$this->_logger = $logger;
 
-		$this->_logger->addInfo('New logger', [ 'class' => get_class($logger) ]);
+		$this->_logger->addInfo('New logger',
+			[ 'class' => get_class($logger) ]);
 	}
 
 	/**

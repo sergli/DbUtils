@@ -2,12 +2,12 @@
 
 namespace DbUtils\Table\Mysql;
 
+use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Table\AbstractTable;
-use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
 
 class Table extends AbstractTable {
 
-	public function __construct(MysqlAdapter $db, $tableName) {
+	public function __construct(AdapterInterface $db, $tableName) {
 		parent::__construct($db, $tableName);
 	}
 

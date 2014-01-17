@@ -15,6 +15,17 @@ final class Adapter implements AdapterInterface {
 
 	private $_db;
 
+	public function getTableClass() {
+		return static::$_tableClass;
+	}
+
+	public static function errorHandler($errno, $errstr,
+			$errfile, $errline) {
+
+		throw new \ErrorException($errstr, $errno,
+				0, $errfile, $errline);
+	}
+
 	public function __construct(array $opt = []) {
 		$o = [];
 
@@ -39,14 +50,8 @@ final class Adapter implements AdapterInterface {
 		}
 		$dsn = ltrim($dsn);
 
-		//	FIXME надо что-то с этим делать.
-		//	Восстанавливать кто будет ?
-		//
-		set_error_handler(function($errno, $errstr,
-			$errfile, $errline) {
-			throw new \ErrorException($errstr, $errno, 0,
-				$errfile, $errline);
-		});
+		set_error_handler('static::errorHandler');
+
 		$this->_db = pg_connect($dsn,
 			PGSQL_CONNECT_FORCE_NEW);
 
@@ -56,22 +61,22 @@ final class Adapter implements AdapterInterface {
 		pg_query($this->_db,
 			"SET client_encoding TO {$o['charset']}");
 
+		restore_error_handler();
+
 	}
 
-	//FIXME переделать.
 	public function query($sql) {
-		try {
-			$r = pg_query($this->_db, $sql);
-			return new PostgresSelect($r, $sql);
-		}
-		catch (\ErrorException $e) {
-			throw $e;
-		}
+
+		set_error_handler('static::errorHandler');
+
+		$r = pg_query($this->_db, $sql);
+
+		restore_error_handler();
+
+		return new PostgresSelect($r, $sql);
 	}
 
 	/**
-	 * quote
-	 *
 	 * @param string $text
 	 * @access public
 	 * @return string
