@@ -1,8 +1,8 @@
 <?php
 
-namespace DbUtils\Select\Postgres;
+namespace DbUtils\Adapter\Pgsql;
 
-class ResultIterator implements \Iterator {
+class SelectIterator implements \Iterator {
 
 	private $_pos = 0;
 	private $_current = null;
@@ -31,7 +31,7 @@ class ResultIterator implements \Iterator {
 
 	public function rewind() {
 		if ($this->_pos !== 0) {
-			pg_result_seek($this->_select->getResult(), 0);
+			pg_result_seek($this->_select->getResource(), 0);
 		}
 		$this->_current = array();
 		$this->next();
@@ -41,6 +41,6 @@ class ResultIterator implements \Iterator {
 	public function next() {
 		$this->_pos++;
 		$this->_current = pg_fetch_assoc(
-			$this->_select->getResult());
+			$this->_select->getResource());
 	}
 }

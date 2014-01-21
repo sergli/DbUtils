@@ -3,9 +3,18 @@
 namespace DbUtils\Saver\Mysql;
 
 use DbUtils\Saver\AbstractSaver;
-use DbUtils\Table\Mysql\Table as MysqlTable;
+use DbUtils\Table\MysqlTable;
 
+/**
+ * Загружает записи в таблицу, используя
+ * временный файл и синтаксис load data infile ...
+ *
+ * @uses AbstractSaver
+ * @author Sergey Lisenkov <sergli@nigma.ru>
+ */
 class LoadDataSaver extends AbstractSaver {
+
+	protected $_availableAdapters = null;
 
     /**
      * Файл, в кот. записываются данные
@@ -91,17 +100,10 @@ class LoadDataSaver extends AbstractSaver {
 		return $value;
     }
 
-	/**
-	 * Конструктор
-	 *
-	 * @param MysqlTable $table
-	 * @param array $columns
-	 * @access public
-	 * @return void
-	 */
-	public function __construct(MysqlTable $table,
-		array $columns = null) {
-		parent::__construct($table, $columns);
+	public function __construct(AdapterInterface $adapter,
+		$tableName, array $columns = []) {
+
+		parent::__construct($adapter, $tableName, $columns);
 
 		$this->_createTempFile();
 	}

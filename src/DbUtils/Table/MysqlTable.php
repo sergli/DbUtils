@@ -1,15 +1,10 @@
 <?php
 
-namespace DbUtils\Table\Mysql;
+namespace DbUtils\Table;
 
 use DbUtils\Adapter\AdapterInterface;
-use DbUtils\Table\AbstractTable;
 
-class Table extends AbstractTable {
-
-	public function __construct(AdapterInterface $db, $tableName) {
-		parent::__construct($db, $tableName);
-	}
+class MysqlTable extends AbstractTable {
 
 	protected function _getBaseInfo($tableName) {
 

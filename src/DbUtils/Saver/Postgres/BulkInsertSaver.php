@@ -3,7 +3,7 @@
 namespace DbUtils\Saver\Postgres;
 
 use DbUtils\Saver\AbstractSaver;
-use DbUtils\Table\Postgres\Table as PostgresTable;;
+use DbUtils\Table\PostgresTable;
 
 /**
  * BulkInsertSaver
@@ -13,6 +13,8 @@ use DbUtils\Table\Postgres\Table as PostgresTable;;
  * @todo Занаследовать saver\mysql\BulkInsertSaver ?
  */
 class BulkInsertSaver extends AbstractSaver {
+
+	protected $_availableAdapters = null;
 
 	protected $_values = [];
 
@@ -43,11 +45,6 @@ class BulkInsertSaver extends AbstractSaver {
 		}
 
 		return $this->_db->quote($value);
-	}
-
-	public function __construct(PostgresTable $table,
-		array $columns = null) {
-		parent::__construct($table, $columns);
 	}
 
 	protected function _reset() {

@@ -22,7 +22,10 @@ use Monolog\Handler\StreamHandler;
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
 abstract class AbstractSaver implements SaverInterface,
-							\ArrayAccess {
+	\ArrayAccess {
+
+	protected $_availableAdapters = null;
+
 	/**
 	 * Дополнительные опции сейвера. Битовая маска
 	 *
@@ -299,28 +302,47 @@ abstract class AbstractSaver implements SaverInterface,
 		}
 	}
 
+	private function _setAdapter(AdapterInterface $adapter) {
+
+		if (is_null($this->_availableAdapters)) {
+			$this->_db = $adapter;
+			return true;
+		}
+
+		foreach ($this->_availableAdapters as $adapterClass) {
+			if ($adapter instanceof $adapterClass) {
+				$this->_db = $adapter;
+				return true;
+			}
+		}
+
+		throw new \Exception(sprintf(
+			'Адаптер %s не поддерживается сейвером %s',
+				get_class($adapter), get_class($this)));
+	}
+
 	/**
 	 * Создаёт экземпляр сейвера
 	 *
-	 * @param TableInterface экземпляр таблицы
+	 * @param AdapterInterface $adapter
+	 * @param string $tableName
 	 * @param string[] $columns поля, в кот. будут сохраняться данные
 	 * если не указано - определятеся по первому запуску add()
 	 *
 	 * @return void
-	 * @see getColumns()
-	 * @see getConnection()
 	 */
 
-	public function __construct(TableInterface $table,
-		array $columns = null) {
+	public function __construct(AdapterInterface $adapter,
+		$tableName, array $columns = null) {
 
-		$this->_table = $table;
+		$this->_setAdapter($adapter);
+
+		$this->_table = $this->_db->getTable($tableName);
+
 		$this->_count = 0;
 
 		$this->setLogger();
 		$this->setBatchSize();
-
-		$this->_db = $this->_table->getConnection();
 
 		if ($columns) {
 			$this->_setColumns($columns);

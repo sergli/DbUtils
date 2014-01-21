@@ -33,6 +33,24 @@ abstract class AbstractTable implements TableInterface {
 	abstract protected function _getColumns();
 	abstract protected function _getConstraints();
 
+	public function factory(AdapterInterface $db, $tableName) {
+
+		$platform = $db->getPlatformName();
+
+		switch ($platform) {
+		case AdapterInteface::PLATFORM_MYSQL:
+			return new MysqlTable($db, $tableName);
+
+		case AdapterInterface::PLATFORM_POSTGRES:
+			return new PostgresTable($db, $tableName);
+
+		default:
+			throw new \UnexpectedValueException(sprintf(
+				'Table class for platform %s is not declared',
+				$platform));
+		}
+	}
+
 	public function __construct(AdapterInterface $db, $tableName) {
 		$this->_db = $db;
 		$info = $this->_getBaseInfo($tableName);

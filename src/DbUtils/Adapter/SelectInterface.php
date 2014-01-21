@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Select;
+namespace DbUtils\Adapter;
 
 /**
  * Интерфейс запроса, возвращающего набор записей
@@ -22,8 +22,12 @@ interface SelectInterface extends \IteratorAggregate,
 	 * Вернуть внутренний экземпляр запроса
 	 *
 	 * @access public
-	 * @return mixed \mysqli_result, resource, etc
+	 * @return mixed
 	 */
 	public function getResult();
 
+	/**
+	 * @return mixed
+	 */
+	public function getResource();
 }

@@ -1,26 +1,22 @@
 <?php
 
-namespace DbUtils\Adapter\Postgres;
+namespace DbUtils\Adapter\Pgsql;
 
 use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
-use DbUtils\Select\Postgres\Select as PostgresSelect;
 
-final class Adapter implements AdapterInterface {
-
-	protected static $_tableClass =
-		'DbUtils\Table\Postgres\Table';
+final class Pgsql implements AdapterInterface {
 
 	use AdapterTrait;
 
 	private $_db;
 
-	public function getTableClass() {
-		return static::$_tableClass;
+	public function getPlatformName() {
+		return self::PLATFORM_POSTGRES;
 	}
 
 	public static function errorHandler($errno, $errstr,
-			$errfile, $errline) {
+		$errfile, $errline) {
 
 		throw new \ErrorException($errstr, $errno,
 				0, $errfile, $errline);
@@ -44,11 +40,7 @@ final class Adapter implements AdapterInterface {
 			$o['password'] = $opt['password'];
 		}
 
-		$dsn = '';
-		foreach ($o as $key => $val) {
-			$dsn .= " $key=$val";
-		}
-		$dsn = ltrim($dsn);
+		$dsn = http_build_query($o, null, ' ');
 
 		set_error_handler('static::errorHandler');
 
@@ -73,16 +65,16 @@ final class Adapter implements AdapterInterface {
 
 		restore_error_handler();
 
-		return new PostgresSelect($r, $sql);
+		return new Select($r, $sql);
 	}
 
 	/**
 	 * @param string $text
 	 * @access public
 	 * @return string
-	 * @fixme pg_escape_literal ? bytea ?
+	 * @todo pg_escape_bytea()
 	 */
 	public function quote($text) {
-		return "'" . pg_escape_string($this->_db, $text) . "'";
+		return pg_escape_literal($this->_db, $text);
 	}
 }

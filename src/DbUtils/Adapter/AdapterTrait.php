@@ -4,10 +4,9 @@ namespace DbUtils\Adapter;
 
 use DbUtils\Select\SelectInterface;
 use DbUtils\Table\TableInterface;
+use DbUtils\Table\AbstractTable;
 
 trait AdapterTrait {
-
-	abstract public function getTableClass();
 
 	/**
 	 * Возвращает объект таблицы
@@ -18,8 +17,7 @@ trait AdapterTrait {
 	 * @throws \Exception
 	 */
 	public function getTable($tableName) {
-		$tableClass = $this->getTableClass();
-		return new $tableClass($this, $tableName);
+		return AbstractTable::factory($this, $tableName);
 	}
 
 	/**
@@ -29,8 +27,14 @@ trait AdapterTrait {
 	 * @return boolean
 	 */
 	public function tableExists($tableName) {
-		$tableClass = $this->getTableClass();
-		return $tableClass::exists($this, $tableName);
+		try {
+			$this->getTable($tableName);
+			return true;
+		}
+		catch (\Exception $e) {
+		}
+
+		return false;
 	}
 
 	/**

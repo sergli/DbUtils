@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Adapter\Mysql;
+namespace DbUtils\Adapter\Mysqli;
 
 class Stmt extends \Mysqli_Stmt {
 
@@ -11,7 +11,7 @@ class Stmt extends \Mysqli_Stmt {
 	 * @param Adapter $db
 	 * @param string $sql
 	 */
-	public function __construct(Adapter $db, $sql) {
+	public function __construct(Mysqli $db, $sql) {
 		parent::__construct($db, $sql);
 	}
 

@@ -1,26 +1,25 @@
 <?php
 
-namespace DbUtils\Select\Postgres;
+namespace DbUtils\Adapter\Pgsql;
 
-use DbUtils\Select\SelectInterface;
+use DbUtils\Adapter\SelectInterface;
 
 class Select implements SelectInterface {
 
 	/**
 	 * @var resource of type pgsql result
 	 */
-	private $_result;
+	private $_resource;
 
 	/**
 	 * Конструктор
 	 *
 	 * @param resource $result pgsql result
 	 * @access public
-	 */
-	public function __construct($result) {
-		if (is_resource($result) &&
-			get_resource_type($result) == 'pgsql result') {
-			$this->_result = $result;
+	 */ public function __construct($resource) {
+		if (is_resource($resource) &&
+			get_resource_type($resource) == 'pgsql result') {
+			$this->_resource = $resource;
 		}
 		else {
 			throw new \InvalidArgumentException(
@@ -38,7 +37,7 @@ class Select implements SelectInterface {
 
 
 	public function getIterator() {
-		return new ResultIterator($this);
+		return new SelectIterator($this);
 	}
 
 	/**
@@ -46,7 +45,7 @@ class Select implements SelectInterface {
 	 *
 	 * @return resource
 	 */
-	public function getResult() {
-		return $this->_result;
+	public function getResource() {
+		return $this->_resource;
 	}
 }

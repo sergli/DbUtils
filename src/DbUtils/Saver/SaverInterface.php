@@ -2,6 +2,8 @@
 
 namespace DbUtils\Saver;
 
+use DbUtils\Adapter\AdapterInterface;
+
 /**
  * Интерфейс класса, кот. сохраняет данные в БД
  *
@@ -11,6 +13,9 @@ namespace DbUtils\Saver;
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
 interface SaverInterface extends \Countable {
+
+	public function __construct(AdapterInterface $adapter,
+		$tableName, array $columns = null);
 
 	/**
 	 * Устанавливает доп. опции

@@ -1,19 +1,20 @@
 <?php
 
-namespace DbUtils\Adapter\Mysql;
+namespace DbUtils\Adapter\Mysqli;
 
 use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
-use DbUtils\Select\Mysql\Select as MysqlSelect;
 
 final class Adapter extends \Mysqli implements AdapterInterface {
 
-	protected static $_tableClass = 'DbUtils\Table\Mysql\Table';
-
 	use AdapterTrait;
 
-	public function getTableClass() {
-		return static::$_tableClass;
+	public function getPlatformName() {
+		return self::PLATFORM_MYSQL;
+	}
+
+	public function stmt_init() {
+		return new Stmt($this);
 	}
 
 	/**
@@ -32,15 +33,15 @@ final class Adapter extends \Mysqli implements AdapterInterface {
 	 * @param string $sql
 	 * @param int $resultMode
 	 * @access public
-	 * @return MysqlSelect | true
+	 * @return Select | true
 	 * @throws \Exception
 	 */
 	public function query($sql, $resultMode = \MYSQLI_STORE_RESULT) {
 		$r = parent::query($sql, $resultMode);
-		if (!$r instanceof \mysqli_result) {
+		if (!$r instanceof \Mysqli_Result) {
 			return $r;
 		}
-		return new MysqlSelect($r);
+		return new Select($r);
 	}
 
 

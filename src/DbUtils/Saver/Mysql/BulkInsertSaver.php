@@ -3,8 +3,15 @@
 namespace DbUtils\Saver\Mysql;
 
 use DbUtils\Saver\AbstractSaver;
-use DbUtils\Table\Mysql\Table as MysqlTable;
+use DbUtils\Table\MysqlTable;
 
+/**
+ * Вставляет данные в таблицу пачками, используя
+ * синтаксис insert ... values (...), (...), ...
+ *
+ * @uses AbstractSaver
+ * @author Sergey Lisenkov <sergli@nigma.ru>
+ */
 class BulkInsertSaver extends AbstractSaver {
 
 	/**
@@ -44,19 +51,6 @@ class BulkInsertSaver extends AbstractSaver {
 			return $value;
 		}
 		return $this->_db->quote($value);
-	}
-
-	/**
-	 * Конструктор
-	 *
-	 * @param MysqlTable $table
-	 * @param array $columns
-	 * @access public
-	 * @return void
-	 */
-	public function __construct(MysqlTable $table,
-		array $columns = null) {
-		parent::__construct($table, $columns);
 	}
 
 	protected function _reset() {

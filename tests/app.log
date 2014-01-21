@@ -1,0 +1,4 @@
+[2014-01-09 20:54:28] DbUtils\Saver\Mysql\BulkInsertSaver.INFO: New logger {"class":"Monolog\\Logger"} []
+[2014-01-09 20:54:30] DbUtils\Saver\Mysql\BulkInsertSaver.INFO: Saving... {"count":5001} []
+[2014-01-09 20:54:31] DbUtils\Saver\Mysql\BulkInsertSaver.INFO: Destruct.) [] []
+[2014-01-09 20:54:33] DbUtils\Saver\Mysql\BulkInsertSaver.INFO: Saving... {"count":4999} []

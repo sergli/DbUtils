@@ -2,7 +2,6 @@
 
 namespace DbUtils\Adapter;
 
-use DbUtils\Select\SelectInterface;
 use DbUtils\Table\TableInterface;
 
 /**
@@ -11,6 +10,16 @@ use DbUtils\Table\TableInterface;
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
 interface AdapterInterface {
+
+	const PLATFORM_MYSQL = 'mysql';
+	const PLATFORM_POSTGRES = 'postgres';
+
+	/**
+	 * Возвращает имя СУБД
+	 *
+	 * @return string mysql|postgres
+	 */
+	public function getPlatformName();
 
 	/**
 	 * Выполняет sql-запрос
