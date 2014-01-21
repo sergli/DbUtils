@@ -5,11 +5,14 @@ namespace DbUtils\Adapter\Pdo;
 use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
 
-final class Pdo extends \PDO implements AdapterInterface {
+abstract class Pdo extends \PDO implements AdapterInterface {
 
 	use AdapterTrait;
 
+	protected static $_driverName;
+
 	public function getPlatformName() {
+
 		$platform = $this->getAttribute(self::ATTR_DRIVER_NAME);
 
 		switch ($platform) {
@@ -25,11 +28,14 @@ final class Pdo extends \PDO implements AdapterInterface {
 		}
 	}
 
-	public function __construct($driverName,
-		array $opts = []) {
+	final public function __construct(array $opts = []) {
 
 		$dsn = $this->_getDSN($opts);
-		$driverOpts = $this->_getDriverOptions();
+
+		$driverOpts = [
+			self::ATTR_ERRMODE	=> self::ERRMODE_EXCEPTION
+		];
+		$driverOpts += $this->_getDriverOptions();
 
 		$user = !empty($opts['user']) ?
 			$opts['user'] : null;
@@ -49,7 +55,7 @@ final class Pdo extends \PDO implements AdapterInterface {
 		return new Select($stmt);
 	}
 
-	protected function _getDSN($driverName, array $opts) {
+	protected function _getDSN(array $opts) {
 		unset($opts['user']);
 		unset($opts['password']);
 
@@ -58,10 +64,12 @@ final class Pdo extends \PDO implements AdapterInterface {
 			unset($opts['socket']);
 		}
 
+		$driverName = $this->getDriverName();
+
 		if (!in_array($driverName,
 			$this->getAvailableDrivers())) {
-			throw new Exception(sprintf(
-				'Драйвер "%s" не определён', $driverName));
+			throw new \UnexpectedValueException(sprintf(
+				'Unknown driver: %s', $driverName));
 		}
 
 		$dsn = $driverName . ':' .
@@ -70,19 +78,7 @@ final class Pdo extends \PDO implements AdapterInterface {
 		return $dsn;
 	}
 
-	private function _getDriverOptions($driverName,array $opts) {		$driverOpts = [
-			self::ATTR_ERRMODE	=> self::ERRMODE_EXCEPTION
-		];
+	abstract protected function _getDriverOptions(array $opts);
 
-		switch ($driverName) {
-		case 'mysql':
-			$charset = !empty($opt['charset'])
-				? $opt['charset'] : 'utf8';
-			$driverOpts[self::MYSQL_ATTR_INIT_COMMAND] =
-				"SET NAMES $charset";
-			break;
-		}
-
-		return $driverOpts;
-	}
+	abstract public function getDriverName();
 }

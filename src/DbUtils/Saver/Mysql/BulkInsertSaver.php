@@ -2,6 +2,7 @@
 
 namespace DbUtils\Saver\Mysql;
 
+use DbUtils\Adapter\MysqlAdapterInterface;
 use DbUtils\Saver\AbstractSaver;
 use DbUtils\Table\MysqlTable;
 
@@ -36,6 +37,12 @@ class BulkInsertSaver extends AbstractSaver {
 	 * @var int
 	 */
 	protected $_options = 3;
+
+	public function __construct(MysqlAdapterInterface $adapter,
+		$tableName, array $columns = null) {
+
+		parent::__construct($adapter, $tableName, $columns);
+	}
 
 	protected function _quote($column, $value) {
 		if (null === $value) {

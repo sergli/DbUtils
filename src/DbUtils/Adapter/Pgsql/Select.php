@@ -14,25 +14,26 @@ class Select implements SelectInterface {
 	/**
 	 * Конструктор
 	 *
-	 * @param resource $result pgsql result
+	 * @param resource $resource pgsql result
 	 * @access public
-	 */ public function __construct($resource) {
+	 */
+	public function __construct($resource) {
 		if (is_resource($resource) &&
 			get_resource_type($resource) == 'pgsql result') {
 			$this->_resource = $resource;
 		}
 		else {
 			throw new \InvalidArgumentException(
-				'Expects $result to be resource of type pgsql result');
+				'Expects $resource to be resource of type pgsql result');
 		}
 	}
 
 	public function count() {
-		return pg_num_rows($this->_result);
+		return pg_num_rows($this->_resource);
 	}
 
 	public function free() {
-		return pg_free_result($this->_result);
+		return pg_free_result($this->_resource);
 	}
 
 

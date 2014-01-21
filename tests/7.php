@@ -1,15 +1,11 @@
 <?php
 
-use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
-
-require_once '../vendor/autoload.php';
-
-$opts = include '../config.php';
-$opts = $opts['mysql'];
-$db = MysqlAdapter::getInstance(1, $opts);
-
+include '../vendor/autoload.php';
 
 $sql = 'select query, url, count from clicklog.popularity limit 10';
+$dic = new DbUtils\DiContainer;
+$db = $dic['mysql-new'];
+
 /*
 var_dump('db', $db);
 var_dump('table_class', $db::getTableClass());
@@ -35,7 +31,7 @@ $cell = $db->fetchOne($sql);
 var_dump('cell', $cell);
 */
 
-$tableName = 'popularity';
+$tableName = 'documents';
 
 try {
 	$table = $db->getTable($tableName);
@@ -49,7 +45,7 @@ var_dump('table_exists', $db->tableExists($tableName),
 	$db->tableExists('lalala'));
 var_dump('table_columns', $db->getTable($tableName)->getColumns());
 
-var_dump('table_class', $db::getTableClass());
+var_dump('platform_name', $db->getPlatformName());
 
 /*
 var_dump('FOREACH');

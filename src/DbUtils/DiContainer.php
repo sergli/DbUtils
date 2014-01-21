@@ -4,10 +4,10 @@ namespace DbUtils;
 
 use Pimple;
 
-use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
-use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
-use DbUtils\Table\Mysql\Table as MysqlTable;
-use DbUtils\Table\Postgres\Table as PostgresTable;
+use DbUtils\Adapter\Mysqli\Mysqli;
+use DbUtils\Adapter\Pgsql\Pgsql;
+use DbUtils\Table\MysqlTable;
+use DbUtils\Table\PostgresTable;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -15,7 +15,7 @@ use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
 
 
-class DIC extends Pimple {
+class DiContainer extends Pimple {
 
 	public function __construct() {
 
@@ -27,7 +27,7 @@ class DIC extends Pimple {
 
 		//	новое соединение с mysql по mysqli (force-new)
 		$this['mysql-new'] = $this->factory(function($ci) {
-			return new MysqlAdapter($ci['config']['mysql']);
+			return new Mysqli($ci['config']['mysql']);
 		});
 
 		//	синглтон mysqli
@@ -37,14 +37,18 @@ class DIC extends Pimple {
 
 		//	новое соединение с postgres по php_pgsql
 		$this['postgres-new']= $this->factory(function($ci) {
-			return new PostgresAdapter(
-				$ci['config']['postgres']
-			);
+			return new Pgsql($ci['config']['postgres']);
 		});
 
 		//	синглтон php_pgsql
 		$this['postgres'] = function($ci) {
 			return $ci['postgres-new'];
+		};
+
+		$this['postgres-wiki'] = function($ci) {
+			$config = $ci['config']['postgres'];
+			$config['dbname'] = 'wiki';
+			return new Pgsql($config);
 		};
 
 		$this['mysql.table'] = function($ci) {

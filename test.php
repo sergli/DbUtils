@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 
 include 'vendor/autoload.php';
 
-$ci = new DbUtils\DIC;
+$ci = new DbUtils\DiContainer;
 
 //var_dump($ci['mysql-new'], $ci['mysql'], $ci['mysql'], $ci['mysql-new'], $ci['mysql-new'], $ci['mysql']);
 //
@@ -25,8 +25,13 @@ $ci['postgres.table_name'] = 'documents';
 
 //$saver = new DbUtils\Saver\Mysql\LoadDataSaver(
 //	$ci['mysql.table']);
+//
+
+$db = $ci['mysql'];
+
 $saver = new DbUtils\Saver\Mysql\BulkInsertSaver(
-	$ci['mysql.table']);
+	$db, 'documents');
+
 $saver->setLogger($ci['monolog']);
 $saver->setBatchSize(50000);
 

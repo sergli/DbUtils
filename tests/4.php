@@ -1,31 +1,25 @@
 <?php
 
-use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
-use DbUtils\Updater\Mysql\BulkUpdater as MysqlBulkUpdater;
-
 require_once '../vendor/autoload.php';
 
-$opts = include '../config.php';
-$opts = $opts['mysql'];
-$opts['dbname'] = 'test';
+$dic = new DbUtils\DIContainer;
 
-$db = MysqlAdapter::getInstance(1, $opts);
 $tableName = 'documents';
+$db = $dic['mysql'];
 
-$table = MysqlAdapter::getInstance(2, $opts)->getTable($tableName);
+$table = $db->getTable($tableName);
 
 var_dump($table->getFullName(),
 	$table->getColumns(), $table->getConstraints());
 
 $filename = '';
-$updater = new MysqlBulkUpdater($table);
+$updater = new DbUtils\Updater\Mysql\BulkUpdater($db, $tableName);
 
 
 var_dump($updater->getSize(), $updater->getBatchSize());
 
 $updater->setBatchSize(5000);
 
-$updater::$_debug = true;
 var_dump($updater->getBatchSize());
 
 var_dump($table->getConnection()->fetchColumn('show tables', 1));

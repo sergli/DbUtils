@@ -1,18 +1,10 @@
 <?php
 
-use DbUtils\Adapter\Mysql\Adapter as MysqlAdapter;
-use DbUtils\Saver\Mysql\BulkInsertSaver as MysqlBulkInsertSaver;
-
 require_once '../vendor/autoload.php';
 
-$opts = include '../config.php';
-$opts = $opts['mysql'];
-$opts['dbname'] = 'test';
-
-$db = MysqlAdapter::getInstance(1, $opts);
-
 $tableName = 'documents';
-$table = MysqlAdapter::getInstance(2, $opts)->getTable($tableName);
+$db = (new DbUtils\DiContainer)['mysql-new'];
+$table = $db->getTable($tableName);
 
 var_dump($table->getFullName(),
 	$table->getColumns(), $table->getConstraints());
@@ -20,7 +12,7 @@ var_dump($table->getFullName(),
 //$saver = new MysqlBulkInsertSaver($table);
 //$saver = new MysqlLoadDataSaver($table);
 $filename = '';
-$saver = new MysqlBulkInsertSaver($table);
+$saver = new DbUtils\Saver\Mysql\BulkInsertSaver($db, $tableName);
 
 $logger = $saver->getLogger();
 $logger->pushHandler(new Monolog\Handler\StreamHandler('./app.log', Monolog\Logger::INFO));

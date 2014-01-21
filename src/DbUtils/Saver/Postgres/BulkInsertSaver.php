@@ -2,6 +2,7 @@
 
 namespace DbUtils\Saver\Postgres;
 
+use DbUtils\Adapter\PostgresAdapterInterface;
 use DbUtils\Saver\AbstractSaver;
 use DbUtils\Table\PostgresTable;
 
@@ -17,6 +18,13 @@ class BulkInsertSaver extends AbstractSaver {
 	protected $_availableAdapters = null;
 
 	protected $_values = [];
+
+	public function __construct(
+		PostgresAdapterInterface $adapter,
+		$tableName, array $columns = null) {
+
+		parent::__construct($adapter, $tableName, $columns);
+	}
 
 	protected function _quote($column, $value) {
 		if (null === $value) {
@@ -85,7 +93,7 @@ class BulkInsertSaver extends AbstractSaver {
 
 		$r = $this->_db->query($sql);
 
-		return pg_affected_rows($r->getResult());
+		return pg_affected_rows($r->getResource());
 	}
 }
 

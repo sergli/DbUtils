@@ -1,38 +1,31 @@
 <?php
 
-use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
-use DbUtils\Saver\Postgres\BulkInsertSaver as PostgresBulkInsertSaver;
-
 ini_set('memory_limit', '256M');
 
 require_once '../vendor/autoload.php';
 
-$opts = include '../config.php';
-$opts = $opts['postgres'];
-$opts['dbname'] = 'sergli';
-
-$db = PostgresAdapter::getInstance(1, $opts);
-
 $tableName = 'documents';
 //	это уже другое соединение! (должно быть)
-$table = PostgresAdapter::getInstance(2, $opts)->getTable($tableName);
+$dic = new DbUtils\DiContainer;
+$db = $dic['postgres'];
+$table = $db->getTable($tableName);
 
 var_dump($table->getFullName(),
 	$table->getColumns(), $table->getConstraints());
-$saver = new PostgresBulkInsertSaver($table);
+$saver = new DbUtils\Saver\Postgres\BulkInsertSaver($db, $tableName);
+$saver->setLogger($dic['monolog']);
 
 var_dump($saver->getSize(), $saver->getBatchSize());
 
 $saver->setBatchSize(5000);
 
-$saver::$_debug = true;
 var_dump($saver->getBatchSize());
 
 var_dump($table->getConnection()->fetchColumn('show search_path'));
 
 $db = $table->getConnection();
 
-$r = $db->query('truncate table ' . $tableName);
+$table->truncate();
 
 $keys = [
 	'id',
@@ -53,7 +46,7 @@ for ($i = 1; $i <= 10000; $i++) {
 }
 var_dump('count of saver: ' . count($saver));
 
-$db->query('truncate table ' . $tableName);
+$table->truncate();
 
 /*
 try {
@@ -67,9 +60,9 @@ catch (\Exception $e) {
 $saver->setBatchSize(1);
 $saver[] = array_combine($keys, [1,2,3,4]);
 
-$saver[] = array_combine($keys, [1,2,3,4]);
-$saver[] = array_combine($keys, [1,2,3,4]);
-$saver[] = array_combine($keys, [1,2,3,4]);
+$saver[] = array_combine($keys, [10,2,3,4]);
+$saver[] = array_combine($keys, [100,2,3,4]);
+$saver[] = array_combine($keys, [1000,2,3,4]);
 
 var_dump('lalalalalalalalala');
 //$saver->setOptions($saver::OPT_DELAYED*0);

@@ -19,14 +19,6 @@ interface SelectInterface extends \IteratorAggregate,
 	public function free();
 
 	/**
-	 * Вернуть внутренний экземпляр запроса
-	 *
-	 * @access public
-	 * @return mixed
-	 */
-	public function getResult();
-
-	/**
 	 * @return mixed
 	 */
 	public function getResource();

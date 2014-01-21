@@ -1,18 +1,12 @@
 <?php
 
-use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
-use DbUtils\Table\Postgres\Table as PostgresTable;
-
 include '../vendor/autoload.php';
 
-$opts = include __DIR__ . '/../config.php';
-$opts = $opts['postgres'];
-$opts['dbname'] = 'wiki';
-
-$db =  PostgresAdapter::getInstance(1, $opts);
+$dic = new DbUtils\DiContainer;
+$db = $dic['postgres-wiki'];
 
 
-$table = new PostgresTable($db, 'ru.dayly_20071231');
+$table = new DbUtils\Table\PostgresTable($db, 'ru.dayly_20071231');
 
 var_dump('table', $table);
 

@@ -24,8 +24,6 @@ use Monolog\Handler\StreamHandler;
 abstract class AbstractSaver implements SaverInterface,
 	\ArrayAccess {
 
-	protected $_availableAdapters = null;
-
 	/**
 	 * Дополнительные опции сейвера. Битовая маска
 	 *
@@ -302,25 +300,6 @@ abstract class AbstractSaver implements SaverInterface,
 		}
 	}
 
-	private function _setAdapter(AdapterInterface $adapter) {
-
-		if (is_null($this->_availableAdapters)) {
-			$this->_db = $adapter;
-			return true;
-		}
-
-		foreach ($this->_availableAdapters as $adapterClass) {
-			if ($adapter instanceof $adapterClass) {
-				$this->_db = $adapter;
-				return true;
-			}
-		}
-
-		throw new \Exception(sprintf(
-			'Адаптер %s не поддерживается сейвером %s',
-				get_class($adapter), get_class($this)));
-	}
-
 	/**
 	 * Создаёт экземпляр сейвера
 	 *
@@ -335,7 +314,7 @@ abstract class AbstractSaver implements SaverInterface,
 	public function __construct(AdapterInterface $adapter,
 		$tableName, array $columns = null) {
 
-		$this->_setAdapter($adapter);
+		$this->_db = $adapter;
 
 		$this->_table = $this->_db->getTable($tableName);
 

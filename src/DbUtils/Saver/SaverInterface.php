@@ -14,9 +14,6 @@ use DbUtils\Adapter\AdapterInterface;
  */
 interface SaverInterface extends \Countable {
 
-	public function __construct(AdapterInterface $adapter,
-		$tableName, array $columns = null);
-
 	/**
 	 * Устанавливает доп. опции
 	 *

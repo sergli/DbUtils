@@ -2,9 +2,15 @@
 
 namespace DbUtils\Table;
 
-use DbUtils\Adapter\AdapterInterface;
+use DbUtils\Adapter\PostgresAdapterInterface;
 
-class Table extends AbstractTable {
+class PostgresTable extends AbstractTable {
+
+	public function __construct(PostgresAdapterInterface $db,
+		$tableName) {
+
+		parent::__construct($db, $tableName);
+	}
 
 	protected function _getBaseInfo($tableName) {
 

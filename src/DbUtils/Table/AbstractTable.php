@@ -3,6 +3,8 @@
 namespace DbUtils\Table;
 
 use DbUtils\Adapter\AdapterInterface;
+use DbUtils\Adapter\MysqlAdapterInterface;
+use DbUtils\Adapter\PostgresAdapterInterface;
 
 /**
  * Абстрактный класс, описывающий таблицу в реляц. базе данных
@@ -33,22 +35,20 @@ abstract class AbstractTable implements TableInterface {
 	abstract protected function _getColumns();
 	abstract protected function _getConstraints();
 
-	public function factory(AdapterInterface $db, $tableName) {
+	public static function factory(AdapterInterface $db,
+		$tableName) {
 
-		$platform = $db->getPlatformName();
-
-		switch ($platform) {
-		case AdapterInteface::PLATFORM_MYSQL:
+		if ($db instanceof MysqlAdapterInterface) {
 			return new MysqlTable($db, $tableName);
-
-		case AdapterInterface::PLATFORM_POSTGRES:
-			return new PostgresTable($db, $tableName);
-
-		default:
-			throw new \UnexpectedValueException(sprintf(
-				'Table class for platform %s is not declared',
-				$platform));
 		}
+		else if ($db instanceof PostgresAdapterInterface) {
+			return new PostgresTable($db, $tableName);
+		}
+
+		throw new \UnexpectedValueException(sprintf(
+			'Table class for adapter %s is not declared',
+				get_class($db)));
+
 	}
 
 	public function __construct(AdapterInterface $db, $tableName) {

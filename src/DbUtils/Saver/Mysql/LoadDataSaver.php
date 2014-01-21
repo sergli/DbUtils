@@ -2,6 +2,7 @@
 
 namespace DbUtils\Saver\Mysql;
 
+use DbUtils\Adapter\MysqlAdapterInterface;
 use DbUtils\Saver\AbstractSaver;
 use DbUtils\Table\MysqlTable;
 
@@ -62,6 +63,17 @@ class LoadDataSaver extends AbstractSaver {
 	 */
 	const OPT_DELAYED = 8;
 
+	public function __construct(MysqlAdapterInterface $adapter,
+		$tableName, array $columns = []) {
+
+		//	Вызов деструктора по <C-c>
+		pcntl_signal(SIGINT, function() {});
+
+		$this->_createTempFile();
+
+		parent::__construct($adapter, $tableName, $columns);
+	}
+
 	/**
 	 * Имя используемого временного файла
 	 *
@@ -99,14 +111,6 @@ class LoadDataSaver extends AbstractSaver {
 
 		return $value;
     }
-
-	public function __construct(AdapterInterface $adapter,
-		$tableName, array $columns = []) {
-
-		parent::__construct($adapter, $tableName, $columns);
-
-		$this->_createTempFile();
-	}
 
 
 	protected function _reset() {
@@ -194,7 +198,8 @@ class LoadDataSaver extends AbstractSaver {
 			$this->_file->ftruncate(0);
 		}
 		else {
-			throw new \Exception("Не могу установить блокировку файлу {$fileName}");
+			throw new \Exception(sprintf(
+				'Couldn\'t lock file: %s', $fileName));
 		}
 	}
 }

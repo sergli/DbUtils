@@ -1,15 +1,9 @@
 <?php
 
-use DbUtils\Adapter\Postgres\Adapter as PostgresAdapter;
-
 require_once '../vendor/autoload.php';
 
-$opts = include '../config.php';
-$opts = $opts['postgres'];
-
-PostgresAdapter::setOptions($opts);
-
-$db = PostgresAdapter::getInstance();
+$dic = new DbUtils\DiContainer;
+$db = $dic['postgres-new'];
 
 $sql = "select id, name from test";
 

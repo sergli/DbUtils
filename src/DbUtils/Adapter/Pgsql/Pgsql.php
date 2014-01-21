@@ -2,10 +2,10 @@
 
 namespace DbUtils\Adapter\Pgsql;
 
-use DbUtils\Adapter\AdapterInterface;
+use DbUtils\Adapter\PostgresAdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
 
-final class Pgsql implements AdapterInterface {
+final class Pgsql implements PostgresAdapterInterface {
 
 	use AdapterTrait;
 

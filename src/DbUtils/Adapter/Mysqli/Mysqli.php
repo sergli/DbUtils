@@ -2,10 +2,11 @@
 
 namespace DbUtils\Adapter\Mysqli;
 
-use DbUtils\Adapter\AdapterInterface;
+use DbUtils\Adapter\MysqlAdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
 
-final class Adapter extends \Mysqli implements AdapterInterface {
+final class Mysqli extends \Mysqli
+	implements MysqlAdapterInterface {
 
 	use AdapterTrait;
 
