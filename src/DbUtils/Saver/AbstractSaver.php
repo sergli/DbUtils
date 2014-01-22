@@ -18,7 +18,7 @@ use Monolog\Handler\StreamHandler;
 /**
  * Абстрактный класс для сохранения данных в БД
  *
- * @uses iSaver
+ * @uses SaverInterface
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
 abstract class AbstractSaver implements SaverInterface,
@@ -118,7 +118,7 @@ abstract class AbstractSaver implements SaverInterface,
 	 */
 	abstract protected function _add(array $record);
 	/**
-	 * Создаёт необходимый sql-запрос (возможно, часть sql)
+	 * Формирует скелет sql-запроса.
 	 *
 	 * @abstract
 	 * @access protected
@@ -161,10 +161,16 @@ abstract class AbstractSaver implements SaverInterface,
 		try {
 			$count = $this->_save();
 			$this->reset();
-			$this->_logger->addInfo('Saving...', [ 'count' => $count ]);
+			$this->_logger->addInfo('Saving...', [
+				'sql'	=>
+					preg_replace('/[\n\t]/', ' ', $this->_sql),
+				'count' => $count
+			]);
 		}
 		catch (\Exception $e) {
-			$this->_logger->addError('Saving... Exception!', [ 'exception' => $e ]);
+			$this->_logger->addError('Saving... Exception!', [
+				'exception' => $e
+			]);
 
 			throw $e;
 		}
@@ -179,11 +185,10 @@ abstract class AbstractSaver implements SaverInterface,
 	 */
 	public function setOptions($options) {
 		$options = (int) $options;
+		//	изменились опции - пересчитываем sql
 		if ($options !== $this->_options) {
 			$this->_options = $options;
-			//	это может быть первый вызов, ещё до _setColumns
-			//	в этом случае ещё нельзя вызывать _generateSql
-			if (!$this->_sql) {
+			if (!$this->_sql && !empty($this->_columns)) {
 				$this->_generateSql();
 			}
 		}
@@ -257,7 +262,10 @@ abstract class AbstractSaver implements SaverInterface,
 
 		$this->_count++;
 
-		$this->_logger->addDebug('Add record', [ 'count' => $this->_count ]);
+		$this->_logger->addDebug('Add record', [
+			'record' => $record,
+			'count' => $this->_count
+		]);
 
 		if (0 !== $this->_batchSize
 			&& $this->_count >= $this->_batchSize) {
@@ -267,7 +275,7 @@ abstract class AbstractSaver implements SaverInterface,
 	}
 
 	/**
-	 * Устанавливает, в какие поля будут сохраняться данные
+	 * Устанавливает, в какие поля будут сохраняться данные.
 	 *
 	 * @param string[] $columns названия полей
 	 * @access protected
@@ -294,6 +302,8 @@ abstract class AbstractSaver implements SaverInterface,
 				);
 			}
 		}
+
+		$this->_generateSql();
 	}
 
 	/**
@@ -321,7 +331,6 @@ abstract class AbstractSaver implements SaverInterface,
 
 		if ($columns) {
 			$this->_setColumns($columns);
-			$this->_generateSql();
 			$all = $this->_table->getColumns();
 		}
 	}

@@ -37,11 +37,14 @@ final class Mysqli extends \Mysqli
 	 * @return Select | true
 	 * @throws \Exception
 	 */
-	public function query($sql, $resultMode = \MYSQLI_STORE_RESULT) {
+	public function query($sql,
+		$resultMode = \MYSQLI_STORE_RESULT) {
+
 		$r = parent::query($sql, $resultMode);
 		if (!$r instanceof \Mysqli_Result) {
 			return $r;
 		}
+
 		return new Select($r);
 	}
 
