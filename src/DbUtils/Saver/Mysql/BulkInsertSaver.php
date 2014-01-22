@@ -76,7 +76,8 @@ class BulkInsertSaver extends AbstractSaver {
 		}
 		$sql .= " INTO {$this->_table->getFullName()}";
 		$sql .= "\n(\n\t" .
-			implode(",\n\t", array_keys($this->_columns)) . "\n)";
+			implode(",\n\t", array_keys($this->_columns)) .
+			"\n)";
 
 		$this->_sql = $sql;
 		unset($sql);
@@ -101,12 +102,15 @@ class BulkInsertSaver extends AbstractSaver {
 	protected function _save() {
 
 		$sql = $this->_sql .
-			"\nVALUES \n\t" . implode(",\n\t", $this->_values) . ";";
+			"\nVALUES \n\t" .
+			implode(",\n\t", $this->_values) . ";";
 
 		$this->_db->query($sql);
 		unset($sql);
 
-		if ($info = $this->_db->info()) {
+		if ( ! $this->_options & static::OPT_DELAYED &&
+			$info = $this->_db->info() ) {
+
 			return $info['Records'] - $info['Duplicates'];
 		}
 
