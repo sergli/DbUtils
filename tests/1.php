@@ -4,7 +4,7 @@ use DbUtils\Adapter\Mysqli\Mysqli;
 
 require_once '../vendor/autoload.php';
 
-$ci = new DbUtils\DIContainer;
+$ci = new DbUtils\DiContainer;
 
 $db = $ci['mysql'];
 

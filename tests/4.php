@@ -2,7 +2,7 @@
 
 require_once '../vendor/autoload.php';
 
-$dic = new DbUtils\DIContainer;
+$dic = new DbUtils\DiContainer;
 
 $tableName = 'documents';
 $db = $dic['mysql'];

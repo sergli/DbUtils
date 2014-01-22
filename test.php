@@ -6,38 +6,43 @@ include 'vendor/autoload.php';
 
 $ci = new DbUtils\DiContainer;
 
-//var_dump($ci['mysql-new'], $ci['mysql'], $ci['mysql'], $ci['mysql-new'], $ci['mysql-new'], $ci['mysql']);
-//
-//var_dump($ci['postgres'], $ci['postgres'], $ci['postgres-new'], $ci['postgres-new'], $ci['postgres']);
-//
+$ci['mysql-new'];
+$ci['mysql'];
+$ci['mysql'];
+$ci['mysql-new'];
+$ci['mysql-new'];
+$ci['mysql'];
+$ci['postgres'];
+$ci['postgres'];
+$ci['postgres-new'];
+$ci['postgres-new'];
+$ci['postgres'];
 
-//var_dump($ci['mysql']->fetchColumn('show tables'));
+$db = $ci['pdo-postgres'];
+$table = $db->getTable('documents');
 
-$ci['mysql.table_name'] = 'documents';
+var_dump($table->getColumns());
+var_dump($table->getIndices());
 
-var_dump($ci['mysql.table']->getColumns());
-var_dump($ci['mysql.table']->getIndices());
+$db = $ci['pdo-pgsql'];
 
-$ci['postgres.table_name'] = 'documents';
+var_dump($db->getTable('documents')->getPrimaryKey());
 
-//var_dump($ci['postgres.table']);
-//var_dump($ci['postgres.table']);
+$db = $ci['pdo-mysql'];
 
-//$saver = new DbUtils\Saver\Mysql\LoadDataSaver(
-//	$ci['mysql.table']);
-//
+$tableName = 'documents';
+$table = $db->getTable('documents');
 
-$db = $ci['mysql'];
+$table->truncate();
 
-$saver = new DbUtils\Saver\Mysql\BulkInsertSaver(
+$saver = new DbUtils\Saver\Mysql\LoadDataSaver(
 	$db, 'documents');
 
 $saver->setLogger($ci['monolog']);
-$saver->setBatchSize(50000);
+$saver->setBatchSize(5000);
 
-$ci['mysql.table']->truncate();
+$saver->setOptions(0);
 
-//var_dump($ci['mysql.table']->getColumns());
 for ($i = 0; $i < 100000; $i++) {
 	$record = array(
 		'id'		=> $i + 1,
