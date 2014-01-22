@@ -103,4 +103,6 @@ interface AdapterInterface {
 	 * @return string
 	 */
 	public function quote($text);
+
+	public function getAffectedRows();
 }

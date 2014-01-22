@@ -103,8 +103,13 @@ class BulkInsertSaver extends AbstractSaver {
 		$sql = $this->_sql .
 			"\nVALUES \n\t" . implode(",\n\t", $this->_values) . ";";
 
-		$r = $this->_db->query($sql);
+		$this->_db->query($sql);
+		unset($sql);
 
-		return $this->_db->affected_rows;
+		if ($info = $this->_db->info()) {
+			return $info['Records'] - $info['Duplicates'];
+		}
+
+		return $this->_db->getAffectedRows();
 	}
 }

@@ -67,6 +67,7 @@ class LoadDataSaver extends AbstractSaver {
 		$tableName, array $columns = []) {
 
 		//	Вызов деструктора по <C-c>
+		//	NOTE: обнуляет ранее объявленный обработчик
 		pcntl_signal(SIGINT, function() {});
 
 		$this->_createTempFile();
@@ -155,9 +156,12 @@ class LoadDataSaver extends AbstractSaver {
 		*/
 
 		$this->_db->query($this->_sql);
-		$info = $this->_db->info();
 
-		return ($info['Records'] - $info['Skipped']);
+		if ($info = $this->_db->info()) {
+			return ($info['Records'] - $info['Skipped']);
+		}
+
+		return $this->_db->getAffectedRows();
     }
 
     public function __destruct() {
@@ -172,11 +176,10 @@ class LoadDataSaver extends AbstractSaver {
 
 		$fileName = $this->_file->getPathName();
 		$this->_file = null;
+        @unlink($fileName);
 
 		$this->_logger->addNotice(sprintf(
 			'Remove temp file: %s', $fileName));
-
-        @unlink($fileName);
     }
 
 	/**

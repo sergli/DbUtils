@@ -90,7 +90,7 @@ final class Mysqli extends \Mysqli
     /**
      * Обертка \mysqli::$info
 	 *
-     * @return array массив с некоторыми фиксированными ключами
+     * @return array|null
      * @access public
      */
 	public function info() {
@@ -108,9 +108,10 @@ final class Mysqli extends \Mysqli
 		];
 
 		if (empty($info)) {
-			return $def;
+			return null;
 		}
-		$pattern = '/(' . implode('|', array_keys($def)) .'): (\d+)/';
+		$pattern = '/(' .
+			implode('|', array_keys($def)) .'): (\d+)/';
 		preg_match_all($pattern, $info, $matches);
 		$info = array_combine($matches[1], $matches[2]);
 
@@ -119,5 +120,9 @@ final class Mysqli extends \Mysqli
 
 	public function quote($text) {
 		return "'{$this->real_escape_string($text)}'";
+	}
+
+	public function getAffectedRows() {
+		return $this->affected_rows;
 	}
 }

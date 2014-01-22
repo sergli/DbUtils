@@ -26,4 +26,8 @@ class Mysql extends Pdo implements MysqlAdapterInterface {
 	public function getPlatformName() {
 		return self::PLATFORM_MYSQL;
 	}
+
+	public function info() {
+		return null;
+	}
 }

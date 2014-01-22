@@ -114,8 +114,7 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @param array $record уже нужным образом заквоченная запись
 	 * @abstract
 	 * @access protected
-	 * @return void
-	 * @see add()
+	 * @return int кол-во реально добавленных записей
 	 */
 	abstract protected function _add(array $record);
 	/**
@@ -160,17 +159,14 @@ abstract class AbstractSaver implements SaverInterface,
 		}
 
 		try {
-			$cnt = $this->_save();
+			$count = $this->_save();
 			$this->reset();
-			$this->_logger->addInfo('Saving...', [ 'count' => $cnt ]);
-			return $cnt;
+			$this->_logger->addInfo('Saving...', [ 'count' => $count ]);
 		}
 		catch (\Exception $e) {
 			$this->_logger->addError('Saving... Exception!', [ 'exception' => $e ]);
-			//todo бросать другой тип исключения
-			throw new \Exception(
-				"Ошибка при вставке данных:\n{$e->getMessage()}"
-			);
+
+			throw $e;
 		}
 	}
 
@@ -200,7 +196,7 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @return void
 	 */
 	public function __destruct() {
-		$this->_logger->addInfo('Destruct.');
+		$this->_logger->addInfo('Destruct');
 		$this->save();
 	}
 

@@ -93,8 +93,7 @@ class BulkInsertSaver extends AbstractSaver {
 
 		$r = $this->_db->query($sql);
 
-		return pg_affected_rows($r->getResource());
+		return $this->_db->getAffectedRows();
 	}
 }
-
 

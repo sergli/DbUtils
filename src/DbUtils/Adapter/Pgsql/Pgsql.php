@@ -11,6 +11,8 @@ final class Pgsql implements PostgresAdapterInterface {
 
 	private $_db;
 
+	private $_affectedRows = 0;
+
 	public function getPlatformName() {
 		return self::PLATFORM_POSTGRES;
 	}
@@ -63,6 +65,8 @@ final class Pgsql implements PostgresAdapterInterface {
 
 		$r = pg_query($this->_db, $sql);
 
+		$this->_affectedRows = pg_affected_rows($r);
+
 		restore_error_handler();
 
 		return new Select($r, $sql);
@@ -76,5 +80,9 @@ final class Pgsql implements PostgresAdapterInterface {
 	 */
 	public function quote($text) {
 		return pg_escape_literal($this->_db, $text);
+	}
+
+	public function getAffectedRows() {
+		return $this->_affectedRows;
 	}
 }

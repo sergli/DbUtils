@@ -11,6 +11,8 @@ abstract class Pdo extends \PDO implements AdapterInterface {
 
 	protected static $_driverName;
 
+	private $_affectedRows = 0;
+
 	public function getPlatformName() {
 
 		$platform = $this->getAttribute(self::ATTR_DRIVER_NAME);
@@ -35,7 +37,7 @@ abstract class Pdo extends \PDO implements AdapterInterface {
 		$driverOpts = [
 			self::ATTR_ERRMODE	=> self::ERRMODE_EXCEPTION
 		];
-		$driverOpts += $this->_getDriverOptions();
+		$driverOpts += $this->_getDriverOptions($opts);
 
 		$user = !empty($opts['user']) ?
 			$opts['user'] : null;
@@ -52,6 +54,7 @@ abstract class Pdo extends \PDO implements AdapterInterface {
 
 	public function query($sql) {
 		$stmt = parent::query($sql, parent::FETCH_ASSOC);
+		$this->_affectedRows = $stmt->rowCount();
 		return new Select($stmt);
 	}
 
@@ -76,6 +79,10 @@ abstract class Pdo extends \PDO implements AdapterInterface {
 			http_build_query($opts, null, ';');
 
 		return $dsn;
+	}
+
+	public function getAffectedRows() {
+		return $this->_affectedRows;
 	}
 
 	abstract protected function _getDriverOptions(array $opts);

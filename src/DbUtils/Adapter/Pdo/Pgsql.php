@@ -2,7 +2,7 @@
 
 namespace DbUtils\Adapter\Pdo;
 
-use DbUtils\Adapter\MysqlAdapterInterface;
+use DbUtils\Adapter\PostgresAdapterInterface;
 
 class Pgsql extends Pdo implements PostgresAdapterInterface {
 
