@@ -192,4 +192,10 @@ SQL;
 
 		return $columns;
 	}
+
+	public function truncate() {
+		$sql = "TRUNCATE TABLE " .
+			$this->_getFullName() . " RESTART IDENTITY;";
+		$this->_db->query($sql);
+	}
 }
