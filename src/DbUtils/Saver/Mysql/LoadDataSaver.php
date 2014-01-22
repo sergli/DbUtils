@@ -68,11 +68,13 @@ class LoadDataSaver extends AbstractSaver {
 
 		//	Вызов деструктора по <C-c>
 		//	NOTE: обнуляет ранее объявленный обработчик
-		pcntl_signal(SIGINT, function() {});
-
-		$this->_createTempFile();
+		pcntl_signal(SIGINT, function() {
+			exit;
+		});
 
 		parent::__construct($adapter, $tableName, $columns);
+
+		$this->_createTempFile();
 	}
 
 	/**
@@ -143,7 +145,7 @@ class LoadDataSaver extends AbstractSaver {
 	}
 
 
-    public function _add(array $record) {
+	public function _add(array $record) {
 		$this->_file->fwrite(implode("\t", $record) . "\n");
     }
 
@@ -155,9 +157,12 @@ class LoadDataSaver extends AbstractSaver {
 			'SET SESSION table_lock_wait_timeout := 600');
 		*/
 
+		pcntl_signal_dispatch();
+
 		$this->_db->query($this->_sql);
 
-		if ($info = $this->_db->info()) {
+		if ( $info = $this->_db->info() ) {
+
 			return ($info['Records'] - $info['Skipped']);
 		}
 
@@ -192,7 +197,8 @@ class LoadDataSaver extends AbstractSaver {
 	 */
 	private function _createTempFile() {
 		$dirName = sys_get_temp_dir();
-		$fileName = uniqid('PHP.' . $this->_table->getFullName() . '_');
+		$fileName = uniqid('PHP.' .
+			$this->_table->getFullName() . '_');
 		$fileName = $dirName . '/' . $fileName . '.txt';
 
 		$this->_file = new \SplFileObject($fileName, 'a+b');
