@@ -6,6 +6,7 @@ use Pimple;
 
 use DbUtils\Adapter\Mysqli\Mysqli;
 use DbUtils\Adapter\Pgsql\Pgsql;
+use DbUtils\Adapter\Pdo;
 use DbUtils\Table\MysqlTable;
 use DbUtils\Table\PostgresTable;
 
@@ -51,26 +52,24 @@ class DiContainer extends Pimple {
 			return new Pgsql($config);
 		};
 
-		$this['mysql.table'] = function($ci) {
-			return new MysqlTable(
-				$ci['mysql-new'], $ci['mysql.table_name']
-			);
-		};
-
-		$this['postgres.table'] = function($ci) {
-			return new PostgresTable(
-				$ci['postgres-new'], $ci['postgres.table_name']
-			);
-		};
-
 		$this['monolog'] = function($ci) {
 			$logger = new Logger('DbUtils');
 			$logger->pushHandler(
 				new StreamHandler('php://stderr',
 				\Monolog\Logger::INFO));
-			$logger->pushProcessor(new MemoryPeakUsageProcessor());
+			$logger->pushProcessor(new MemoryPeakUsageProcessor);
 
 			return $logger;
 		};
+
+		$this['pdo-mysql'] = function($ci) {
+			return new Pdo\Mysql($ci['config']['mysql']);
+		};
+
+		$this['pdo-postgres'] = function($ci) {
+			return new Pdo\Pgsql($ci['config']['postgres']);
+		};
+
+		$this['pdo-pgsql'] = $this->raw('pdo-postgres');
 	}
 }
