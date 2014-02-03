@@ -11,16 +11,6 @@ use DbUtils\Table\TableInterface;
  */
 interface AdapterInterface {
 
-	const PLATFORM_MYSQL = 'mysql';
-	const PLATFORM_POSTGRES = 'postgres';
-
-	/**
-	 * Возвращает имя СУБД
-	 *
-	 * @return string mysql|postgres
-	 */
-	public function getPlatformName();
-
 	/**
 	 * Выполняет sql-запрос
 	 *
@@ -103,6 +93,4 @@ interface AdapterInterface {
 	 * @return string
 	 */
 	public function quote($text);
-
-	public function getAffectedRows();
 }

@@ -9,7 +9,8 @@ use DbUtils\Adapter\AdapterInterface;
  *
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
-interface TableInterface {
+interface TableInterface
+{
 
 	/**
 	 * Получить экземпляр соединения с БД
@@ -82,14 +83,4 @@ interface TableInterface {
 	 */
 	public function getColumns();
 
-	/**
-	 * Проверить, существует ли таблица с указ. именем
-	 *
-	 * @param mysqli|PDO|resource $db ресурс соединения с БД
-	 * @param string $tableName
-	 * @static
-	 * @access public
-	 * @return boolean
-	 */
-	public static function exists($db, $tableName);
 }

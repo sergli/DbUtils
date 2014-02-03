@@ -4,19 +4,26 @@ namespace DbUtils\Table;
 
 use DbUtils\Adapter\MysqlAdapterInterface;
 
-class MysqlTable extends AbstractTable {
-
+class MysqlTable extends AbstractTable
+{
 	public function __construct(MysqlAdapterInterface $db,
-		$tableName) {
+		$tableName)
+	{
 
 		parent::__construct($db, $tableName);
 	}
 
-	protected function _getBaseInfo($tableName) {
-
+	/**
+	 * @param mixed $tableName
+	 * @return string[]
+	 * @throws TableNotExistsException
+	 */
+	protected function _getBaseInfo($tableName)
+	{
 		$regex = '/^(?:`?([a-z0-9_]+)`?\.)?([a-z0-9_]+)$/i';
-		if (!preg_match($regex, $tableName, $matches)) {
-			throw new \Exception("Плохое имя таблицы: $tableName");
+		if (!preg_match($regex, $tableName, $matches))
+		{
+			throw new TableNotExistsException($tableName);
 		}
 		$name = $matches[2];
 		$schema = $matches[1];
@@ -24,16 +31,19 @@ class MysqlTable extends AbstractTable {
 		$tableName = $schema ? "$schema.$name" : $name;
 		//	попробуем сразу и тек. базу узнать и сущ-ие таблицы проверить
 		$sql = "SELECT DATABASE() FROM $tableName LIMIT 1;";
-		try {
+		try
+		{
 			$schema = $this->_db->fetchOne($sql);
-			if (is_null($schema)) { // таблица есть, но пустая
+			if (is_null($schema))
+			{ // таблица есть, но пустая
 				$schema = $this->_db->fetchOne("SELECT DATABASE();");
 			}
-		} //todo exception
-		catch (\Exception $e) {
-			if (1146 == $e->getCode()) {
-				throw new \Exception(
-					"Таблица $tableName не существует");
+		}
+		catch (\Exception $e)
+		{
+			if (1146 == $e->getCode())
+			{
+				throw new TableNotExistsException($tableName);
 			}
 			//	else throw
 			throw $e;
@@ -45,7 +55,8 @@ class MysqlTable extends AbstractTable {
 		];
 	}
 
-	protected function _getConstraints() {
+	protected function _getConstraints()
+	{
 		//	корявый sql из-за того, что
 		//	mysql не может нормально выполнить join без ключей
 		$sql = <<<SQL
@@ -82,25 +93,28 @@ SQL;
 		$stmt->bind_result_array($row);
 
 		$constraints = array();
-		while ($stmt->fetch()) {
+		while ($stmt->fetch())
+		{
 			$con = [];
 			$name = $row['CONSTRAINT_NAME'];
 
-			if (!isset($constraints[$name])) {
+			if (!isset($constraints[$name]))
+			{
 				$con['name'] = $name;
 				$con['columns'] = [];
 				$con['ref_columns'] = [];
-				switch ($row['CONSTRAINT_TYPE']) {
-				case 'UNIQUE':
-					$con['type'] = self::CONTYPE_UNIQUE;
-					break;
-				case 'PRIMARY KEY':
-					$con['type'] = self::CONTYPE_PRIMARY;
-					break;
-				case 'FOREIGN KEY':
-					$con['type'] = self::CONTYPE_FOREIGN;
-					$con['ref_table'] = $row['REFERENCED_TABLE_NAME'];
-					break;
+				switch ($row['CONSTRAINT_TYPE'])
+				{
+					case 'UNIQUE':
+						$con['type'] = self::CONTYPE_UNIQUE;
+						break;
+					case 'PRIMARY KEY':
+						$con['type'] = self::CONTYPE_PRIMARY;
+						break;
+					case 'FOREIGN KEY':
+						$con['type'] = self::CONTYPE_FOREIGN;
+						$con['ref_table'] = $row['REFERENCED_TABLE_NAME'];
+						break;
 				}
 				$constraints[$name] = $con;
 			}
@@ -108,7 +122,8 @@ SQL;
 			//	соберём имена колонок, участвующих в ограничении
 			$constraints[$name]['columns'][] = $row['COLUMN_NAME'];
 			//	для внешних ключей соберём и связанные колонки
-			if ($ref_col = $row['REFERENCED_COLUMN_NAME']) {
+			if ($ref_col = $row['REFERENCED_COLUMN_NAME'])
+			{
 				$constraints[$name]['ref_columns'][] = $ref_col;
 			}
 		}
@@ -116,15 +131,17 @@ SQL;
 		return $constraints;
 	}
 
-	protected function _getIndices() {
-
+	protected function _getIndices()
+	{
         $sql = "SHOW INDEX FROM {$this->getFullName()};";
 		$rows = $this->_db->fetchAll($sql);
 		$indices = array();
-		foreach ($rows as $row) {
+		foreach ($rows as $row)
+		{
 			$index = array();
 			$name = $row['Key_name'];
-			if (!isset($indices[$name])) {
+			if (!isset($indices[$name]))
+			{
 				$index['is_primary'] = ($name == 'PRIMARY');
 				$index['is_unique'] = !$row['Non_unique'];
 				$index['type'] = $row['Index_type'];
@@ -140,11 +157,13 @@ SQL;
     }
 
 
-	public function _getColumns() {
+	public function _getColumns()
+	{
 		$sql = "SHOW COLUMNS FROM {$this->getFullName()};";
 		$rows = $this->_db->fetchAll($sql);
 		$columns = array();
-		foreach ($rows as $row) {
+		foreach ($rows as $row)
+		{
 			$columns[$row['Field']] = $row['Type'];
 		}
 
