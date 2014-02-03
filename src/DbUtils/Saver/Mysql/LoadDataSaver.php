@@ -133,15 +133,13 @@ class LoadDataSaver extends AbstractMysqlSaver
 
 		pcntl_signal_dispatch();
 
-		$resultMode = \MYSQLI_STORE_RESULT;
-
 		if ($this->_options & self::OPT_ASYNC)
 		{
-			@$this->_db->reap_async_query();
-			$resultMode = \MYSQLI_ASYNC;
+			$this->_db->wait();
+			$this->_db->asyncExec($sql);
 		}
 
-		$this->_db->query($this->_sql, $resultMode);
+		$this->_db->query($this->_sql);
 
 		unset($sql);
     }

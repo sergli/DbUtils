@@ -5,8 +5,10 @@ namespace DbUtils\Adapter;
 use DbUtils\Select\SelectInterface;
 use DbUtils\Table\TableInterface;
 use DbUtils\Table\AbstractTable;
+use DbUtils\Table\TableNotExistsException;
 
-trait AdapterTrait {
+trait AdapterTrait
+{
 
 	/**
 	 * Возвращает объект таблицы
@@ -16,7 +18,8 @@ trait AdapterTrait {
 	 * @return TableInterface
 	 * @throws \Exception
 	 */
-	public function getTable($tableName) {
+	public function getTable($tableName)
+	{
 		return AbstractTable::factory($this, $tableName);
 	}
 
@@ -26,15 +29,17 @@ trait AdapterTrait {
 	 * @param string $tableName имя таблицы
 	 * @return boolean
 	 */
-	public function tableExists($tableName) {
-		try {
+	public function tableExists($tableName)
+	{
+		try
+		{
 			$this->getTable($tableName);
 			return true;
 		}
-		catch (\Exception $e) {
+		catch (TableNotExistsException $e)
+		{
+			return false;
 		}
-
-		return false;
 	}
 
 	/**
@@ -44,13 +49,16 @@ trait AdapterTrait {
 	 * @access public
 	 * @return array
 	 */
-	public function fetchRow($sql) {
+	public function fetchRow($sql)
+	{
 		$it = $this->query($sql);
-		if (!$it) {
+		if (!$it)
+		{
 			return null;
 		}
 		//	Возвращаем первую же строку
-		foreach ($it as $row) {
+		foreach ($it as $row)
+		{
 			$it->free();
 			return $row;
 		}
@@ -63,22 +71,27 @@ trait AdapterTrait {
 	 * @access public
 	 * @return string|null
 	 */
-	public function fetchOne($sql) {
+	public function fetchOne($sql)
+	{
 
 		$row = $this->fetchRow($sql);
-		if (empty($row)) {
+		if (empty($row))
+		{
 			return null;
 		}
 
 		return current($row);
 	}
 
-	public function fetchPairs($sql) {
+	public function fetchPairs($sql)
+	{
 		$it = $this->query($sql);
 		$pairs = [];
-		foreach ($it as $row) {
-			if (count($row) < 2) {
-				throw new \Exception("Количество колонок меньше двух");
+		foreach ($it as $row)
+		{
+			if (count($row) < 2)
+			{
+				throw new \Exception('Количество колонок меньше двух');
 			}
 			$pairs[current($row)] = next($row);
 		}
@@ -88,7 +101,8 @@ trait AdapterTrait {
 	}
 
 
-	public function fetchAll($sql) {
+	public function fetchAll($sql)
+	{
 		$it = $this->query($sql);
 		$all = iterator_to_array($it);
 		$it->free();
@@ -104,17 +118,20 @@ trait AdapterTrait {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function fetchColumn($sql, $colNum = 1) {
-
-		if ($colNum < 1) {
+	public function fetchColumn($sql, $colNum = 1)
+	{
+		if ($colNum < 1)
+		{
 			throw new \Exception('Неверный номер колонки');
 		}
 
 		$it = $this->query($sql);
 		$ret = [];
 		$flag = true;	//	чтоб сто раз не вызывать count
-		foreach ($it as $row) {
-			if ($flag && count($row) < $colNum) {
+		foreach ($it as $row)
+		{
+			if ($flag && count($row) < $colNum)
+			{
 				throw new \Exception('Неверный номер колонки');
 			}
 			$flag = false;
@@ -124,7 +141,8 @@ trait AdapterTrait {
 		return $ret;
 	}
 
-	public function fetchCol($sql, $column = 1) {
+	public function fetchCol($sql, $column = 1)
+	{
 		return $this->fetchColumn($sql, $column);
 	}
 }

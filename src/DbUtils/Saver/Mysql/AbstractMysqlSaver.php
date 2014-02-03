@@ -27,28 +27,13 @@ abstract class AbstractMysqlSaver extends AbstractSaver
 	 */
 	protected $_options		= 0b01011;
 
-	public function __destruct()
-	{
-		parent::__destruct();
-
-		//	если есть выполняющийся асинх. запрос,
-		//	дождёмся его завершения
-		if ($this->_options & static::OPT_ASYNC)
-		{
-			$this->_db->reap_async_query();
-		}
-	}
-
-	public function __construct(MysqlAdapterInterface $adapter,
+	public function __construct(
+		MysqlAdapterInterface $adapter,
 		$tableName, array $columns = null)
 	{
 		parent::__construct($adapter, $tableName, $columns);
 
 		$this->_init();
-	}
-
-	protected function _init()
-	{
 	}
 
 	public function setOptIgnore($val = true)
@@ -70,21 +55,5 @@ abstract class AbstractMysqlSaver extends AbstractSaver
 	public function setOptConcurrent($val = true)
 	{
 		return $this->_setOption(static::OPT_CONCURRENT, $val);
-	}
-
-	public function setOptAsync($val = true)
-	{
-		if ( !$val || (
-			$this->_db instanceof \Mysqli
-			&& method_exists('mysqli', 'reap_async_query') ))
-		{
-			return $this->_setOption(static::OPT_ASYNC, $val);
-		}
-
-		//	Драйвер не mysqli => поддержки асинх. нет
-
-		$this->_logger->addWarning('Asynchronious queries are only available with mysqlnd');
-
-		return $this;
 	}
 }

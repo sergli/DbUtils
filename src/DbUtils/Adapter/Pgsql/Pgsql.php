@@ -4,41 +4,62 @@ namespace DbUtils\Adapter\Pgsql;
 
 use DbUtils\Adapter\PostgresAdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
+use DbUtils\Adapter\AsyncExecInterface;
 
-final class Pgsql implements PostgresAdapterInterface {
-
+final class Pgsql implements
+	PostgresAdapterInterface,
+	AsyncExecInterface
+{
 	use AdapterTrait;
 
 	private $_db;
 
-	private $_affectedRows = 0;
+	public function asyncExec($sql)
+	{
+		pg_send_query($this->_db, $sql);
+	}
 
-	public function getPlatformName() {
-		return self::PLATFORM_POSTGRES;
+	public function wait()
+	{
+		do
+		{
+			$r = pg_get_result($this->_db);
+		}
+		while ($r);
+	}
+
+	public function getResource()
+	{
+		return $this->_db;
 	}
 
 	public static function errorHandler($errno, $errstr,
-		$errfile, $errline) {
-
+		$errfile, $errline)
+	{
 		throw new \ErrorException($errstr, $errno,
 				0, $errfile, $errline);
 	}
 
-	public function __construct(array $opt = []) {
+	public function __construct(array $opt = [])
+	{
 		$o = [];
 
 		$o['host'] = isset($opt['host'])
 			? $opt['host'] : 'localhost';
-		if (isset($opt['dbname'])) {
+		if (isset($opt['dbname']))
+		{
 			$o['dbname'] = $opt['dbname'];
 		}
-		if (isset($opt['port'])) {
+		if (isset($opt['port']))
+		{
 			$o['port'] = $opt['port'];
 		}
-		if (isset($opt['user'])) {
+		if (isset($opt['user']))
+		{
 			$o['user'] = $opt['user'];
 		}
-		if (isset($opt['password'])) {
+		if (isset($opt['password']))
+		{
 			$o['password'] = $opt['password'];
 		}
 
@@ -59,17 +80,16 @@ final class Pgsql implements PostgresAdapterInterface {
 
 	}
 
-	public function query($sql) {
+	public function query($sql)
+	{
 
 		set_error_handler('static::errorHandler');
 
 		$r = pg_query($this->_db, $sql);
 
-		$this->_affectedRows = pg_affected_rows($r);
-
 		restore_error_handler();
 
-		return new Select($r, $sql);
+		return new Select($r);
 	}
 
 	/**
@@ -78,11 +98,8 @@ final class Pgsql implements PostgresAdapterInterface {
 	 * @return string
 	 * @todo pg_escape_bytea()
 	 */
-	public function quote($text) {
+	public function quote($text)
+	{
 		return pg_escape_literal($this->_db, $text);
-	}
-
-	public function getAffectedRows() {
-		return $this->_affectedRows;
 	}
 }

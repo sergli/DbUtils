@@ -3,6 +3,7 @@
 namespace DbUtils\Saver;
 
 use DbUtils\Adapter\AdapterInterface;
+use DbUtils\Adapter\AsyncExecInterface;
 use DbUtils\Table\TableInterface;
 
 use Monolog\Logger;
@@ -22,7 +23,8 @@ use Monolog\Handler\StreamHandler;
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
 abstract class AbstractSaver implements SaverInterface,
-	\ArrayAccess {
+	\ArrayAccess
+{
 
 	/**
 	 * Дополнительные опции сейвера. Битовая маска
@@ -84,18 +86,11 @@ abstract class AbstractSaver implements SaverInterface,
 	 */
 	protected $_logger;
 
-	const E_NO_TABLE_NAME = 10;
-	const E_NO_STRUCTURE = 11;
-	const E_INCORRECT_COLUMNS_COUNT = 12;
-	const E_COLUMN_NOT_EXISTS = 13;
-	const E_TABLE_NOT_EXISTS = 14;
-	const E_NONE_KEY = 16;
-
 	/**
 	 * @type int	0 - отмена автомат. сохранения
 	 */
 	const MIN_BATCH_SIZE = 0;
-	const MAX_BATCH_SIZE = 50000;
+	const MAX_BATCH_SIZE = 500000;
 	const DEFAULT_BATCH_SIZE = 5000;
 
 	/**
@@ -138,71 +133,119 @@ abstract class AbstractSaver implements SaverInterface,
 
 	abstract protected function _reset();
 
-	public function reset() {
+	protected function _init()
+	{
+	}
+
+	public function reset()
+	{
+		$this->_logger->addInfo('Reset saver');
 		$this->_reset();
-		$this->_logger->addInfo(sprintf(
-			'Reset saver. New buffer size is %d', $this->_count));
 	}
 
 	/**
 	 * Сохраняет буфер, обнуляет его
 	 *
 	 * @access public
-	 * @return int
-	 * @throws \Exception
+	 * @return boolean успех/неудача
 	 */
-	public function save() {
-
-		if (0 === $this->_count) {
-			$this->_logger->addInfo('Saving... buffer is empty');
+	public function save()
+	{
+		if (0 === $this->_count)
+		{
+			$this->_logger->addInfo('Saving: buffer is empty');
 			return 0;
 		}
 
-		try {
-			$count = $this->_save();
-			$this->reset();
-			$this->_logger->addInfo('Saving...', [
+		try
+		{
+			$ts = microtime(true);
+			$this->_save();
+
+			$this->_logger->addInfo('Saving', [
+				'count' => $this->getSize(),
 				'sql'	=>
 					preg_replace('/[\n\t]/', ' ', $this->_sql),
-				'count' => $count
-			]);
-		}
-		catch (\Exception $e) {
-			$this->_logger->addError('Saving... Exception!', [
-				'exception' => $e
+				'time'	=> round(microtime(true) - $ts, 3)
 			]);
 
-			throw $e;
+			$this->reset();
+
+			return true;
+		}
+		catch (\Exception $e)
+		{
+			$this->_logger->addError('Saving: error', [
+				'exception' => $e,
+				'time'		=> round(microtime(true) - $ts, 3),
+			]);
+
+			return false;
 		}
 	}
-
 
 	/**
-	 * Устанавливает дополнительные опции
-	 * ЕСЛИ был установлен $_sql, пересчитывает его
+	 * Установить или снять опцию
 	 *
-	 * @param int $option битовая маска констант
+	 * @param int $option одна из констант static::OPT_
+	 * @param bool $switch установить/снять
+	 * @return this
 	 */
-	public function setOptions($options) {
-		$options = (int) $options;
-		//	изменились опции - пересчитываем sql
-		if ($options !== $this->_options) {
-			$this->_options = $options;
-			if (!$this->_sql && !empty($this->_columns)) {
-				$this->_generateSql();
-			}
+	protected function _setOption($option, $switch)
+	{
+		$option = (int) $option;
+
+		switch ($switch)
+		{
+			case true:
+				$this->_options |= $option;
+				break;
+			case false:
+				$this->_options &= ~$option;
+				break;
 		}
+
+		//	пересчитываем $_sql (кроме первого запуска)
+		if (!$this->_sql && !empty($this->_columns))
+		{
+			$this->_generateSql();
+		}
+
+		return $this;
 	}
 
+	public function setOptAsync($val = true)
+	{
+		if (!$val || $this->_db instanceof AsyncExecInterface )
+		{
+			//	на всякий случай - если, например, неск. раз меняли
+			$this->_db->wait();
+
+			return $this->_setOption(static::OPT_ASYNC, $val);
+		}
+
+		$this->_logger->addWarning(sprintf(
+			'Adapter %s does not support async execution',
+			get_class($this->_db)));
+
+		return $this;
+	}
 	/**
 	 * При уничтожении объекта сохраняем оставшееся
 	 *
 	 * @access public
 	 * @return void
 	 */
-	public function __destruct() {
+	public function __destruct()
+	{
 		$this->_logger->addInfo('Destruct');
 		$this->save();
+
+		if ($this->_options & static::OPT_ASYNC)
+		{
+			//	ждём завершения последнего запроса
+			$this->_db->wait();
+		}
 	}
 
 	/**
@@ -214,18 +257,20 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @see _quote()
 	 * @throws \Exception
 	 */
-	private function _cleanRow(array $row) {
+	private function _cleanRow(array $row)
+	{
 		$record = array();
 
-		foreach ($this->_columns as $field => $dataType) {
-			if (!array_key_exists($field, $row)) {
-				throw new \Exception(
-					"Необходимо поле $field у записи " .
-						substr(print_r($row, 1), 5),
-					self::E_COLUMN_NOT_EXISTS
-				);
+		foreach ($this->_columns as $field => $dataType)
+		{
+			if (!array_key_exists($field, $row))
+			{
+				throw new \Exception(sprintf(
+					'Необходимо поле %s у записи \n%s',
+						$field, print_r($row, true)));
 			}
-			$record[$field] = $this->_quote($field, $row[$field]);
+			$record[$field] =
+				$this->_quote($field, $row[$field]);
 		}
 
 		return $record;
@@ -241,18 +286,18 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @see _cleanRow()
 	 * @throws \Exception
 	 */
-	public function add(array $row) {
-
-		if (empty($this->_columns)) {
+	public function add(array $row)
+	{
+		if (empty($this->_columns))
+		{
 			$this->_setColumns(array_keys($row));
-			$this->_generateSql();
 		}
 
-		if (count($row) !== count($this->_columns)) {
-			throw new \Exception(
-				"Неверное кол-во полей у записи\n" . print_r($row, true),
-				self::E_INCORRECT_COLUMNS_COUNT
-			);
+		if (count($row) !== count($this->_columns))
+		{
+			throw new \Exception(sprintf(
+				'Неверное кол-во полей у записи\n%s',
+					print_r($row, true)));
 		}
 
 		$record = $this->_cleanRow($row);
@@ -268,7 +313,8 @@ abstract class AbstractSaver implements SaverInterface,
 		]);
 
 		if (0 !== $this->_batchSize
-			&& $this->_count >= $this->_batchSize) {
+			&& $this->_count >= $this->_batchSize)
+		{
 			$this->save();
 		}
 
@@ -283,23 +329,25 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @see _generateSql()
 	 * @throws \Exception
 	 */
-	protected function _setColumns(array $columns) {
-		if (empty($columns)) {
-			throw new \Exception("Пустой массив полей",
-				self::E_NO_COLUMNS);
+	protected function _setColumns(array $columns)
+	{
+		if (empty($columns))
+		{
+			throw new \Exception('Пустой массив полей');
 		}
 
 		$all = $this->_table->getColumns();
-		foreach ($columns as $column) {
-			if (is_string($column) && isset($all[$column])) {
+		foreach ($columns as $column)
+		{
+			if (is_string($column) && isset($all[$column]))
+			{
 				//	запоминаем тип
 				$this->_columns[$column] = $all[$column];
 			}
-			else {
-				throw new \Exception(
-					"Поле не существует: $column",
-					self::E_COLUMN_NOT_EXISTS
-				);
+			else
+			{
+				throw new \Exception(sprintf(
+					'Поле не существует: %s', $column));
 			}
 		}
 
@@ -318,7 +366,8 @@ abstract class AbstractSaver implements SaverInterface,
 	 */
 
 	public function __construct(AdapterInterface $adapter,
-		$tableName, array $columns = null) {
+		$tableName, array $columns = null)
+	{
 
 		$this->_db = $adapter;
 
@@ -327,9 +376,10 @@ abstract class AbstractSaver implements SaverInterface,
 		$this->_count = 0;
 
 		$this->setLogger();
-		$this->setBatchSize();
+		$this->setBatchSize(static::DEFAULT_BATCH_SIZE);
 
-		if ($columns) {
+		if ($columns)
+		{
 			$this->_setColumns($columns);
 			$all = $this->_table->getColumns();
 		}
@@ -341,8 +391,10 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @param Logger $logger
 	 * @return void
 	 */
-	public function setLogger(Logger $logger = null) {
-		if (is_null($logger)) {
+	public function setLogger(Logger $logger = null)
+	{
+		if (is_null($logger))
+		{
 			$channel = get_class($this);
 			$logger = new Logger($channel);
 			$logger->pushHandler(new NullHandler);
@@ -359,7 +411,8 @@ abstract class AbstractSaver implements SaverInterface,
 	 *
 	 * @return Logger
 	 */
-	public function getLogger() {
+	public function getLogger()
+	{
 		return $this->_logger;
 	}
 
@@ -369,7 +422,8 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @access public
 	 * @return int
 	 */
-	public function getSize() {
+	public function getSize()
+	{
 		return $this->_count;
 	}
 
@@ -379,7 +433,8 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @access public
 	 * @return int
 	 */
-	public function getBatchSize() {
+	public function getBatchSize()
+	{
 		return $this->_batchSize;
 	}
 
@@ -391,10 +446,12 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @return int новый размер
 	 * @throws \Exception
 	 */
-	public function setBatchSize($size = self::DEFAULT_BATCH_SIZE) {
+	public function setBatchSize($size)
+	{
 		$size = (int) $size;
-		if ($size >= self::MIN_BATCH_SIZE &&
-			$size <= self::MAX_BATCH_SIZE) {
+		if ($size >= static::MIN_BATCH_SIZE &&
+			$size <= static::MAX_BATCH_SIZE)
+		{
 
 			$this->_batchSize = $size;
 
@@ -406,45 +463,53 @@ abstract class AbstractSaver implements SaverInterface,
 		}
 		throw new \OutOfRangeException(
 			'Размер буфера должен быть в пределах от ' .
-			self::MIN_BATCH_SIZE . ' до ' . self::MAX_BATCH_SIZE);
+			self::MIN_BATCH_SIZE . ' до ' . static::MAX_BATCH_SIZE);
 	}
 
 
 	//////////////////////	ArrayAccess	//////////////////////////
 
-	public function offsetExists($offset) {
+	public function offsetExists($offset)
+	{
 		throw new \Exception(
 			'Чтение внутренних данных запрещено реализацией'
 		);
 	}
 
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		throw new \Exception(
 			'Чтение внутренних данных запрещено реализацией');
 	}
 
-	public function offsetSet($offset, $row) {
-		if (is_null($offset)) {	//	в конец
+	public function offsetSet($offset, $row)
+	{
+		if (is_null($offset))
+		{	//	в конец
 			$offset = $this->_count;
 		}
-		else {
+		else
+		{
 			$offset = (int) $offset;
 		}
-		if ($offset !== $this->_count) {
+		if ($offset !== $this->_count)
+		{
 			throw new \Exception(
 				'Добавить новую запись можно только в конец очереди');
 		}
 		$this->add($row);
 	}
 
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		throw new \Exception(
 			'Удаление из внутренних данных запрещено реализацией');
 	}
 
 	/////////////////////	Countable	/////////////////////////
 
-	public function count() {
+	public function count()
+	{
 		return $this->getSize();
 	}
 }

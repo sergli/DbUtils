@@ -205,8 +205,8 @@ class PostgresTable extends AbstractTable
 
 	public function truncate()
 	{
-		$sql = "TRUNCATE TABLE " .
-			$this->_getFullName() . " RESTART IDENTITY;";
+		$sql = 'TRUNCATE TABLE ' .
+			$this->getFullName() . ' RESTART IDENTITY;';
 		$this->_db->query($sql);
 	}
 }

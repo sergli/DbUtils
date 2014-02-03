@@ -4,17 +4,39 @@ namespace DbUtils\Adapter\Mysqli;
 
 use DbUtils\Adapter\MysqlAdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
+use DbUtils\Adapter\AsyncExecInterface;
 
-final class Mysqli extends \Mysqli
-	implements MysqlAdapterInterface {
-
+final class Mysqli extends \Mysqli implements
+	MysqlAdapterInterface,
+	AsyncExecInterface
+{
 	use AdapterTrait;
 
-	public function getPlatformName() {
-		return self::PLATFORM_MYSQL;
+	private $_inProgress = false;
+
+	public function asyncExec($sql)
+	{
+		if ($this->query($sql, MYSQLI_ASYNC))
+		{
+			$this->_inProgress = true;
+			return;
+		}
+
+		$this->_inProgress = false;
 	}
 
-	public function stmt_init() {
+	public function wait()
+	{
+		if ($this->_inProgress)
+		{
+			$this->reap_async_query();
+		}
+		$this->_inProgress = false;
+	}
+
+
+	public function stmt_init()
+	{
 		return new Stmt($this);
 	}
 
@@ -24,13 +46,12 @@ final class Mysqli extends \Mysqli
 	 * @param sql $sql текст sql-запроса
 	 * @return Stmt
 	 */
-	public function prepare($sql) {
+	public function prepare($sql)
+	{
 		return new Stmt($this, $sql);
 	}
 
 	/**
-	 * query
-	 *
 	 * @param string $sql
 	 * @param int $resultMode
 	 * @access public
@@ -38,10 +59,11 @@ final class Mysqli extends \Mysqli
 	 * @throws \Exception
 	 */
 	public function query($sql,
-		$resultMode = \MYSQLI_STORE_RESULT) {
-
+		$resultMode = \MYSQLI_STORE_RESULT)
+	{
 		$r = parent::query($sql, $resultMode);
-		if (!$r instanceof \Mysqli_Result) {
+		if (!$r instanceof \Mysqli_Result)
+		{
 			return $r;
 		}
 
@@ -49,7 +71,8 @@ final class Mysqli extends \Mysqli
 	}
 
 
-	public function __construct(array $opt = []) {
+	public function __construct(array $opt = [])
+	{
 		$driver = new \Mysqli_Driver;
 		$driver->report_mode =
 			MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT;
@@ -86,8 +109,10 @@ final class Mysqli extends \Mysqli
 		$this->set_charset($o['charset']);
 	}
 
-	public function fetchAll($sql) {
-		return parent::query($sql)->fetch_all(MYSQLI_ASSOC);
+	public function fetchAll($sql)
+	{
+		return parent::query($sql)
+			->fetch_all(MYSQLI_ASSOC);
 	}
 
     /**
@@ -96,7 +121,8 @@ final class Mysqli extends \Mysqli
      * @return array|null
      * @access public
      */
-	public function info() {
+	public function info()
+	{
 		$info = $this->info;
 
 		//	по умолчанию неизвестно
@@ -110,7 +136,8 @@ final class Mysqli extends \Mysqli
 			'Changed'		=> null,
 		];
 
-		if (empty($info)) {
+		if (empty($info))
+		{
 			return null;
 		}
 		$pattern = '/(' .
@@ -121,11 +148,9 @@ final class Mysqli extends \Mysqli
 		return array_merge($def, $info);
 	}
 
-	public function quote($text) {
-		return "'{$this->real_escape_string($text)}'";
-	}
-
-	public function getAffectedRows() {
-		return $this->affected_rows;
+	public function quote($text)
+	{
+		$text = $this->real_escape_string($text);
+		return "'$text'";
 	}
 }

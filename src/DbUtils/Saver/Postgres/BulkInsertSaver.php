@@ -2,45 +2,41 @@
 
 namespace DbUtils\Saver\Postgres;
 
-use DbUtils\Adapter\PostgresAdapterInterface;
-use DbUtils\Saver\AbstractSaver;
 use DbUtils\Table\PostgresTable;
+use DbUtils\Saver\Postgres\AbstractPostgresSaver;
 
 /**
- * BulkInsertSaver
+ * Вставляет данные в таблицу пачками, используя
+ * синтаксис insert ... values (...), (...), ...
  *
  * @uses Saver
  * @author Sergey Lisenkov <sergli@nigma.ru>
- * @todo Занаследовать saver\mysql\BulkInsertSaver ?
  */
-class BulkInsertSaver extends AbstractSaver {
-
-	protected $_availableAdapters = null;
-
+class BulkInsertSaver extends AbstractPostgresSaver
+{
 	protected $_values = [];
 
-	public function __construct(
-		PostgresAdapterInterface $adapter,
-		$tableName, array $columns = null) {
-
-		parent::__construct($adapter, $tableName, $columns);
-	}
-
-	protected function _quote($column, $value) {
-		if (null === $value) {
+	protected function _quote($column, $value)
+	{
+		if (null === $value)
+		{
 			return 'NULL';
 		}
-		if (true === $value) {
+		if (true === $value)
+		{
 			return 'true';
 		}
-		if (false === $value) {
+		if (false === $value)
+		{
 			return 'false';
 		}
-		if (is_numeric($value)) {
+		if (is_numeric($value))
+		{
 			return $value;
 		}
 
-		switch ($this->_columns[$column]) {
+		switch ($this->_columns[$column])
+		{
 			case 'integer':
 				return (int) $value;
 			case 'boolean':
@@ -55,27 +51,29 @@ class BulkInsertSaver extends AbstractSaver {
 		return $this->_db->quote($value);
 	}
 
-	protected function _reset() {
+	protected function _reset()
+	{
 		$this->_values = array();
 		$this->_count = 0;
 	}
 
-	protected function _generateSql() {
-
+	protected function _generateSql()
+	{
 		$sql = 'INSERT';
-		$sql .= " INTO {$this->_table->getFullName()}";
-		$sql .= "\n(\n\t" .
-			implode(",\n\t", array_keys($this->_columns)) . "\n)";
+		$sql .= ' INTO ' . $this->_table->getFullName();
+		$sql .= "\n(\n\t" . implode(",\n\t",
+			array_keys($this->_columns)) . "\n)";
 
 		$this->_sql = $sql;
 		unset($sql);
 	}
 
-	protected function _add(array $record) {
-
+	protected function _add(array $record)
+	{
 		$values = '';
 		$br = '';
-		foreach ($record as $field) {
+		foreach ($record as $field)
+		{
 			$values .= $br . $field;
 			$br = ', ';
 		}
@@ -86,14 +84,22 @@ class BulkInsertSaver extends AbstractSaver {
 		$this->_values[] = $values;
 	}
 
-	protected function _save() {
-
+	protected function _save()
+	{
 		$sql = $this->_sql .
-			"\nVALUES \n\t" . implode(",\n\t", $this->_values) . ";";
+			"\nVALUES \n\t" .
+			implode(",\n\t", $this->_values) . ";";
 
-		$r = $this->_db->query($sql);
-
-		return $this->_db->getAffectedRows();
+		if ($this->_options & static::OPT_ASYNC)
+		{
+			$this->_db->wait();
+			$this->_db->asyncExec($sql);
+		}
+		else
+		{
+			$this->_db->query($sql);
+		}
+		unset($sql);
 	}
 }
 

@@ -7,9 +7,8 @@ namespace DbUtils\Adapter;
  *
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
-interface SelectInterface extends \IteratorAggregate,
-							\Countable {
-
+interface SelectInterface extends \IteratorAggregate, \Countable
+{
 	/**
 	 * Освободить ресурсы
 	 *

@@ -12,17 +12,8 @@ use DbUtils\Adapter\AdapterInterface;
  *
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
-interface SaverInterface extends \Countable {
-
-	/**
-	 * Устанавливает доп. опции
-	 *
-	 * @param int $options
-	 * @access public
-	 * @return void
-	 */
-	public function setOptions($options);
-
+interface SaverInterface extends \Countable
+{
 	/**
 	 * Добавляет запись в буфер
 	 *
