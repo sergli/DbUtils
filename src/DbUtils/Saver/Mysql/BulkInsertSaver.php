@@ -2,9 +2,9 @@
 
 namespace DbUtils\Saver\Mysql;
 
-use DbUtils\Adapter\MysqlAdapterInterface;
-use DbUtils\Saver\AbstractSaver;
+use DbUtils\Adapter\Mysqli\Mysqli;
 use DbUtils\Table\MysqlTable;
+use DbUtils\Saver\Mysql\AbstractMysqlSaver;
 
 /**
  * Вставляет данные в таблицу пачками, используя
@@ -13,8 +13,8 @@ use DbUtils\Table\MysqlTable;
  * @uses AbstractSaver
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
-class BulkInsertSaver extends AbstractSaver {
-
+class BulkInsertSaver extends AbstractMysqlSaver
+{
 	/**
 	 * Временный буфер с данными
 	 *
@@ -22,72 +22,58 @@ class BulkInsertSaver extends AbstractSaver {
 	 */
 	protected $_values = [];
 
-	/**
-	 * @type int добавляет к запросу слово IGNORE
-	 */
-	const OPT_IGNORE = 1;
-	/**
-	* @type int добавляет к запросу слово DELAYED
-	*/
-	const OPT_DELAYED = 2;
-
-	/**
-	 * Доп. опции. По умолчанию включены IGNORE и DELAYED
-	 *
-	 * @var int
-	 */
-	protected $_options = 3;
-
-	public function __construct(MysqlAdapterInterface $adapter,
-		$tableName, array $columns = null) {
-
-		parent::__construct($adapter, $tableName, $columns);
-	}
-
-	protected function _quote($column, $value) {
-		if (null === $value) {
+	protected function _quote($column, $value)
+	{
+		if (null === $value)
+		{
 			return 'NULL';
 		}
-		if (true === $value) {
+		if (true === $value)
+		{
 			return 1;
 		}
-		if (false === $value) {
+		if (false === $value)
+		{
 			return 0;
 		}
-		if (is_numeric($value)) {
+		if (is_numeric($value))
+		{
 			return $value;
 		}
 		return $this->_db->quote($value);
 	}
 
-	protected function _reset() {
+	protected function _reset()
+	{
 		$this->_values = array();
 		$this->_count = 0;
 	}
 
-	protected function _generateSql() {
-
+	protected function _generateSql()
+	{
 		$sql = 'INSERT';
-		if ($this->_options & static::OPT_DELAYED) {
+		if ($this->_options & static::OPT_DELAYED)
+		{
 			$sql .= ' DELAYED';
 		}
-		if ($this->_options & static::OPT_IGNORE) {
+		if ($this->_options & static::OPT_IGNORE)
+		{
 			$sql .= ' IGNORE';
 		}
-		$sql .= " INTO {$this->_table->getFullName()}";
-		$sql .= "\n(\n\t" .
-			implode(",\n\t", array_keys($this->_columns)) .
-			"\n)";
+		$sql .= ' INTO ' . $this->_table->getFullName();
+		$sql .= "\n(\n\t" . implode(",\n\t",
+			array_keys($this->_columns)) .  "\n)";
 
 		$this->_sql = $sql;
 		unset($sql);
 	}
 
-	protected function _add(array $record) {
-
+	protected function _add(array $record)
+	{
 		$values = '';
 		$br = '';
-		foreach ($record as $field) {
+		foreach ($record as $field)
+		{
 			$values .= $br . $field;
 			$br = ', ';
 		}
@@ -98,22 +84,24 @@ class BulkInsertSaver extends AbstractSaver {
 		$this->_values[] = $values;
 	}
 
-
-	protected function _save() {
-
+	protected function _save()
+	{
 		$sql = $this->_sql .
 			"\nVALUES \n\t" .
 			implode(",\n\t", $this->_values) . ";";
 
-		$this->_db->query($sql);
-		unset($sql);
+		$ts = microtime(true);
 
-		if ( ! $this->_options & static::OPT_DELAYED &&
-			$info = $this->_db->info() ) {
+		$resultMode = \MYSQLI_STORE_RESULT;
 
-			return $info['Records'] - $info['Duplicates'];
+		if ($this->_options & static::OPT_ASYNC)
+		{
+			@$this->_db->reap_async_query();
+			$resultMode = \MYSQLI_ASYNC;
 		}
 
-		return $this->_db->getAffectedRows();
+		$this->_db->query($sql, $resultMode);
+
+		unset($sql);
 	}
 }

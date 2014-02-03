@@ -2,21 +2,17 @@
 
 namespace DbUtils\Saver\Mysql;
 
-use DbUtils\Adapter\MysqlAdapterInterface;
-use DbUtils\Saver\AbstractSaver;
 use DbUtils\Table\MysqlTable;
+use DbUtils\Saver\Mysql\AbstractMysqlSaver;
 
 /**
  * Загружает записи в таблицу, используя
  * временный файл и синтаксис load data infile ...
  *
- * @uses AbstractSaver
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
-class LoadDataSaver extends AbstractSaver {
-
-	protected $_availableAdapters = null;
-
+class LoadDataSaver extends AbstractMysqlSaver
+{
     /**
      * Файл, в кот. записываются данные
 	 * И из которого они будут загружаться в mysql
@@ -24,15 +20,6 @@ class LoadDataSaver extends AbstractSaver {
      * @var \SplFileObject
      */
     private $_file;
-
-	/**
-	 * Доп. опции
-	 * По умолчанию INSERT CONCURRENT
-	 *
-	 * @var int
-	 * @access protected
-	 */
-	protected $_options = 5;
 
     /**
      * Размер пакета данных.
@@ -43,36 +30,11 @@ class LoadDataSaver extends AbstractSaver {
      */
     protected $_batchSize = 0;
 
-	/**
-	 * @type int добавляет к запросу слова LOW_PRIORITY
-	 */
-	const OPT_LOW_PRIORITY = 1;
-
-	/**
-	 * @type int добавляет к запросу слово CONCURRENT
-	 */
-	const OPT_CONCURRENT = 2;
-
-	/**
-	 * @type int добавляет к запросу слово IGNORE
-	 */
-	const OPT_IGNORE = 4;
-
-	/**
-	 * @type int добавляет к запросу слово DELAYED
-	 */
-	const OPT_DELAYED = 8;
-
-	public function __construct(MysqlAdapterInterface $adapter,
-		$tableName, array $columns = []) {
-
+	protected function _init()
+	{
 		//	Вызов деструктора по <C-c>
 		//	NOTE: обнуляет ранее объявленный обработчик
-		pcntl_signal(SIGINT, function() {
-			exit;
-		});
-
-		parent::__construct($adapter, $tableName, $columns);
+		pcntl_signal(SIGINT, function() { exit; });
 
 		$this->_createTempFile();
 	}
@@ -83,24 +45,30 @@ class LoadDataSaver extends AbstractSaver {
 	 * @access public
 	 * @return string
 	 */
-	public function getFileName() {
+	public function getFileName()
+	{
 		return $this->_file->getPathName();
 	}
 
-	protected function _quote($column, $value) {
-		if (null === $value) {
+	protected function _quote($column, $value)
+	{
+		if (null === $value)
+		{
 			return '\N';
 		}
 
-		if (is_bool($value)) {
+		if (is_bool($value))
+		{
 			return (int) $value;
 		}
 
-		if (is_numeric($value)) {
+		if (is_numeric($value))
+		{
 			return $value;
 		}
 
-		if ('\N' === $value) {
+		if ('\N' === $value)
+		{
 			return '\\\N';
 		}
 
@@ -110,46 +78,52 @@ class LoadDataSaver extends AbstractSaver {
 			["\\\\", "\\\0", "\\\t", "\\\n"],
 			$value
         );
-//		$value = addcslashes($value, "\0\n\t\\");
+		//$value = addcslashes($value, "\0\n\t\\");
 
 		return $value;
     }
 
 
-	protected function _reset() {
+	protected function _reset()
+	{
 		$this->_file->ftruncate(0);
         $this->_count = 0;;
     }
 
 
-	protected function _generateSql() {
-
+	protected function _generateSql()
+	{
         $sql = 'LOAD DATA';
-		if ($this->_options & static::OPT_LOW_PRIORITY) {
+		if ($this->_options & static::OPT_LOW_PRIORITY)
+		{
             $sql .= ' LOW_PRIORITY';
         }
-        else if ($this->_options & static::OPT_CONCURRENT) {
+		else if ($this->_options & static::OPT_CONCURRENT)
+		{
             $sql .= ' CONCURRENT';
         }
-        $sql .= " INFILE '{$this->_file->getPathName()}'";
+        $sql .= " INFILE '" . $this->_file->getPathName() . "'";
 
-		if ($this->_options & static::OPT_IGNORE) {
+		if ($this->_options & static::OPT_IGNORE)
+		{
 			$sql .= ' IGNORE';
 		}
-		$sql .= " INTO TABLE {$this->_table->getFullName()}";
-		$sql .= "\n(\n\t" .
-			implode(",\n\t", array_keys($this->_columns)) . "\n)";
+		$sql .= ' INTO TABLE ' . $this->_table->getFullName();
+		$sql .= "\n(\n\t" . implode(",\n\t",
+			array_keys($this->_columns)) . "\n)";
 
 		$this->_sql = $sql;
 		unset($sql);
 	}
 
 
-	public function _add(array $record) {
+	public function _add(array $record)
+	{
 		$this->_file->fwrite(implode("\t", $record) . "\n");
     }
 
-	public function _save() {
+	public function _save()
+	{
 		//todo	или выполнять всё же?
 		/*
 		$this->_db->query('SET SESSION net_write_timeout := 1200');
@@ -159,21 +133,25 @@ class LoadDataSaver extends AbstractSaver {
 
 		pcntl_signal_dispatch();
 
-		$this->_db->query($this->_sql);
+		$resultMode = \MYSQLI_STORE_RESULT;
 
-		if ( $info = $this->_db->info() ) {
-
-			return ($info['Records'] - $info['Skipped']);
+		if ($this->_options & self::OPT_ASYNC)
+		{
+			@$this->_db->reap_async_query();
+			$resultMode = \MYSQLI_ASYNC;
 		}
 
-		return $this->_db->getAffectedRows();
+		$this->_db->query($this->_sql, $resultMode);
+
+		unset($sql);
     }
 
-    public function __destruct() {
-
+	public function __destruct()
+	{
         parent::__destruct();
 
-		if (!is_object($this->_file)) {
+		if (!is_object($this->_file))
+		{
 			return;
 		}
 
@@ -195,7 +173,8 @@ class LoadDataSaver extends AbstractSaver {
 	 * @return void
 	 * @see $_file
 	 */
-	private function _createTempFile() {
+	private function _createTempFile()
+	{
 		$dirName = sys_get_temp_dir();
 		$fileName = uniqid('PHP.' .
 			$this->_table->getFullName() . '_');
@@ -203,10 +182,12 @@ class LoadDataSaver extends AbstractSaver {
 
 		$this->_file = new \SplFileObject($fileName, 'a+b');
 		//	Не хотелось бы, чтоб другой php-процесс запорол файл
-		if ($this->_file->flock(LOCK_EX)) {
+		if ($this->_file->flock(LOCK_EX))
+		{
 			$this->_file->ftruncate(0);
 		}
-		else {
+		else
+		{
 			throw new \Exception(sprintf(
 				'Couldn\'t lock file: %s', $fileName));
 		}
