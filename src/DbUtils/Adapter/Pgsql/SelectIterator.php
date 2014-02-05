@@ -2,8 +2,8 @@
 
 namespace DbUtils\Adapter\Pgsql;
 
-class SelectIterator implements \Iterator {
-
+class SelectIterator implements \Iterator
+{
 	private $_pos = 0;
 	private $_current = null;
 	/**
@@ -12,25 +12,31 @@ class SelectIterator implements \Iterator {
 	private $_select;
 
 
-	public function __construct(Select $select) {
+	public function __construct(Select $select)
+	{
 		$this->_select = $select;
 	}
 
-	public function current() {
+	public function current()
+	{
 		return $this->_current;
 	}
 
-	public function key() {
+	public function key()
+	{
 		return $this->_pos;
 	}
 
 
-	public function valid() {
+	public function valid()
+	{
 		return false !== $this->_current;
 	}
 
-	public function rewind() {
-		if ($this->_pos !== 0) {
+	public function rewind()
+	{
+		if ($this->_pos !== 0)
+		{
 			pg_result_seek($this->_select->getResource(), 0);
 		}
 		$this->_current = array();
@@ -38,7 +44,8 @@ class SelectIterator implements \Iterator {
 		$this->_pos = 0;
 	}
 
-	public function next() {
+	public function next()
+	{
 		$this->_pos++;
 		$this->_current = pg_fetch_assoc(
 			$this->_select->getResource());

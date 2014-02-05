@@ -22,12 +22,4 @@ class Mysql extends Pdo implements MysqlAdapterInterface {
 	public function getDriverName() {
 		return static::DRIVER_NAME;
 	}
-
-	public function getPlatformName() {
-		return self::PLATFORM_MYSQL;
-	}
-
-	public function info() {
-		return null;
-	}
 }

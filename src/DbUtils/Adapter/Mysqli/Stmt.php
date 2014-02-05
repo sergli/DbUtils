@@ -4,10 +4,7 @@ namespace DbUtils\Adapter\Mysqli;
 
 class Stmt extends \Mysqli_Stmt {
 
-
 	/**
-	 * Конструктор
-	 *
 	 * @param Adapter $db
 	 * @param string $sql
 	 */
@@ -21,15 +18,15 @@ class Stmt extends \Mysqli_Stmt {
 	 *
 	 * @param array $row
 	 * @access public
-	 * @return boolean успех/неудача
+	 * @return void
 	 */
-	public function bind_result_array(array &$row = null) {
+	public function bind_result_array(array &$row = []) {
 		$meta = $this->result_metadata();
-		$row = array();
-		$vars = array();
+		$row = [];
+		$vars = [];
 		while($field = $meta->fetch_field()) {
 			$vars[] = &$row[$field->name];
 		}
-		call_user_func_array(array($this, 'bind_result'), $vars);
+		call_user_func_array([ $this, 'bind_result' ], $vars);
 	}
 }

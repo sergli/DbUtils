@@ -4,8 +4,8 @@ namespace DbUtils\Adapter\Pgsql;
 
 use DbUtils\Adapter\SelectInterface;
 
-class Select implements SelectInterface {
-
+class Select implements SelectInterface
+{
 	/**
 	 * @var resource of type pgsql result
 	 */
@@ -17,27 +17,33 @@ class Select implements SelectInterface {
 	 * @param resource $resource pgsql result
 	 * @access public
 	 */
-	public function __construct($resource) {
+	public function __construct($resource)
+	{
 		if (is_resource($resource) &&
-			get_resource_type($resource) == 'pgsql result') {
+			get_resource_type($resource) == 'pgsql result')
+		{
 			$this->_resource = $resource;
 		}
-		else {
+		else
+		{
 			throw new \InvalidArgumentException(
 				'Expects $resource to be resource of type pgsql result');
 		}
 	}
 
-	public function count() {
+	public function count()
+	{
 		return pg_num_rows($this->_resource);
 	}
 
-	public function free() {
+	public function free()
+	{
 		return pg_free_result($this->_resource);
 	}
 
 
-	public function getIterator() {
+	public function getIterator()
+	{
 		return new SelectIterator($this);
 	}
 
@@ -46,7 +52,8 @@ class Select implements SelectInterface {
 	 *
 	 * @return resource
 	 */
-	public function getResource() {
+	public function getResource()
+	{
 		return $this->_resource;
 	}
 }

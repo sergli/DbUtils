@@ -15,8 +15,4 @@ class Pgsql extends Pdo implements PostgresAdapterInterface {
 	public function getDriverName() {
 		return static::DRIVER_NAME;
 	}
-
-	public function getPlatformName() {
-		return self::PLATFORM_POSTGRES;
-	}
 }

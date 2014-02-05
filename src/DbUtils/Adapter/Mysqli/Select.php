@@ -7,17 +7,15 @@ use DbUtils\Adapter\SelectInterface;
 class Select implements SelectInterface {
 
 	/**
-	 * @var \Mysqli_resource
+	 * @var \mysqli_result $resource
 	 */
 	private $_resource;
 
-	public function __construct(\Mysqli_Result $resource) {
+	public function __construct(\mysqli_result $resource) {
 		$this->_resource = $resource;
 	}
 
 	/**
-	 * getIterator
-	 *
 	 * @access public
 	 * @return \Traversable
 	 */
@@ -26,8 +24,6 @@ class Select implements SelectInterface {
 	}
 
 	/**
-	 * count
-	 *
 	 * @access public
 	 * @return int
 	 */
