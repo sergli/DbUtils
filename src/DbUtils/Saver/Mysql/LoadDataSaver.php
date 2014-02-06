@@ -102,7 +102,7 @@ class LoadDataSaver extends AbstractMysqlSaver
 		{
             $sql .= ' CONCURRENT';
         }
-        $sql .= " INFILE '" . $this->_file->getPathName() . "'";
+        $sql .= " INFILE '" . $this->getFileName() . "'";
 
 		if ($this->_options & static::OPT_IGNORE)
 		{
@@ -117,12 +117,12 @@ class LoadDataSaver extends AbstractMysqlSaver
 	}
 
 
-	public function _add(array $record)
+	protected function _add(array $record)
 	{
 		$this->_file->fwrite(implode("\t", $record) . "\n");
     }
 
-	public function _save()
+	protected function _save()
 	{
 		//todo	или выполнять всё же?
 		/*
@@ -136,12 +136,12 @@ class LoadDataSaver extends AbstractMysqlSaver
 		if ($this->_options & self::OPT_ASYNC)
 		{
 			$this->_db->wait();
-			$this->_db->asyncExec($sql);
+			$this->_db->asyncExec($this->_sql);
 		}
-
-		$this->_db->query($this->_sql);
-
-		unset($sql);
+		else
+		{
+			$this->_db->query($this->_sql);
+		}
     }
 
 	public function __destruct()
