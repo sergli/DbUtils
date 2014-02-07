@@ -71,7 +71,8 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @var int
 	 * @access protected
 	 */
-	protected $_batchSize = self::DEFAULT_BATCH_SIZE;
+	protected $_batchSize =
+		self::DEFAULT_BATCH_SIZE;
 
 	/**
 	 * sql-запрос для вставки данных (или его статическая часть)
@@ -318,6 +319,7 @@ abstract class AbstractSaver implements SaverInterface,
 			$this->save();
 		}
 
+		return true;
 	}
 
 	/**

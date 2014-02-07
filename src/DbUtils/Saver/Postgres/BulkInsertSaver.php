@@ -22,28 +22,19 @@ class BulkInsertSaver extends AbstractPostgresSaver
 		{
 			return 'NULL';
 		}
-		if (true === $value)
-		{
-			return 'true';
-		}
-		if (false === $value)
-		{
-			return 'false';
-		}
-		if (is_numeric($value))
-		{
-			return $value;
-		}
 
 		switch ($this->_columns[$column])
 		{
 			case 'integer':
 				return (int) $value;
+
 			case 'boolean':
-				return (boolean) $value;
+				return (int) (boolean) $value;
+
 			case 'bytea':
 				$text = bin2hex($text);
 				return "decode('$text', 'hex')";
+
 			default:
 				break;
 		}
@@ -53,7 +44,7 @@ class BulkInsertSaver extends AbstractPostgresSaver
 
 	protected function _reset()
 	{
-		$this->_values = array();
+		$this->_values = [];
 		$this->_count = 0;
 	}
 
