@@ -2,7 +2,8 @@
 
 xdebug_disable();
 
-//	todo testViewExists
+//todo testViewExists
+//test exceptions while query
 
 class MysqliTest extends PHPUnit_Framework_TestCase
 {
@@ -22,7 +23,6 @@ class MysqliTest extends PHPUnit_Framework_TestCase
 		"FROM information_schema.tables WHERE " .
 		"table_schema = 'information_schema' " .
 		"order by table_name asc LIMIT 20";
-
 	}
 
 	public function testAdapterImplementsInterfaces()
@@ -52,6 +52,7 @@ class MysqliTest extends PHPUnit_Framework_TestCase
 
 	public function testInsertQuery()
 	{
+		$this->_db->getTable('test.documents')->truncate();
 		$sql = "insert into test.documents values (null, 1, 'title', 'content')";
 		$r = $this->_db->query($sql);
 		$this->assertNotInstanceOf('DbUtils\Adapter\SelectInterface', $r);

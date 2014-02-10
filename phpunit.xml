@@ -1,0 +1,12 @@
+<phpunit
+	bootstrap="vendor/autoload.php"
+	colors="true"
+	strict="false"
+	verbose="false"
+>
+	<testsuites>
+		<testsuite name="DbUtils Test Suite">
+			<directory phpVersion="5.4.0">Tests</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>

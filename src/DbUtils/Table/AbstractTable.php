@@ -154,7 +154,7 @@ abstract class AbstractTable implements TableInterface {
 		return null;
 	}
 
-	public function getPK()
+	public function getPk()
 	{
 		return $this->getPrimaryKey();
 	}
