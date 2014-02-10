@@ -13,7 +13,7 @@ interface SelectInterface extends \IteratorAggregate, \Countable
 	 * Освободить ресурсы
 	 *
 	 * @access public
-	 * @return void
+	 * @return true
 	 */
 	public function free();
 
