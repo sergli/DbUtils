@@ -16,16 +16,22 @@ final class Pgsql implements
 
 	public function asyncExec($sql)
 	{
-		pg_send_query($this->_db, $sql);
+		$this->callCarefully(function() use ($sql)
+		{
+			pg_send_query($this->_db, $sql);
+		});
 	}
 
 	public function wait()
 	{
-		do
+		$this->callCarefully(function()
 		{
-			$r = pg_get_result($this->_db);
-		}
-		while ($r);
+			do
+			{
+				$r = pg_get_result($this->_db);
+			}
+			while ($r);
+		});
 	}
 
 	public function getResource()
@@ -33,11 +39,21 @@ final class Pgsql implements
 		return $this->_db;
 	}
 
-	public static function errorHandler($errno, $errstr,
-		$errfile, $errline)
+	public function callCarefully(Callable $function)
 	{
-		throw new \ErrorException($errstr, $errno,
-				0, $errfile, $errline);
+		set_error_handler(
+			function($errno, $errstr, $errfile, $errline)
+			{
+				throw new \ErrorException($errstr, $errno,
+					0, $errfile, $errline);
+			}
+		);
+
+		$r = call_user_func($function);
+
+		restore_error_handler();
+
+		return $r;
 	}
 
 	public function __construct(array $opt = [])
@@ -65,29 +81,25 @@ final class Pgsql implements
 
 		$dsn = http_build_query($o, null, ' ');
 
-		set_error_handler('static::errorHandler');
+		$this->callCarefully(function() use ($dsn, $o, $opt)
+		{
+			$this->_db = pg_connect($dsn,
+				PGSQL_CONNECT_FORCE_NEW);
 
-		$this->_db = pg_connect($dsn,
-			PGSQL_CONNECT_FORCE_NEW);
+			$o['charset'] = !empty($opt['charset'])
+				? $opt['charset'] : 'UTF8';
 
-		$o['charset'] = !empty($opt['charset'])
-			? $opt['charset'] : 'UTF8';
-
-		pg_query($this->_db,
-			"SET client_encoding TO {$o['charset']}");
-
-		restore_error_handler();
-
+			pg_query($this->_db,
+				"SET client_encoding TO {$o['charset']}");
+		});
 	}
 
 	public function query($sql)
 	{
-
-		set_error_handler('static::errorHandler');
-
-		$r = pg_query($this->_db, $sql);
-
-		restore_error_handler();
+		$r = $this->callCarefully(function() use ($sql)
+		{
+			return pg_query($this->_db, $sql);
+		});
 
 		return new Select($r);
 	}

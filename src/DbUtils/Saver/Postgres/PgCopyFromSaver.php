@@ -53,10 +53,13 @@ class PgCopyFromSaver extends AbstractPostgresSaver
 
 	protected function _save()
 	{
-		pg_copy_from(
-			$this->_db->getResource(),
-			$this->_table->getFullName(),
-			$this->_values
-		);
+		$this->_db->callCarefully(function()
+		{
+			pg_copy_from(
+				$this->_db->getResource(),
+				$this->_table->getFullName(),
+				$this->_values
+			);
+		});
 	}
 }
