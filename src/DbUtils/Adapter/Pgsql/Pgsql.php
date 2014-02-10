@@ -112,6 +112,6 @@ final class Pgsql implements
 	 */
 	public function quote($text)
 	{
-		return pg_escape_literal($this->_db, $text);
+		return ltrim(pg_escape_literal($this->_db, $text));
 	}
 }
