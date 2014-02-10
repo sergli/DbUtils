@@ -16,7 +16,7 @@ trait AdapterTrait
 	 * @param string $tableName
 	 * @access public
 	 * @return TableInterface
-	 * @throws \Exception
+	 * @throws TableNotExistsException
 	 */
 	public function getTable($tableName)
 	{

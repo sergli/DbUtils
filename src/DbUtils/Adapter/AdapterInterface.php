@@ -3,6 +3,7 @@
 namespace DbUtils\Adapter;
 
 use DbUtils\Table\TableInterface;
+use DbUtils\Table\TableNotExistsException;
 
 /**
  * Интерфейс адаптера рел. базы данных
@@ -81,7 +82,7 @@ interface AdapterInterface {
 	 * @param string $tableName имя таблицы
 	 * @access public
 	 * @return TableInterface
-	 * @throws \Exception
+	 * @throws TableNotExistsException
 	 */
 	public function getTable($tableName);
 
