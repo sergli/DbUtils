@@ -41,11 +41,12 @@ class MysqlTable extends AbstractTable
 		}
 		catch (\Exception $e)
 		{
-			if (1146 == $e->getCode())
+			if ($this->_db->sqlstate == '42S02')
 			{
 				throw new TableNotExistsException($tableName);
 			}
 			//	else throw
+
 			throw $e;
 		}
 

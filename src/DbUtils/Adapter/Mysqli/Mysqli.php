@@ -16,7 +16,7 @@ final class Mysqli extends \Mysqli implements
 
 	public function asyncExec($sql)
 	{
-		if ($this->query($sql, MYSQLI_ASYNC))
+		if ($this->query($sql, \MYSQLI_ASYNC))
 		{
 			$this->_inProgress = true;
 			return;
