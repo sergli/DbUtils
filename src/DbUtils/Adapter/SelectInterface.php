@@ -3,20 +3,13 @@
 namespace DbUtils\Adapter;
 
 /**
- * Интерфейс запроса, возвращающего набор записей
+ * Интерфейс запроса, возвращающего набор записей.
+ * Требование только одно - traversable
  *
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
-interface SelectInterface extends \IteratorAggregate, \Countable
+interface SelectInterface extends \IteratorAggregate
 {
-	/**
-	 * Освободить ресурсы
-	 *
-	 * @access public
-	 * @return true
-	 */
-	public function free();
-
 	/**
 	 * @return mixed
 	 */

@@ -2,6 +2,10 @@
 
 namespace DbUtils\Adapter\Mysqli;
 
+/**
+ * Класс, расширяющий возможности mysqli_stmt.
+ *
+ */
 class Stmt extends \mysqli_stmt
 {
 
@@ -13,7 +17,6 @@ class Stmt extends \mysqli_stmt
 	{
 		parent::__construct($db, $sql);
 	}
-
 
 	/**
 	 * Связывает массив с подготовл. выражением

@@ -4,7 +4,7 @@ namespace DbUtils\Adapter\Pgsql;
 
 use DbUtils\Adapter\SelectInterface;
 
-class Select implements SelectInterface
+class Select implements SelectInterface, \Countable
 {
 	/**
 	 * @var resource of type pgsql result
@@ -12,10 +12,7 @@ class Select implements SelectInterface
 	private $_resource;
 
 	/**
-	 * Конструктор
-	 *
 	 * @param resource $resource pgsql result
-	 * @access public
 	 */
 	public function __construct($resource)
 	{
@@ -31,29 +28,24 @@ class Select implements SelectInterface
 		}
 	}
 
-	public function count()
-	{
-		return pg_num_rows($this->_resource);
-	}
-
-	public function free()
-	{
-		return pg_free_result($this->_resource);
-	}
-
-
 	public function getIterator()
 	{
 		return new SelectIterator($this);
 	}
 
 	/**
-	 * Возвращает внутреннее представление: pgsql select
-	 *
 	 * @return resource
 	 */
 	public function getResource()
 	{
 		return $this->_resource;
+	}
+
+	public function count()
+	{
+		return Pgsql::callCarefully(function()
+		{
+			return pg_num_rows($this->_resource);
+		});
 	}
 }

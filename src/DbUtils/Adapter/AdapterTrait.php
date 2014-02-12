@@ -9,7 +9,6 @@ use DbUtils\Table\TableNotExistsException;
 
 trait AdapterTrait
 {
-
 	/**
 	 * Возвращает объект таблицы
 	 *
@@ -59,7 +58,7 @@ trait AdapterTrait
 		//	Возвращаем первую же строку
 		foreach ($it as $row)
 		{
-			$it->free();
+			$it = null;
 			return $row;
 		}
 	}
@@ -95,7 +94,7 @@ trait AdapterTrait
 			}
 			$pairs[current($row)] = next($row);
 		}
-		$it->free();
+		$it = null;
 
 		return $pairs;
 	}
@@ -105,7 +104,7 @@ trait AdapterTrait
 	{
 		$it = $this->query($sql);
 		$all = iterator_to_array($it);
-		$it->free();
+		$it = null;
 		return $all;
 	}
 
@@ -137,7 +136,7 @@ trait AdapterTrait
 			$flag = false;
 			$ret[] = $row[array_keys($row)[$colNum - 1]];
 		}
-		$it->free();
+		$it = null;
 		return $ret;
 	}
 

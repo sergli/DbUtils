@@ -73,7 +73,7 @@ final class Mysqli extends \Mysqli implements
 
 	public function __construct(array $opt = [])
 	{
-		$driver = new \Mysqli_Driver;
+		$driver = new \mysqli_driver;
 		$driver->report_mode =
 			MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT;
 
@@ -151,6 +151,6 @@ final class Mysqli extends \Mysqli implements
 	public function quote($text)
 	{
 		$text = $this->real_escape_string($text);
-		return "'$text'";
+		return "'" . $text . "'";
 	}
 }

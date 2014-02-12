@@ -39,7 +39,7 @@ final class Pgsql implements
 		return $this->_db;
 	}
 
-	public function callCarefully(Callable $function)
+	public static function callCarefully(Callable $function)
 	{
 		set_error_handler(
 			function($errno, $errstr, $errfile, $errline)
@@ -61,7 +61,7 @@ final class Pgsql implements
 		$o = [];
 
 		$o['host'] = isset($opt['host'])
-			? $opt['host'] : 'localhost';
+			? $opt['host'] : '127.0.0.1';
 		if (isset($opt['dbname']))
 		{
 			$o['dbname'] = $opt['dbname'];
@@ -108,7 +108,6 @@ final class Pgsql implements
 	 * @param string $text
 	 * @access public
 	 * @return string
-	 * @todo pg_escape_bytea()
 	 */
 	public function quote($text)
 	{

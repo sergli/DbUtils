@@ -5,14 +5,20 @@ namespace DbUtils\Adapter\Pdo;
 use DbUtils\Adapter\AdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
 
-abstract class Pdo extends \PDO implements AdapterInterface {
-
+abstract class AbstractPdo extends \PDO implements
+	AdapterInterface
+{
 	use AdapterTrait;
 
-	protected static $_driverName;
+	abstract public function getDriverName();
 
-	final public function __construct(array $opts = []) {
+	protected function _getDriverOptions(array $opts)
+	{
+		return [];
+	}
 
+	final public function __construct(array $opts = [])
+	{
 		$dsn = $this->_getDSN($opts);
 
 		$driverOpts = [
@@ -33,24 +39,27 @@ abstract class Pdo extends \PDO implements AdapterInterface {
 		$this->exec("SET NAMES '$charset'");
 	}
 
-	public function query($sql) {
-		$stmt = parent::query($sql, parent::FETCH_ASSOC);
+	public function query($sql)
+	{
+		$stmt = $this->query($sql, parent::FETCH_ASSOC);
 		return new Select($stmt);
 	}
 
-	protected function _getDSN(array $opts) {
+	protected function _getDSN(array $opts)
+	{
 		unset($opts['user']);
 		unset($opts['password']);
 
-		if (isset($opts['socket'])) {
+		if (isset($opts['socket']))
+		{
 			$opts['unix_socket'] = $opts['socket'];
 			unset($opts['socket']);
 		}
 
 		$driverName = $this->getDriverName();
 
-		if (!in_array($driverName,
-			$this->getAvailableDrivers())) {
+		if (!in_array($driverName, $this->getAvailableDrivers()))
+		{
 			throw new \UnexpectedValueException(sprintf(
 				'Unknown driver: %s', $driverName));
 		}
@@ -60,8 +69,4 @@ abstract class Pdo extends \PDO implements AdapterInterface {
 
 		return $dsn;
 	}
-
-	abstract protected function _getDriverOptions(array $opts);
-
-	abstract public function getDriverName();
 }

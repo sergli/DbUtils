@@ -4,12 +4,12 @@ namespace DbUtils\Adapter\Pdo;
 
 use DbUtils\Adapter\MysqlAdapterInterface;
 
-class Mysql extends Pdo implements MysqlAdapterInterface {
-
+class Mysql extends AbstractPdo implements MysqlAdapterInterface
+{
 	const DRIVER_NAME = 'mysql';
 
-	protected function _getDriverOptions(array $opts) {
-
+	protected function _getDriverOptions(array $opts)
+	{
 		$charset = !empty($opt['charset'])
 			? $opt['charset'] : 'utf8';
 
@@ -19,7 +19,8 @@ class Mysql extends Pdo implements MysqlAdapterInterface {
 		];
 	}
 
-	public function getDriverName() {
+	public function getDriverName()
+	{
 		return static::DRIVER_NAME;
 	}
 }
