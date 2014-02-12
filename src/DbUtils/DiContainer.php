@@ -29,15 +29,15 @@ class DiContainer extends Pimple
 		};
 
 		//	новое соединение с mysql по mysqli (force-new)
-		$this['db.mysql.force'] = $this->factory(function($ci)
+		$this['db.mysqli.force'] = $this->factory(function($ci)
 		{
 			return new Mysqli($ci['config']['mysql']);
 		});
 
 		//	синглтон mysqli
-		$this['db.mysql'] = function($ci)
+		$this['db.mysqli'] = function($ci)
 		{
-			return $ci['db.mysql.force'];
+			return $ci['db.mysqli.force'];
 		};
 
 		//	новое соединение с postgres по php_pgsql
@@ -49,7 +49,7 @@ class DiContainer extends Pimple
 		//	синглтон php_pgsql
 		$this['db.pgsql'] = function($ci)
 		{
-			return $ci['db.pgsql'];
+			return $ci['db.pgsql.force'];
 		};
 
 		//	логгер по умолчанию, INFO-only
