@@ -14,12 +14,17 @@ class MysqlTable extends AbstractTable
 	}
 
 	/**
-	 * @param mixed $tableName
+	 * @param string $tableName
 	 * @return string[]
 	 * @throws TableNotExistsException
 	 */
 	protected function _getBaseInfo($tableName)
 	{
+		/*
+			TODO:
+			Это не общий регексп. Различные экзотические
+			варианты названий таблиц он не учитывает.
+		*/
 		$regex = '/^(?:`?([a-z0-9_]+)`?\.)?([a-z0-9_]+)$/i';
 		if (!preg_match($regex, $tableName, $matches))
 		{
@@ -29,24 +34,30 @@ class MysqlTable extends AbstractTable
 		$schema = $matches[1];
 
 		$tableName = $schema ? "$schema.$name" : $name;
-		//	попробуем сразу и тек. базу узнать и сущ-ие таблицы проверить
-		$sql = "SELECT DATABASE() FROM $tableName LIMIT 1;";
+		/*
+			Сразу и узнаём текущую базу, и проверяем сущ-ие таблицы.
+			union select 1 - на случай, если таблица пустая
+		*/
+		$sql = 'SELECT DATABASE() FROM ' . $tableName .
+			' UNION SELECT 1 LIMIT 1';
 		try
 		{
 			$schema = $this->_db->fetchOne($sql);
-			if (is_null($schema))
-			{ // таблица есть, но пустая
-				$schema = $this->_db->fetchOne("SELECT DATABASE();");
-			}
 		}
 		catch (\Exception $e)
 		{
-			if ($this->_db->sqlstate == '42S02')
+			/*
+				Может быть mysqli_sql_exception или
+				PDOException, в зависимости от драйвера
+				соотв-ет sqlstate 42S02
+			*/
+
+			if (preg_match("/Table .* doesn't exist/i", $e->getMessage()))
 			{
 				throw new TableNotExistsException($tableName);
 			}
-			//	else throw
 
+			//	Неожиданное исключение бросаем дальше
 			throw $e;
 		}
 
