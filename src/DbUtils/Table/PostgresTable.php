@@ -134,10 +134,10 @@ class PostgresTable extends AbstractTable
 		$sql = "
 		SELECT
 			c2.relname AS name,
-			i.indisprimary AS is_primary,
-			i.indisunique AS is_unique,
-			i.indisclustered AS is_clustered,
-			i.indisvalid AS is_valid,
+			i.indisprimary::int AS is_primary,
+			i.indisunique::int AS is_unique,
+			i.indisclustered::int AS is_clustered,
+			i.indisvalid::int AS is_valid,
 			pg_catalog.pg_get_indexdef(i.indexrelid, 0, true) AS def,
 			c2.reltablespace AS tablespace
 		FROM
@@ -159,6 +159,10 @@ class PostgresTable extends AbstractTable
 		$indices = array();
 		foreach ($r as $row)
 		{
+			$row['is_primary'] = (bool) $row['is_primary'];
+			$row['is_unique'] = (bool) $row['is_unique'];
+			$row['is_clustered'] = (bool) $row['is_clustered'];
+			$row['is_valid'] = (bool) $row['is_valid'];
 			$indices[$row['name']] = $row;
 		}
 
