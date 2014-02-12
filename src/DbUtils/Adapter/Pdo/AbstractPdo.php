@@ -41,7 +41,7 @@ abstract class AbstractPdo extends \PDO implements
 
 	public function query($sql)
 	{
-		$stmt = $this->query($sql, parent::FETCH_ASSOC);
+		$stmt = parent::query($sql, parent::FETCH_ASSOC);
 		return new Select($stmt);
 	}
 
