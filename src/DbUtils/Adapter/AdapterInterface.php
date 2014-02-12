@@ -10,8 +10,8 @@ use DbUtils\Table\TableNotExistsException;
  *
  * @author Sergey Lisenkov <sergli@nigma.ru>
  */
-interface AdapterInterface {
-
+interface AdapterInterface
+{
 	/**
 	 * Выполняет sql-запрос
 	 *

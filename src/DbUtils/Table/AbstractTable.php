@@ -135,11 +135,8 @@ abstract class AbstractTable implements TableInterface {
 	}
 
 	/**
-	 * getPrimaryKey
-	 *
 	 * @access public
-	 * @return mixed
-	 * @todo array_reduce()
+	 * @return array
 	 */
 	public function getPrimaryKey()
 	{
@@ -161,6 +158,13 @@ abstract class AbstractTable implements TableInterface {
 
 	public function getUniques()
 	{
+		/*
+			Фильтруем именно индексы, а не ограничения,
+			Т.к в postgres можно создавать просто уник.
+			индексы (не связано с constraint).
+			А вот наличие uniq constraint гарантирует также
+			и наличие uniq index (в обеих субд)
+		*/
 		$fk = self::CONTYPE_UNIQUE;
 		return array_filter($this->getConstraints(),
 			function ($val) use ($fk)
