@@ -56,7 +56,10 @@ class DiContainer extends Pimple
 		$this['monolog'] = function($ci)
 		{
 			$logger = new Logger('DbUtils');
-			$logger->pushProcessor(new MemoryPeakUsageProcessor);
+			$logger->pushHandler(new StreamHandler(
+				'php://stderr', Logger::INFO));
+			$logger->pushProcessor(
+				new MemoryPeakUsageProcessor);
 
 			return $logger;
 		};
