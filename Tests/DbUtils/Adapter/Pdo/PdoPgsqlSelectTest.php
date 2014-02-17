@@ -2,7 +2,7 @@
 
 namespace DbUtils\Adapter\Pdo;
 
-class PdoMysqlSelectTest extends \PHPUnit_Framework_TestCase
+class PdoPgsqlSelectTest extends \PHPUnit_Framework_TestCase
 {
 	private $_select;
 
