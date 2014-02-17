@@ -6,9 +6,8 @@ use DbUtils\Adapter\PostgresAdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
 use DbUtils\Adapter\AsyncExecInterface;
 
-final class Pgsql implements
-	PostgresAdapterInterface,
-	AsyncExecInterface
+class Pgsql implements PostgresAdapterInterface,
+		AsyncExecInterface
 {
 	use AdapterTrait;
 

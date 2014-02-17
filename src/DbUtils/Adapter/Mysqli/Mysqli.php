@@ -6,7 +6,7 @@ use DbUtils\Adapter\MysqlAdapterInterface;
 use DbUtils\Adapter\AdapterTrait;
 use DbUtils\Adapter\AsyncExecInterface;
 
-final class Mysqli extends \Mysqli implements
+class Mysqli extends \Mysqli implements
 	MysqlAdapterInterface,
 	AsyncExecInterface
 {
