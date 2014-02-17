@@ -9,7 +9,7 @@ trait LoadFileTrait
 
 	private $_delimiter = "\t";
 
-	protected function _init()
+	protected function _initBeforeSql()
 	{
 		//	Вызов деструктора по <C-c>
 		//	NOTE: обнуляет предыдущий обработчик

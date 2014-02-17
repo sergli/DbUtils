@@ -134,8 +134,21 @@ abstract class AbstractSaver implements SaverInterface,
 
 	abstract protected function _reset();
 
-	protected function _init()
+	/**
+	 * Дополнительный действия по инициализации класса
+	 * до первого вызова _setColumns() и _generateSql()
+	 *
+	 * @return void
+	 */
+	protected function _initBeforeSql()
 	{
+	}
+
+	public function getColumns()
+	{
+		return $this->_columns
+			? array_keys($this->_columns)
+			: null;
 	}
 
 	public function reset()
@@ -155,7 +168,7 @@ abstract class AbstractSaver implements SaverInterface,
 		if (0 === $this->_count)
 		{
 			$this->_logger->addInfo('Saving: buffer is empty');
-			return 0;
+			return true;
 		}
 
 		try
@@ -256,7 +269,7 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @access private
 	 * @return array
 	 * @see _quote()
-	 * @throws \Exception
+	 * @throws SaverException
 	 */
 	private function _cleanRow(array $row)
 	{
@@ -266,7 +279,7 @@ abstract class AbstractSaver implements SaverInterface,
 		{
 			if (!array_key_exists($field, $row))
 			{
-				throw new \Exception(sprintf(
+				throw new SaverException(sprintf(
 					'Необходимо поле %s у записи \n%s',
 						$field, print_r($row, true)));
 			}
@@ -285,10 +298,15 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @return void
 	 * @see _add()
 	 * @see _cleanRow()
-	 * @throws \Exception
+	 * @throws SaverException
 	 */
 	public function add(array $row)
 	{
+		/*
+			Уже начинаем сохранять данные, но
+			столбцы до сих пор не указаны -
+			значит устанавливаем по умолчанию - все
+		*/
 		if (empty($this->_columns))
 		{
 			$this->_setColumns(array_keys($row));
@@ -296,7 +314,7 @@ abstract class AbstractSaver implements SaverInterface,
 
 		if (count($row) !== count($this->_columns))
 		{
-			throw new \Exception(sprintf(
+			throw new SaverException(sprintf(
 				'Неверное кол-во полей у записи\n%s',
 					print_r($row, true)));
 		}
@@ -335,22 +353,26 @@ abstract class AbstractSaver implements SaverInterface,
 	{
 		if (empty($columns))
 		{
-			throw new \Exception('Пустой массив полей');
+			throw new SaverException('Пустой массив полей');
 		}
 
 		$all = $this->_table->getColumns();
+		$columns = array_unique($columns);
 		foreach ($columns as $column)
 		{
-			if (is_string($column) && isset($all[$column]))
+			if (!is_string($column))
 			{
-				//	запоминаем тип
-				$this->_columns[$column] = $all[$column];
+				throw new SaverException(sprintf(
+					'Поле не является строкой: %s', $column));
 			}
-			else
+			if (!isset($all[$column]))
 			{
-				throw new \Exception(sprintf(
+				throw new SaverException(sprintf(
 					'Поле не существует: %s', $column));
 			}
+
+			//	запоминаем тип
+			$this->_columns[$column] = $all[$column];
 		}
 
 		$this->_generateSql();
@@ -380,10 +402,12 @@ abstract class AbstractSaver implements SaverInterface,
 		$this->setLogger();
 		$this->setBatchSize(static::DEFAULT_BATCH_SIZE);
 
+		$this->_initBeforeSql();
+
+		//	указан конкретный набор столбцов
 		if ($columns)
 		{
 			$this->_setColumns($columns);
-			$all = $this->_table->getColumns();
 		}
 	}
 
@@ -446,7 +470,7 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @param int $size новый размер
 	 * @access public
 	 * @return int новый размер
-	 * @throws \Exception
+	 * @throws \OutOfRangeException
 	 */
 	public function setBatchSize($size)
 	{
@@ -471,19 +495,35 @@ abstract class AbstractSaver implements SaverInterface,
 
 	//////////////////////	ArrayAccess	//////////////////////////
 
+	/**
+	 * @param mixed $offset
+	 * @return void
+	 * @throws \OutOfBoundsException
+	 */
 	public function offsetExists($offset)
 	{
-		throw new \Exception(
+		throw new \OutOfBoundsException(
 			'Чтение внутренних данных запрещено реализацией'
 		);
 	}
 
+	/**
+	 * @param mixed $offset
+	 * @return void
+	 * @throws \OutOfBoundsException
+	 */
 	public function offsetGet($offset)
 	{
-		throw new \Exception(
+		throw new \OutOfBoundsException(
 			'Чтение внутренних данных запрещено реализацией');
 	}
 
+	/**
+	 * @param mixed $offset
+	 * @param array $row
+	 * @return void
+	 * @throws \OutOfBoundsException
+	 */
 	public function offsetSet($offset, $row)
 	{
 		if (is_null($offset))
@@ -496,20 +536,28 @@ abstract class AbstractSaver implements SaverInterface,
 		}
 		if ($offset !== $this->_count)
 		{
-			throw new \Exception(
+			throw new \OutOfBoundsException(
 				'Добавить новую запись можно только в конец очереди');
 		}
 		$this->add($row);
 	}
 
+	/**
+	 * @param mixed $offset
+	 * @return void
+	 * @throws \OutOfBoundsException
+	 */
 	public function offsetUnset($offset)
 	{
-		throw new \Exception(
+		throw new \OutOfBoundsException(
 			'Удаление из внутренних данных запрещено реализацией');
 	}
 
 	/////////////////////	Countable	/////////////////////////
 
+	/**
+	 * @return int
+	 */
 	public function count()
 	{
 		return $this->getSize();

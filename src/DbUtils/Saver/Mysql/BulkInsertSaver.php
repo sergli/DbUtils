@@ -27,18 +27,17 @@ class BulkInsertSaver extends AbstractMysqlSaver
 		{
 			return 'NULL';
 		}
-		if (true === $value)
+
+		if (is_bool($value))
 		{
-			return 1;
+			return (int) $value;
 		}
-		if (false === $value)
-		{
-			return 0;
-		}
+
 		if (is_numeric($value))
 		{
 			return $value;
 		}
+
 		return $this->_db->quote($value);
 	}
 

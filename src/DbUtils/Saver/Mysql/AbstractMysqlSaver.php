@@ -32,8 +32,6 @@ abstract class AbstractMysqlSaver extends AbstractSaver
 		$tableName, array $columns = null)
 	{
 		parent::__construct($adapter, $tableName, $columns);
-
-		$this->_init();
 	}
 
 	public function setOptIgnore($val = true)

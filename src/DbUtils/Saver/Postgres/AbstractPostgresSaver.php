@@ -24,8 +24,6 @@ abstract class AbstractPostgresSaver extends AbstractSaver
 		$tableName, array $columns = null)
 	{
 		parent::__construct($adapter, $tableName, $columns);
-
-		$this->_init();
 	}
 }
 

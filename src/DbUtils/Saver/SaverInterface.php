@@ -1,4 +1,4 @@
-<?PHp
+<?php
 
 namespace DbUtils\Saver;
 
@@ -61,7 +61,16 @@ interface SaverInterface extends \Countable
 	 * @param int $size
 	 * @access public
 	 * @return boolean
-	 * @throws \Exception orlly?
+	 * @throws \OutOfRangeException
 	 */
 	public function setBatchSize($size);
+
+	/**
+	 * Возвращает имена колонок, в которые
+	 * будут сохраняться данные
+	 *
+	 * @return string[]
+	 */
+	public function getColumns();
 }
+
