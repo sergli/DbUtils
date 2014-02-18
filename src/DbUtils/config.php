@@ -2,9 +2,9 @@
 
 return [
 	'mysql'	=>	[
-		'host'		=>	'localhost',
+		'host'		=>	'127.0.0.1',
 		'user'		=>	'root',
-		'password'	=>	'Chipikavoc5',
+		'password'	=>	'12345',
 		'dbname'	=>	'test',
 	],
 	'postgres'	=>	[
