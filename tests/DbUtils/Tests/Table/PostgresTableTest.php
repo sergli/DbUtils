@@ -1,8 +1,8 @@
 <?php
 
-namespace DbUtils\Table;
+namespace DbUtils\Tests\Table;
 
-class MysqlTableTest extends \PHPUnit_Extensions_Database_TestCase
+class PostgresTableTest extends \PHPUnit_Extensions_Database_TestCase
 {
 	use TestTableTrait;
 
@@ -10,17 +10,17 @@ class MysqlTableTest extends \PHPUnit_Extensions_Database_TestCase
 	{
 		parent::setUp();
 
-		$db = new \DbUtils\Adapter\Mysqli\Mysqli(
-			(new \DbUtils\DiContainer)['config']['mysql']);
+		$db = new \DbUtils\Adapter\Pgsql\Pgsql(
+			(new \DbUtils\DiContainer)['config']['postgres']);
 
-		$this->_table = new \DbUtils\Table\MysqlTable(
+		$this->_table = new \DbUtils\Table\PostgresTable(
 			$db, $this->_tableName);
 	}
 
 	public function getConnection()
 	{
-		$config = (new \DbUtils\DiContainer)['config']['mysql'];
-		$dsn = 'mysql:dbname=' . $config['dbname'];
+		$config = (new \DbUtils\DiContainer)['config']['postgres'];
+		$dsn = 'pgsql:dbname=' . $config['dbname'];
 		$pdo = new \PDO($dsn,
 			$config['user'], $config['password']);
 
@@ -30,13 +30,13 @@ class MysqlTableTest extends \PHPUnit_Extensions_Database_TestCase
 	public function getDataSet()
 	{
 		return $this->createFlatXMLDataSet(
-			__DIR__ . '/../../_files/documents.xml');
+			__DIR__ . '/../../../_files/documents.xml');
 	}
 
 	public function testGetConnection()
 	{
 		$this->assertInstanceOf(
-			'\DbUtils\Adapter\MysqlAdapterInterface',
+			'\DbUtils\Adapter\PostgresAdapterInterface',
 			$this->_table->getConnection()
 		);
 	}

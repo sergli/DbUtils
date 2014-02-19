@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Adapter\Pgsql;
+namespace DbUtils\Tests\Adapter\Pgsql;
 
 class SelectTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Saver\Postgres;
+namespace DbUtils\Tests\Saver\Postgres;
 
 class PgCopyFromSaverTest extends \PHPUnit_Framework_TestCase
 {
@@ -8,5 +8,5 @@ class PgCopyFromSaverTest extends \PHPUnit_Framework_TestCase
 	private $_adapterClass = '\DbUtils\Adapter\Pgsql\Pgsql';
 	private $_saverClass = '\DbUtils\Saver\Postgres\PgCopyFromSaver';
 
-	use \DbUtils\Saver\BaseSaverTestsTrait;
+	use \DbUtils\Tests\Saver\BaseSaverTestsTrait;
 }

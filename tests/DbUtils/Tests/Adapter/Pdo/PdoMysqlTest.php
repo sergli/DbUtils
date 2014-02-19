@@ -1,22 +1,22 @@
 <?php
 
-namespace DbUtils\Adapter\Mysqli;
+namespace DbUtils\Tests\Adapter\Pdo;
 
-class MysqliTest extends \PHPUnit_Extensions_Database_TestCase
+class PdoMysqlTest extends \PHPUnit_Extensions_Database_TestCase
 {
-	use \DbUtils\Adapter\BaseFeaturesTestsTrait;
+	use \DbUtils\Tests\Adapter\BaseFeaturesTestsTrait;
 
-	use \DbUtils\Adapter\FetchMethodsTestsTrait;
+	use \DbUtils\Tests\Adapter\FetchMethodsTestsTrait;
 
 	private $_db;
 
-	private $_tableName = 'documents';
+	private $_tableName = 'test.documents';
 
 	public function setUp()
 	{
 		parent::setUp();
 
-		$this->_db = new \DbUtils\Adapter\Mysqli\Mysqli(
+		$this->_db = new \DbUtils\Adapter\Pdo\Mysql(
 			(new \DbUtils\DiContainer)['config']['mysql']);
 	}
 
@@ -33,7 +33,7 @@ class MysqliTest extends \PHPUnit_Extensions_Database_TestCase
 	public function getDataSet()
 	{
 		return $this->createFlatXMLDataSet(
-			__DIR__ . '/../../../_files/documents.xml');
+			__DIR__ . '/../../../../_files/documents.xml');
 	}
 
 	public function testQuote()

@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Saver\Postgres;
+namespace DbUtils\Tests\Saver\Postgres;
 
 class LoadFileSaverTest extends \PHPUnit_Framework_TestCase
 {
@@ -8,7 +8,7 @@ class LoadFileSaverTest extends \PHPUnit_Framework_TestCase
 	private $_adapterClass = '\DbUtils\Adapter\Pgsql\Pgsql';
 	private $_saverClass = '\DbUtils\Saver\Postgres\LoadFileSaver';
 
-	use \DbUtils\Saver\BaseSaverTestsTrait;
+	use \DbUtils\Tests\Saver\BaseSaverTestsTrait;
 
 	public function testGetFileName()
 	{

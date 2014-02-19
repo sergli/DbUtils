@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Adapter\Pdo;
+namespace DbUtils\Tests\Adapter\Pdo;
 
 class PdoPgsqlSelectTest extends \PHPUnit_Framework_TestCase
 {

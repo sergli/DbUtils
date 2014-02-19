@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Saver\Postgres;
+namespace DbUtils\Tests\Saver\Postgres;
 
 class BulkInsertSaverTest extends \PHPUnit_Framework_TestCase
 {
@@ -8,5 +8,5 @@ class BulkInsertSaverTest extends \PHPUnit_Framework_TestCase
 	private $_adapterClass = '\DbUtils\Adapter\Pgsql\Pgsql';
 	private $_saverClass = '\DbUtils\Saver\Postgres\BulkInsertSaver';
 
-	use \DbUtils\Saver\BaseSaverTestsTrait;
+	use \DbUtils\Tests\Saver\BaseSaverTestsTrait;
 }

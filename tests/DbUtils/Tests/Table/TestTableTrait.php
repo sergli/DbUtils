@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Table;
+namespace DbUtils\Tests\Table;
 
 trait TestTableTrait
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Adapter;
+namespace DbUtils\Tests\Adapter;
 
 trait BaseFeaturesTestsTrait
 {
@@ -28,6 +28,7 @@ trait BaseFeaturesTestsTrait
 	{
 		$table = $this->_db->getTable($this->_tableName);
 		$this->assertInstanceOf('\DbUtils\Table\TableInterface', $table);
+		$this->assertStringEndsWith($this->_tableName, $table->getFullName());
 	}
 
 	public function testTableExists()

@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Saver\Mysql;
+namespace DbUtils\Tests\Saver\Mysql;
 
 class LoadFileSaverTest extends \PHPUnit_Framework_TestCase
 {
@@ -8,7 +8,7 @@ class LoadFileSaverTest extends \PHPUnit_Framework_TestCase
 	private $_adapterClass = '\DbUtils\Adapter\Mysqli\Mysqli';
 	private $_saverClass = '\DbUtils\Saver\Mysql\LoadFileSaver';
 
-	use \DbUtils\Saver\BaseSaverTestsTrait;
+	use \DbUtils\Tests\Saver\BaseSaverTestsTrait;
 
 	public function testGetFileName()
 	{

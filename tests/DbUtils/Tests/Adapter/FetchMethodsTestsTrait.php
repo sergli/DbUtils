@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Adapter;
+namespace DbUtils\Tests\Adapter;
 
 trait FetchMethodsTestsTrait
 {

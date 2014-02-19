@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Saver;
+namespace DbUtils\Tests\Saver;
 
 trait BaseSaverTestsTrait
 {

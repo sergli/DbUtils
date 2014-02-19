@@ -1,12 +1,12 @@
 <phpunit
-	bootstrap="Tests/bootstrap.php"
+	bootstrap="tests/bootstrap.php"
 	colors="true"
 	strict="false"
 	verbose="false"
 >
 	<testsuites>
 		<testsuite name="DbUtils Test Suite">
-			<directory phpVersion="5.4.0">Tests</directory>
+			<directory phpVersion="5.4.0">tests/DbUtils/Tests</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>

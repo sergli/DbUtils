@@ -1,23 +1,20 @@
 <?php
 
-namespace DbUtils\Adapter\Pdo;
+namespace DbUtils\Tests\Table;
 
-class PdoMysqlTest extends \PHPUnit_Extensions_Database_TestCase
+class MysqlTableTest extends \PHPUnit_Extensions_Database_TestCase
 {
-	use \DbUtils\Adapter\BaseFeaturesTestsTrait;
-
-	use \DbUtils\Adapter\FetchMethodsTestsTrait;
-
-	private $_db;
-
-	private $_tableName = 'test.documents';
+	use TestTableTrait;
 
 	public function setUp()
 	{
 		parent::setUp();
 
-		$this->_db = new \DbUtils\Adapter\Pdo\Mysql(
+		$db = new \DbUtils\Adapter\Mysqli\Mysqli(
 			(new \DbUtils\DiContainer)['config']['mysql']);
+
+		$this->_table = new \DbUtils\Table\MysqlTable(
+			$db, $this->_tableName);
 	}
 
 	public function getConnection()
@@ -36,10 +33,11 @@ class PdoMysqlTest extends \PHPUnit_Extensions_Database_TestCase
 			__DIR__ . '/../../../_files/documents.xml');
 	}
 
-	public function testQuote()
+	public function testGetConnection()
 	{
-		$str = "prover'ka";
-		$this->assertEquals("'prover\\'ka'",
-			$this->_db->quote($str));
+		$this->assertInstanceOf(
+			'\DbUtils\Adapter\MysqlAdapterInterface',
+			$this->_table->getConnection()
+		);
 	}
 }
