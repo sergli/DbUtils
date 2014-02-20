@@ -161,14 +161,15 @@ abstract class AbstractSaver implements SaverInterface,
 	 * Сохраняет буфер, обнуляет его
 	 *
 	 * @access public
-	 * @return boolean успех/неудача
+	 * @return void
+	 * @throws SaverException
 	 */
 	public function save()
 	{
 		if (0 === $this->_count)
 		{
 			$this->_logger->addInfo('Saving: buffer is empty');
-			return true;
+			return;
 		}
 
 		try
@@ -184,17 +185,17 @@ abstract class AbstractSaver implements SaverInterface,
 			]);
 
 			$this->reset();
-
-			return true;
 		}
 		catch (\Exception $e)
 		{
 			$this->_logger->addError('Saving: error', [
-				'exception' => $e,
-				'time'		=> round(microtime(true) - $ts, 3),
+				'sql'	=>
+					preg_replace('/[\n\t]/', ' ', $this->_sql),
+				'time'	=> round(microtime(true) - $ts, 3)
 			]);
-
-			return false;
+			throw new SaverException(sprintf(
+				'Error while saving data: %s',
+				$e->getMessage()));
 		}
 	}
 
