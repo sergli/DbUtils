@@ -18,7 +18,7 @@ class LoadFileSaver extends AbstractMysqlSaver
 
 	protected function _quote($column, $value)
 	{
-		if (null === $value)
+		if (!isset($value))
 		{
 			return '\N';
 		}
@@ -32,6 +32,9 @@ class LoadFileSaver extends AbstractMysqlSaver
 		{
 			return $value;
 		}
+
+
+		return addcslashes($value, "\n\t\\");
 
 		if ('\N' === $value)
 		{
