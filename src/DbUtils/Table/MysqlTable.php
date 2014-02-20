@@ -38,8 +38,9 @@ class MysqlTable extends AbstractTable
 			Сразу и узнаём текущую базу, и проверяем сущ-ие таблицы.
 			union select 1 - на случай, если таблица пустая
 		*/
-		$sql = 'SELECT DATABASE() FROM ' . $tableName .
-			' UNION SELECT 1 LIMIT 1';
+		$sql = 'SELECT DATABASE() db ' .
+			' UNION SELECT NULL FROM ' . $tableName .
+			' ORDER BY db DESC LIMIT 1';
 		try
 		{
 			$schema = $this->_db->fetchOne($sql);
