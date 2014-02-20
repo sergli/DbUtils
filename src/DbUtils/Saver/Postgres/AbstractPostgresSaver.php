@@ -16,7 +16,7 @@ abstract class AbstractPostgresSaver extends AbstractSaver
 	 *
 	 * @var int
 	 */
-	protected $_options		= 0b0000;
+	protected $_options		= 0b00000;
 
 
 	public function __construct(

@@ -20,12 +20,10 @@ abstract class AbstractMysqlSaver extends AbstractSaver
 
 	/**
 	 * Опции запросов.
-	 * По умолчанию ignore, delayed для BulkInsertSaver,
-	 * concurrent - для LoadDataSaver
 	 *
 	 * @var int
 	 */
-	protected $_options		= 0b01011;
+	protected $_options		= 0b00000;
 
 	public function __construct(
 		MysqlAdapterInterface $adapter,
