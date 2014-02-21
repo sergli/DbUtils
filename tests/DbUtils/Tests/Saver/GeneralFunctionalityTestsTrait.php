@@ -2,126 +2,128 @@
 
 namespace DbUtils\Tests\Saver;
 
-trait BaseSaverTestsTrait
+trait GeneralFunctionalityTestsTrait
 {
-	use ArrayAccessSaverTestsTrait;
+	private $_tableName;
 
-	private $_tableName = 'test.documents';
-	private $_saver;
+	private $_exceptionMsg =
+		'Ошидалось исключение \OutOfBoundsException';
 
-	public function genRecord($i, array $columns = null)
-	{
-		if (!$columns)
-		{
-			$columns = [ 'id' , 'group_id', 'title', 'content' ];
-		}
-
-		$record = [];
-
-		if (in_array('id', $columns))
-		{
-			$record['id'] = $i;
-		}
-		if (in_array('group_id', $columns))
-		{
-			$record['group_id'] = (int) ($i / 100);
-		}
-		if (in_array('title', $columns))
-		{
-			$record['title'] = "Title #$i";
-		}
-		if (in_array('content', $columns))
-		{
-			$record['content'] = "Content #$i";
-		}
-
-		return $record;
-	}
+	abstract protected function _getAdapterClass();
+	abstract protected function _getSaverClass();
 
 	public function setUp()
 	{
-		//	Мок для таблицы
-		$table = $this->getMock(
-			$this->_tableClass,
-			[ ], [ ], '', false);
+		$this->_tableName = 'test.documents';
 
+		$table = $this->getMock(
+			'\DbUtils\Table\TableInterface');
 		$table->expects($this->any())
 			->method('getColumns')
 			->will($this->returnValue([
-				'id' 		=> 'int(11)',
-				'group_id'	=> 'int(11)',
-				'title'		=> 'varchar(100)',
-				'content'	=> 'text'
-			]));
+					'id' 		=> 'int(11)',
+					'group_id'	=> 'int(11)',
+					'title'		=> 'varchar(100)',
+					'content'	=> 'text',
+					'date'		=> 'timestamp'
+				]));
 		$table->expects($this->any())
 			->method('getFullName')
-			->will($this->returnValue($this->_tableName));
+			->will($this->returnValue(
+				$this->_tableName));
 
-		//	Мок для адаптера
-		$db = $this->getMock(
-			$this->_adapterClass,
-			[ ], [ ], '', false);
+
+		$db = $this->getMock($this->_getAdapterClass());
 
 		$db->expects($this->any())
 			->method('getTable')
 			->will($this->returnValue($table));
-
 		$db->expects($this->any())
 			->method('quote')
-			->will($this->returnCallback(
-				function ($val) { return "'$val'"; })
-			);
+			->will($this->returnArgument(0));
 
 		$this->_db = $db;
 	}
 
-	public function createSaver(array $columns = null,
+	/**
+	 * Возвращает почти настоящий сейвер.
+	 * Замокан только метод _save()
+	 *
+	 * @param array $columns
+	 * @param array $methods
+	 * @return \DbUtils\Saver\SaverInterface
+	 */
+	public function newSaver(
+		array $columns = null,
 		array $methods = [ '_save' ])
 	{
+		$methods = array_merge(
+			$methods, [ '_save', '_quote' ]);
+		$methods = array_unique($methods);
+
 		$saver = $this->getMock(
-			$this->_saverClass,
+			$this->_getSaverClass(),
 			$methods,
 			[
 				$this->_db,
 				$this->_tableName,
 				$columns
-			]
+			],
+			'',
+			true
 		);
 		$saver->setBatchSize(10);
 
 		return $saver;
 	}
 
+	public function newProvider(array $cols = null)
+	{
+		$cols = $cols ?:
+			[ 'id', 'group_id', 'title',
+			'content', 'date', ];
 
+		return new \DbUtils\Tests\DataProvider($cols);
+	}
+
+
+
+	/**
+	 * @group grain
+	 */
 	public function testCreateSaverWithNoColumns1()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 		$this->assertNull($saver->getColumns());
 
-		$row = $this->genRecord(10, [ 'id', 'title' ]);
+		$cols = [ 'id', 'title' ];
+		$row = $this->newProvider($cols)->getRecord();
 
 		$saver->add($row);
 
 		$this->assertEquals(
-			[ 'id', 'title' ], $saver->getColumns());
+			[ 'id', 'title' ],
+			$saver->getColumns()
+		);
+
 	}
 
 	public function testCreateSaverWithNoColumns2()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 		$this->assertNull($saver->getColumns());
 
-		$row = $this->genRecord(1);
+		$row = $this->newProvider()->current();
 
 		$saver->add($row);
 
 		$this->assertEquals([
-				'id',
-				'group_id',
-				'title',
-				'content'
-			], $saver->getColumns()
-		);
+			'id',
+			'group_id',
+			'title',
+			'content',
+			'date',
+		], $saver->getColumns());
 	}
 
 	public function testCreateSaverWithConcreteColumns()
@@ -131,13 +133,13 @@ trait BaseSaverTestsTrait
 			'title',
 			'content'
 		];
-		$saver = $this->createSaver($columns);
+		$saver = $this->newSaver($columns);
 
 		$this->assertInstanceOf(
 			'\DbUtils\Saver\SaverInterface', $saver);
 		$this->assertEquals($columns, $saver->getColumns());
 
-		$row = $this->genRecord(20, $columns);
+		$row = $this->newProvider($columns)->current();
 
 		$saver->add($row);
 		$this->assertEquals(1, $saver->getSize());
@@ -145,15 +147,12 @@ trait BaseSaverTestsTrait
 
 	public function testCreateSaverWithRepeatedColumns()
 	{
-		$columns = [
-			'group_id',
-			'id',
-			'id',
-			'title'
-		];
-		$saver = $this->createSaver($columns);
+		$columns = [ 'group_id', 'id', 'id', 'title' ];
+		$saver = $this->newSaver($columns);
 		$this->assertEquals(
-			[ 'group_id', 'id', 'title' ], $saver->getColumns());
+			[ 'group_id', 'id', 'title' ],
+			$saver->getColumns()
+		);
 	}
 
 	/**
@@ -161,25 +160,25 @@ trait BaseSaverTestsTrait
 	 */
 	public function testCreateSaverWithNonExistingColumns()
 	{
-		$columns = [
-			'id',
-			'not_exist',
-		];
-		$saver = $this->createSaver($columns);
+		$columns = [ 'id', 'not_exist', ];
+		$saver = $this->newSaver($columns);
 	}
 
 
 
 	public function testAdd()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 		$saver->setBatchSize(5000);
-		$row = $this->genRecord(1);
+
+		$prov = $this->newProvider();
+
+		$row = $prov->getRecord();
 		$saver->add($row);
 		$this->assertCount(1, $saver);
 		for ($i = 2; $i <= 100; $i++)
 		{
-			$saver->add($this->genRecord($i));
+			$saver->add($prov->getRecord($i));
 		}
 		$this->assertCount(100, $saver);
 	}
@@ -189,7 +188,7 @@ trait BaseSaverTestsTrait
 	 */
 	public function testAddIncorrectRow1()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 		$saver->add([ 1, 2 ]);
 	}
 	/**
@@ -197,7 +196,7 @@ trait BaseSaverTestsTrait
 	 */
 	public function testAddIncorrectRow2()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 		$saver->add([
 			'id'		=> 1,
 			'group_id'	=> 1,
@@ -207,16 +206,14 @@ trait BaseSaverTestsTrait
 
 	public function testSetLogger()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 		$logger = $saver->getLogger();
 		$this->assertInstanceOf(
 			'\Monolog\Logger', $logger);
-
 		unset($logger);
 
 		$logger = new \Monolog\Logger('TestLogger', [
 			new \Monolog\Handler\NullHandler ]);
-
 
 		$saver->setLogger($logger);
 
@@ -225,12 +222,13 @@ trait BaseSaverTestsTrait
 
 	public function testReset()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 		$this->assertCount(0, $saver);
 
-		for ($i = 1; $i <= 8; $i++)
+		foreach (new \LimitIterator(
+			$this->newProvider(), 0, 8) as $row)
 		{
-			$saver->add($this->genRecord($i));
+			$saver->add($row);
 		}
 		$this->assertCount(8, $saver);
 		$saver->reset();
@@ -239,21 +237,24 @@ trait BaseSaverTestsTrait
 
 	public function testGetSize()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
+		$saver->setBatchSize(100);
+
+		$prov = $this->newProvider();
+
 		$this->assertCount(0, $saver);
 		$this->assertEquals(0, $this->getSize());
 
-		$saver->setBatchSize(100);
 		for ($i = 1; $i <= 90; $i++)
 		{
-			$saver->add($this->genRecord($i));
+			$saver->add($prov->getRecord());
 		}
 		$this->assertCount(90, $saver);
 		$this->assertEquals(90, $saver->getSize());
 
 		for ($i = 91; $i <= 110; $i++)
 		{
-			$saver->add($this->genRecord($i));
+			$saver->add($prov->getRecord());
 		}
 
 		$this->assertCount(10, $saver);
@@ -262,7 +263,7 @@ trait BaseSaverTestsTrait
 
 	public function testSetBatchSize()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 		$saver->setBatchSize(1);
 		$this->assertEquals(1, $saver->getBatchSize());
 		$saver->setBatchSize(1000);
@@ -276,7 +277,7 @@ trait BaseSaverTestsTrait
 	 */
 	public function testSetNegativeBatchSize()
 	{
-		$this->createSaver()->setBatchSize(-100);
+		$this->newSaver()->setBatchSize(-100);
 	}
 
 	/**
@@ -284,16 +285,17 @@ trait BaseSaverTestsTrait
 	 */
 	public function testSetTooBigBatchSize()
 	{
-		$this->createSaver()->setBatchSize(10000000);
+		$this->newSaver()->setBatchSize(10000000);
 	}
 
-	public function testSaveImpliesReset()
+	public function testCallSaveImpliesReset()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 
-		for ($i = 1; $i <= 8; $i++)
+		foreach (new \LimitIterator(
+			$this->newProvider(), 0, 8) as $row)
 		{
-			$saver->add($this->genRecord($i));
+			$saver->add($row);
 		}
 
 		$this->assertCount(8, $saver);
@@ -303,26 +305,160 @@ trait BaseSaverTestsTrait
 		$this->assertCount(0, $saver);
 	}
 
-	public function testAddImpliesSave()
+	public function testCallAddImpliesSave()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 
-		$saver->expects($this->exactly(9))->method('_save');
+		$saver->expects($this->exactly(9))
+			->method('_save');
 
-		for ($i = 1; $i <= 87; $i++)
+		foreach (new \LimitIterator(
+			$this->newProvider(), 0, 87) as $row)
 		{
-			$saver->add($this->genRecord($i));
+			$saver->add($row);
 		}
 		$this->assertCount(7, $saver);
 
 		$saver->save();
 	}
 
-	public function testDestructImpliesSave()
+	public function testCallDestructImpliesSave()
 	{
-		$saver = $this->createSaver();
+		$saver = $this->newSaver();
 		$saver->expects($this->once())->method('_save');
-		$saver->add($this->genRecord(1));
+		$saver->add($this->newProvider()->current());
 		$saver->__destruct();
+	}
+
+	/**
+	 * Проверяем, что $saver[]= вызывает add()
+	 */
+	public function testPushRow()
+	{
+		$saver = $this->newSaver(null, [ '_add' ]);
+		$prov = $this->newProvider();
+
+		$rows = [];
+		for ($i = 0; $i < 42; $i++)
+		{
+			$rows[$i] = $prov->getRecord();
+			$saver->expects($this->at($i))
+				->method('_add')
+				->with($this->isType('array'));
+		}
+
+		foreach ($rows as $i => $row)
+		{
+			$saver[] = $row;
+		}
+	}
+
+	public function testOffsetGet()
+	{
+		$saver = $this->newSaver(null, [ '_add' ]);
+		$prov = $this->newProvider();
+
+		for ($i = 0; $i < 17; $i++)
+		{
+			$saver[] = $prov->getRecord();
+		}
+
+		for ($i = 0; $i <= 20; $i++)
+		{
+			try
+			{
+				$saver[$i];
+			}
+			catch (\OutOfBoundsException $e)
+			{
+				continue;
+			}
+			catch (\Exception $e)
+			{
+				$this->fail($this->_exceptionMsg);
+			}
+			$this->fail($this->_exceptionMsg);
+		}
+	}
+
+	public function testAddRowInTheMiddle()
+	{
+		$saver = $this->newSaver(null, [ '_add' ]);
+		$prov = $this->newProvider();
+
+		for ($i = 0; $i < 17; $i++)
+		{
+			$saver[] = $prov->getRecord();
+		}
+
+		$this->assertCount(7, $saver);
+
+		$saver->expects($this->never())
+			->method('_add');
+
+		for ($i = -1; $i < 7; $i++)
+		{
+			try
+			{
+				$saver[$i] = $prov->getRecord();
+			}
+			catch (\OutOfBoundsException $e)
+			{
+				continue;
+			}
+			catch (\Exception $e)
+			{
+				$this->fail($this->_exceptionMsg);
+			}
+			$this->fail($this->_exceptionMsg);
+		}
+	}
+
+	public function testAddRowInTheEnd()
+	{
+		$saver = $this->newSaver(null, [ '_add' ]);
+		$prov = $this->newProvider();
+
+		for ($i = 0; $i < 17; $i++)
+		{
+			$saver[] = $prov->getRecord();
+		}
+
+		$row = $prov->current();
+
+		$saver->expects($this->once())
+			->method('_add')
+			->with($this->isType('array'));
+
+		$saver[7] = $row;
+		$this->assertCount(8, $saver);
+	}
+
+	public function testOffsetExists()
+	{
+		$saver = $this->newSaver(null, [ '_add' ]);
+		$prov = $this->newProvider();
+
+		for ($i = 0; $i < 17; $i++)
+		{
+			$saver[] = $prov->getRecord();
+		}
+
+		for ($i = -2; $i <= 20; $i++)
+		{
+			try
+			{
+				isset($saver[$i]);
+			}
+			catch (\OutOfBoundsException $e)
+			{
+				continue;
+			}
+			catch (\Exception $e)
+			{
+				$this->fail($this->_exceptionMsg);
+			}
+			$this->fail($this->_exceptionMsg);
+		}
 	}
 }

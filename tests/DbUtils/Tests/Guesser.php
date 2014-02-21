@@ -41,7 +41,7 @@ class Guesser extends \Faker\Guesser\Name
 				return implode('', array_map(function($i)
 				{
 					return chr(mt_rand(0, 255));
-				}, range(0,20)));
+				}, range(0, 30)));
 			};
 		}
 
