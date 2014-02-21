@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Tests\Saver\Postgres\BulkInsert;
+namespace DbUtils\Tests\Saver\Postgres\LoadFile;
 
 class GeneralFunctionalityTest extends \PHPUnit_Framework_TestCase
 {

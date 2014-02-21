@@ -53,13 +53,10 @@ trait GeneralFunctionalityTestsTrait
 	 * @param array $methods
 	 * @return \DbUtils\Saver\SaverInterface
 	 */
-	public function newSaver(
-		array $columns = null,
-		array $methods = [ '_save' ])
+	public function newSaver(array $columns = null,
+		array $methods = [ '_save' ]
+	)
 	{
-		$methods = array_merge(
-			$methods, [ '_save', '_quote' ]);
-		$methods = array_unique($methods);
 
 		$saver = $this->getMock(
 			$this->_getSaverClass(),
@@ -68,9 +65,7 @@ trait GeneralFunctionalityTestsTrait
 				$this->_db,
 				$this->_tableName,
 				$columns
-			],
-			'',
-			true
+			]
 		);
 		$saver->setBatchSize(10);
 
@@ -332,6 +327,7 @@ trait GeneralFunctionalityTestsTrait
 
 	/**
 	 * Проверяем, что $saver[]= вызывает add()
+	 * @group ok
 	 */
 	public function testPushRow()
 	{
@@ -414,6 +410,9 @@ trait GeneralFunctionalityTestsTrait
 		}
 	}
 
+	/**
+	 * @group ok
+	 */
 	public function testAddRowInTheEnd()
 	{
 		$saver = $this->newSaver(null, [ '_add' ]);

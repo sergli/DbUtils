@@ -2,10 +2,10 @@
 
 namespace DbUtils\Tests\Saver\Postgres\BulkInsert;
 
-use \DbUtils\Adapter\Pgsql\Pgsql as Adapter;
+use \DbUtils\Adapter\Pdo\Pgsql as Adapter;
 use \DbUtils\Saver\Postgres\BulkInsertSaver as Saver;
 
-class RealtimeTest extends
+class PdoRealtimeTest extends
 	\PHPUnit_Extensions_Database_TestCase
 {
 	use \DbUtils\Tests\Saver\RealtimeTestsTrait;

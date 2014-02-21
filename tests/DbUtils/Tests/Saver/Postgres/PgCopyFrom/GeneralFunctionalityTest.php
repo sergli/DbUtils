@@ -8,7 +8,8 @@ class GeneralFunctionalityTest extends \PHPUnit_Framework_TestCase
 
 	protected function _getAdapterClass()
 	{
-		return '\DbUtils\Adapter\PostgresAdapterInterface';
+		//		return '\DbUtils\Adapter\PostgresAdapterInterface';
+		return '\DbUtils\Adapter\Pgsql\Pgsql';
 	}
 
 	protected function _getSaverClass()

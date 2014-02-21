@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Tests\Saver\Mysql\BulkInsert;
+namespace DbUtils\Tests\Saver\Mysql\LoadFile;
 
 class GeneralFunctionalityTest extends \PHPUnit_Framework_TestCase
 {
