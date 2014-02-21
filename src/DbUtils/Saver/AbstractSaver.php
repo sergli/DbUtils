@@ -393,15 +393,26 @@ abstract class AbstractSaver implements SaverInterface,
 	public function __construct(AdapterInterface $adapter,
 		$tableName, array $columns = null)
 	{
-
 		$this->_db = $adapter;
-
-		$this->_table = $this->_db->getTable($tableName);
 
 		$this->_count = 0;
 
-		$this->setLogger();
-		$this->setBatchSize(static::DEFAULT_BATCH_SIZE);
+		$this->_logger = new Logger('', [ new NullHandler ]);
+
+		$this->_initTable($tableName, $columns);
+	}
+
+	/**
+	 * Инициализация и считывание метаданных о таблице
+	 *
+	 * @param string $tableName
+	 * @param array $columns
+	 * @return void
+	 */
+	private function _initTable($tableName,
+		array $columns = null)
+	{
+		$this->_table = $this->_db->getTable($tableName);
 
 		$this->_initBeforeSql();
 
