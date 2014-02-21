@@ -32,7 +32,7 @@ class BulkInsertSaver extends AbstractPostgresSaver
 				return (int) (boolean) $value;
 
 			case 'bytea':
-				$text = bin2hex($text);
+				$text = bin2hex($value);
 				return "decode('$text', 'hex')";
 
 			default:
