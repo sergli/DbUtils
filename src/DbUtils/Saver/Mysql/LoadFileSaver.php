@@ -77,9 +77,8 @@ class LoadFileSaver extends AbstractMysqlSaver
 		}
 
 		$sql .= ' INTO TABLE ' . $this->_table->getFullName();
-		$sql .= "\n(\n\t" .
-			implode(",\n\t", array_keys($this->_columns)) .
-			"\n)";
+		$sql .= ' CHARACTER SET binary';
+		$sql .= ' (' . implode(', ', array_keys($this->_columns)) . ')';
 
 		$this->_sql = $sql;
 		unset($sql);
