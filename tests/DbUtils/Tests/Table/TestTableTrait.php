@@ -67,7 +67,17 @@ trait TestTableTrait
 	public function testGetColumns()
 	{
 		$arr = $this->_table->getColumns();
-		$this->assertCount(4, $arr);
+		$columns = [
+			'id',
+			'group_id',
+			'title',
+			'content',
+			'date',
+			'bindata'
+		];
+		$this->assertEquals($columns, array_keys($arr));
+
+
 		$this->assertContains('int', $arr['id']);
 		$this->assertContains('int', $arr['group_id']);
 		$this->assertContains('var', $arr['title']);
