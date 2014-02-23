@@ -18,7 +18,7 @@ trait RealtimeTestsTrait
 		parent::setUp();
 
 		$this->_tableName = 'test.documents';
-		$this->_limit = 20;
+		$this->_limit = 200;
 
 		$config = (new \DbUtils\DiContainer)['config'];
 
@@ -94,6 +94,9 @@ trait RealtimeTestsTrait
 	}
 
 
+	/**
+	 * @group bindata
+	 */
 	public function testBinDataWithNullBytes()
 	{
 		$columns = [ 'id', 'title', 'bindata' ];
@@ -112,6 +115,9 @@ trait RealtimeTestsTrait
 			$this->_fetchAll($columns));
 	}
 
+	/**
+	 * @group bindata
+	 */
 	public function testBinDataWithTabsAndNewLinesAnsSlashes()
 	{
 		$columns = [ 'id', 'title', 'bindata' ];
@@ -137,9 +143,6 @@ trait RealtimeTestsTrait
 		$this->_verifyColumns($cols);
 	}
 
-	/**
-	 * @group ok
-	 */
 	public function testColumnsIdTitle()
 	{
 		$this->_verifyColumns([ 'id', 'title' ]);
@@ -150,6 +153,9 @@ trait RealtimeTestsTrait
 		$this->_verifyColumns([ 'id', 'title', 'date' ]);
 	}
 
+	/**
+	 * @group bindata
+	 */
 	public function testColumnsIdTitleContentBindata()
 	{
 		$this->_verifyColumns([
