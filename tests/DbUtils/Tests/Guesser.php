@@ -23,7 +23,8 @@ class Guesser extends \Faker\Guesser\Name
 		case 'title':
 			return function() use ($generator)
 			{
-				return $generator->unique()->sentence;
+				//return $generator->unique()->sentence;
+				return $generator->unique()->name;
 			};
 		case 'content':
 			return function() use ($generator)
