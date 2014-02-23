@@ -18,8 +18,8 @@ trait BaseFeaturesTestsTrait
 	{
 		$this->assertTableRowCount($this->_tableName, 5);
 		$sql = 'insert into ' . $this->_tableName .
-			' (id, group_id, title, content) ' .
-			" values (101, 2, 'Title #101', 'Content #101')";
+			' (id, group_id, name, content) ' .
+			" values (101, 2, 'Name #101', 'Content #101')";
 		$this->_db->query($sql);
 		$this->assertTableRowCount($this->_tableName, 6);
 	}

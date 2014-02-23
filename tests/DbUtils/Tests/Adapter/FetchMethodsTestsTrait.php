@@ -8,7 +8,7 @@ trait FetchMethodsTestsTrait
 	select
 		id,
 		group_id,
-		title,
+		name,
 		content
 	from
 		test.documents';
@@ -17,11 +17,11 @@ trait FetchMethodsTestsTrait
 	{
 		$arr = $this->_db->fetchAll($this->_fetchSql);
 		$this->assertEquals([
-			[ 'id' => 1, 'group_id' => 1, 'title' => 'Title #1', 'content' => 'Content #1' ],
-			[ 'id' => 2, 'group_id' => 1, 'title' => 'Title #2', 'content' => 'Content #2' ],
-			[ 'id' => 3, 'group_id' => 1, 'title' => 'Title #3', 'content' => 'Content #3' ],
-			[ 'id' => 4, 'group_id' => 1, 'title' => 'Title #4', 'content' => 'Content #4' ],
-			[ 'id' => 5, 'group_id' => 1, 'title' => 'Title #5', 'content' => 'Content #5' ],
+			[ 'id' => 1, 'group_id' => 1, 'name' => 'Name #1', 'content' => 'Content #1' ],
+			[ 'id' => 2, 'group_id' => 1, 'name' => 'Name #2', 'content' => 'Content #2' ],
+			[ 'id' => 3, 'group_id' => 1, 'name' => 'Name #3', 'content' => 'Content #3' ],
+			[ 'id' => 4, 'group_id' => 1, 'name' => 'Name #4', 'content' => 'Content #4' ],
+			[ 'id' => 5, 'group_id' => 1, 'name' => 'Name #5', 'content' => 'Content #5' ],
 		], $arr);
 	}
 
@@ -38,7 +38,7 @@ trait FetchMethodsTestsTrait
 	{
 		$arr = $this->_db->fetchRow($this->_fetchSql);
 		$this->assertEquals(
-			[ 'id' => 1, 'group_id' => 1, 'title' => 'Title #1', 'content' => 'Content #1' ],
+			[ 'id' => 1, 'group_id' => 1, 'name' => 'Name #1', 'content' => 'Content #1' ],
 			$arr
 		);
 	}
@@ -59,7 +59,7 @@ trait FetchMethodsTestsTrait
 	public function testFetchColumn3()
 	{
 		$arr = $this->_db->fetchColumn($this->_fetchSql, 3);
-		$expected = [ 'Title #1', 'Title #2', 'Title #3', 'Title #4', 'Title #5' ];
+		$expected = [ 'Name #1', 'Name #2', 'Name #3', 'Name #4', 'Name #5' ];
 		$this->assertEquals($expected, $arr);
 	}
 

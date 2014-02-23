@@ -20,10 +20,9 @@ class Guesser extends \Faker\Guesser\Name
 			{
 				return $generator->randomNumber;
 			};
-		case 'title':
+		case 'name':
 			return function() use ($generator)
 			{
-				//return $generator->unique()->sentence;
 				return $generator->unique()->name;
 			};
 		case 'content':

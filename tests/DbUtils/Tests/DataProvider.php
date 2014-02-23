@@ -8,7 +8,7 @@ class DataProvider implements \Iterator
 	private $_columns = [
 		'id',
 		'group_id',
-		'title',
+		'name',
 		'content',
 		'date',
 	];

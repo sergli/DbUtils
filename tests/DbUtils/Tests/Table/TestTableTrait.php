@@ -43,15 +43,15 @@ trait TestTableTrait
 	{
 		$arr = $this->_table->getUniques();
 		$this->assertCount(1, $arr);
-		$this->assertEquals('title',
-			$arr['uidx_title']['columns'][0]);
+		$this->assertEquals('name',
+			$arr['uidx_name']['columns'][0]);
 	}
 
 	public function testGetConstraints()
 	{
 		$arr = $this->_table->getConstraints();
 		$this->assertCount(2, $arr);
-		$this->assertArrayHasKey('uidx_title', $arr);
+		$this->assertArrayHasKey('uidx_name', $arr);
 		//	primary key
 		$this->assertEquals('id', array_shift($arr)['columns'][0]);
 	}
@@ -60,8 +60,8 @@ trait TestTableTrait
 	{
 		$arr = $this->_table->getIndices();
 		$this->assertCount(3, $arr);
-		$this->assertArrayHasKey('idx_group_id_title', $arr);
-		$this->assertArrayHasKey('uidx_title', $arr);
+		$this->assertArrayHasKey('idx_group_id_name', $arr);
+		$this->assertArrayHasKey('uidx_name', $arr);
 	}
 
 	public function testGetColumns()
@@ -70,7 +70,7 @@ trait TestTableTrait
 		$columns = [
 			'id',
 			'group_id',
-			'title',
+			'name',
 			'content',
 			'date',
 			'bindata'
@@ -80,7 +80,7 @@ trait TestTableTrait
 
 		$this->assertContains('int', $arr['id']);
 		$this->assertContains('int', $arr['group_id']);
-		$this->assertContains('var', $arr['title']);
+		$this->assertContains('var', $arr['name']);
 		$this->assertEquals('text', $arr['content']);
 	}
 

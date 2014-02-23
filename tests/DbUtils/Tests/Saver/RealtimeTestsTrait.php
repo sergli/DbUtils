@@ -5,9 +5,9 @@ namespace DbUtils\Tests\Saver;
 trait RealtimeTestsTrait
 {
 	private $_db;
-	private $_tableName;
+	private $_tableName = 'test.documents';
 	private $_saver;
-	private $_limit;
+	private $_limit = 200;
 
 	abstract protected function _newPdo(array $config);
 	abstract protected function _newAdapter(array $config);
@@ -16,9 +16,6 @@ trait RealtimeTestsTrait
 	public function setUp()
 	{
 		parent::setUp();
-
-		$this->_tableName = 'test.documents';
-		$this->_limit = 200;
 
 		$config = (new \DbUtils\DiContainer)['config'];
 
@@ -36,7 +33,8 @@ trait RealtimeTestsTrait
 			->getConnection();
 
 		$sql = 'select ' . implode(',', $columns) .
-			' from ' . $this->_tableName;
+			' from ' . $this->_tableName  .
+			' order by id asc';
 
 		$stmt = $pdo->query($sql, \PDO::FETCH_ASSOC);
 		$ret = [];
@@ -83,9 +81,14 @@ trait RealtimeTestsTrait
 
 	public function newProvider(array $cols = null)
 	{
-		$cols = $cols ?:
-			[ 'id', 'group_id', 'title',
-			'content', 'date', 'bindata' ];
+		$cols = $cols ?: [
+	//		'id',
+			'group_id',
+			'name',
+			'content',
+			'date',
+			'bindata'
+		];
 
 		return new \LimitIterator(
 			new \DbUtils\Tests\DataProvider($cols),
@@ -99,7 +102,11 @@ trait RealtimeTestsTrait
 	 */
 	public function testBinDataWithNullBytes()
 	{
-		$columns = [ 'id', 'title', 'bindata' ];
+		$columns = [
+		//	'id',
+			'name',
+			'bindata'
+		];
 		$dataSet = [];
 
 		foreach ($this->newProvider($columns) as $record)
@@ -120,7 +127,11 @@ trait RealtimeTestsTrait
 	 */
 	public function testBinDataWithTabsAndNewLinesAnsSlashes()
 	{
-		$columns = [ 'id', 'title', 'bindata' ];
+		$columns = [
+	//		'id',
+			'name',
+			'bindata'
+		];
 		$dataSet = [];
 		foreach ($this->newProvider($columns) as $record)
 		{
@@ -137,36 +148,56 @@ trait RealtimeTestsTrait
 			$this->_fetchAll($columns));
 	}
 
-	public function testColumnsIdGroupidTitleContent()
+	public function testColumnsGroupidNameContent()
 	{
-		$cols = ['id', 'group_id', 'title', 'content'];
+		$cols = [
+	//		'id',
+			'group_id',
+			'name',
+			'content'
+		];
 		$this->_verifyColumns($cols);
 	}
 
-	public function testColumnsIdTitle()
+	/**
+	 * @group ok
+	 */
+	public function testColumnsName()
 	{
-		$this->_verifyColumns([ 'id', 'title' ]);
+		$cols = [
+	//		'id',
+			'name',
+		];
+		$this->_verifyColumns($cols);
 	}
 
-	public function testColumnsIdTitleDate()
+	public function testColumnsNameDate()
 	{
-		$this->_verifyColumns([ 'id', 'title', 'date' ]);
+		$cols = [ 'name', 'date' ];
+		$this->_verifyColumns($cols);
 	}
 
 	/**
 	 * @group bindata
 	 */
-	public function testColumnsIdTitleContentBindata()
+	public function testColumnsNameContentBindata()
 	{
-		$this->_verifyColumns([
-			'id', 'title', 'content', 'bindata']);
+		$cols = [ 'name', 'content', 'bindata' ];
+		$this->_verifyColumns($cols);
 	}
 
+	/**
+	 * @group allcols
+	 */
 	public function testAllColumns()
 	{
-		$this->_verifyColumns([
-			'id', 'title', 'content',
-			'group_id', 'date', 'bindata']
-		);
+		$cols = [
+			'name',
+			'content',
+			'group_id',
+			'date',
+			'bindata',
+		];
+		$this->_verifyColumns($cols);
 	}
 }

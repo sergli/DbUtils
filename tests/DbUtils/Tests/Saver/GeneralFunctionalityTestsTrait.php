@@ -23,7 +23,7 @@ trait GeneralFunctionalityTestsTrait
 			->will($this->returnValue([
 					'id' 		=> 'int(11)',
 					'group_id'	=> 'int(11)',
-					'title'		=> 'varchar(100)',
+					'name'		=> 'varchar(100)',
 					'content'	=> 'text',
 					'date'		=> 'timestamp'
 				]));
@@ -75,7 +75,7 @@ trait GeneralFunctionalityTestsTrait
 	public function newProvider(array $cols = null)
 	{
 		$cols = $cols ?:
-			[ 'id', 'group_id', 'title',
+			[ 'id', 'group_id', 'name',
 			'content', 'date', ];
 
 		return new \DbUtils\Tests\DataProvider($cols);
@@ -91,13 +91,13 @@ trait GeneralFunctionalityTestsTrait
 		$saver = $this->newSaver();
 		$this->assertNull($saver->getColumns());
 
-		$cols = [ 'id', 'title' ];
+		$cols = [ 'id', 'name' ];
 		$row = $this->newProvider($cols)->getRecord();
 
 		$saver->add($row);
 
 		$this->assertEquals(
-			[ 'id', 'title' ],
+			[ 'id', 'name' ],
 			$saver->getColumns()
 		);
 
@@ -115,7 +115,7 @@ trait GeneralFunctionalityTestsTrait
 		$this->assertEquals([
 			'id',
 			'group_id',
-			'title',
+			'name',
 			'content',
 			'date',
 		], $saver->getColumns());
@@ -125,7 +125,7 @@ trait GeneralFunctionalityTestsTrait
 	{
 		$columns = [
 			'group_id',
-			'title',
+			'name',
 			'content'
 		];
 		$saver = $this->newSaver($columns);
@@ -142,10 +142,10 @@ trait GeneralFunctionalityTestsTrait
 
 	public function testCreateSaverWithRepeatedColumns()
 	{
-		$columns = [ 'group_id', 'id', 'id', 'title' ];
+		$columns = [ 'group_id', 'id', 'id', 'name' ];
 		$saver = $this->newSaver($columns);
 		$this->assertEquals(
-			[ 'group_id', 'id', 'title' ],
+			[ 'group_id', 'id', 'name' ],
 			$saver->getColumns()
 		);
 	}
