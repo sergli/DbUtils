@@ -435,7 +435,10 @@ abstract class AbstractSaver implements SaverInterface,
 		{
 			$channel = get_class($this);
 			$logger = new Logger($channel);
-			$logger->pushHandler(new NullHandler);
+			$logger->pushHandler(new StreamHandler(
+				'php://stderr', Logger::INFO));
+			$logger->pushProcessor(
+				new \Monolog\Processor\MemoryPeakUsageProcessor);
 		}
 
 		$this->_logger = $logger;
