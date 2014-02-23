@@ -44,7 +44,16 @@ class DataProvider implements \Iterator
 	public function __construct(array $columns = null,
 		$seed = null)
 	{
-		$faker = \Faker\Factory::create();
+		$faker = \Faker\Factory::create('ru_RU');
+
+		if (!isset($seed) && !empty($_SERVER['seed']))
+		{
+			$seed = $_SERVER['seed'];
+		}
+		if ($seed = (int) $seed)
+		{
+			$faker->seed($seed);
+		}
 		if ($seed)
 		{
 			$faker->seed($seed);
