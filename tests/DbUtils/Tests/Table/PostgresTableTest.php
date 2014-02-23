@@ -20,7 +20,8 @@ class PostgresTableTest extends \PHPUnit_Extensions_Database_TestCase
 	public function getConnection()
 	{
 		$config = (new \DbUtils\DiContainer)['config']['postgres'];
-		$dsn = 'pgsql:dbname=' . $config['dbname'];
+		$dsn = sprintf('pgsql:host=%s;dbname=%s',
+			$config['host'], $config['dbname']);
 		$pdo = new \PDO($dsn,
 			$config['user'], $config['password']);
 

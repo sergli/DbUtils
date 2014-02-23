@@ -20,7 +20,8 @@ class MysqlTableTest extends \PHPUnit_Extensions_Database_TestCase
 	public function getConnection()
 	{
 		$config = (new \DbUtils\DiContainer)['config']['mysql'];
-		$dsn = 'mysql:dbname=' . $config['dbname'];
+		$dsn = sprintf('mysql:host=%s;dbname=%s',
+			$config['host'], $config['dbname']);
 		$pdo = new \PDO($dsn,
 			$config['user'], $config['password']);
 

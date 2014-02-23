@@ -13,9 +13,11 @@ class PdoRealtimeTest extends
 	protected function _newPdo(array $config)
 	{
 		$config = $config['postgres'];
-		$pdo = new \PDO('pgsql:dbname=' .
-			$config['dbname'],
-			$config['user'], $config['password']);
+		$dsn = sprintf('pgsql:host=%s;dbname=%s',
+			$config['host'], $config['dbname']);
+		$pdo = new \PDO($dsn,
+			$config['user'],
+			$config['password']);
 		$pdo->query('SET client_encoding TO UTF8');
 
 		return $pdo;

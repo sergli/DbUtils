@@ -13,9 +13,11 @@ class PdoRealtimeTest extends
 	protected function _newPdo(array $config)
 	{
 		$config = $config['mysql'];
-		$pdo = new \PDO('mysql:dbname=' .
-			$config['dbname'],
-			$config['user'], $config['password']);
+		$dsn = sprintf('mysql:host=%s;dbname=%s',
+			$config['host'], $config['dbname']);
+		$pdo = new \PDO($dsn,
+			$config['user'],
+			$config['password']);
 		$pdo->query('SET NAMES utf8');
 
 		return $pdo;
