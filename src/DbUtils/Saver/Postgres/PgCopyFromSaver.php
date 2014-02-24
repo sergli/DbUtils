@@ -3,8 +3,9 @@
 namespace DbUtils\Saver\Postgres;
 
 use DbUtils\Adapter\Pgsql\Pgsql;
-use DbUtils\Saver\Postgres\AbstractPostgresSaver;
 use DbUtils\Table\PostgresTable;
+use DbUtils\Saver\Postgres\AbstractPostgresSaver;
+use DbUtils\Saver\SaverException;
 
 class PgCopyFromSaver extends AbstractPostgresSaver
 {
@@ -20,9 +21,31 @@ class PgCopyFromSaver extends AbstractPostgresSaver
 		parent::__construct($adapter, $tableName, $columns);
 	}
 
+	/**
+	 * Проверяем и запоминаем колонки.
+	 * pg_copy_from() может принимать только полный
+	 * набор колонок.
+	 *
+	 * @param string[] $columns
+	 * @throws SaverException
+	 */
+	protected function _setColumns(array $columns)
+	{
+		parent::_setColumns($columns);
+
+		$all = $this->_table->getColumns();
+
+		if (count($this->_columns) !== count($all))
+		{
+			throw new SaverException(
+				'Необходимо указать полный набор колонок');
+		}
+	}
+
+
 	protected function _quote($column, $value)
 	{
-		if (null === $value)
+		if (!isset($value))
 		{
 			return '\N';
 		}
