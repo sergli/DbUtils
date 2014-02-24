@@ -41,7 +41,7 @@ EOT;
 	{
 		if (null === $value)
 		{
-			return '\N';
+			return '';
 		}
 
 		switch ($this->_columns[$column])
