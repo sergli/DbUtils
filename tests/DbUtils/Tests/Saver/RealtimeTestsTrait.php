@@ -127,6 +127,7 @@ trait RealtimeTestsTrait
 				$row['bindata'][2] = "\t";
 				$row['bindata'][5] = "\n";
 				$row['bindata'][7] = '\\';
+				$row['bindata'][11] = "\r";
 			});
 	}
 
