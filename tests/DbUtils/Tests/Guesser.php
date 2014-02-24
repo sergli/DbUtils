@@ -18,7 +18,8 @@ class Guesser extends \Faker\Guesser\Name
 		case 'group_id':
 			return function() use ($generator)
 			{
-				return $generator->randomNumber;
+				//	with some nulls
+				return $generator->optional(0.7)->randomNumber;
 			};
 		case 'name':
 			return function() use ($generator)
@@ -28,12 +29,15 @@ class Guesser extends \Faker\Guesser\Name
 		case 'content':
 			return function() use ($generator)
 			{
-				return $generator->text;
+				return $generator->optional(0.7)->text;
 			};
 		case 'date':
 			return function() use ($generator)
 			{
-				return $generator->datetime->format('Y-m-d H:i:s');
+				//	в timestamp нули не нужны,
+				//	тк mysql не допускает
+				return $generator->datetime
+					->format('Y-m-d H:i:s');
 			};
 		case 'bindata':
 			return function()
