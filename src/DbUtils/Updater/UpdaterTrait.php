@@ -52,6 +52,7 @@ trait UpdaterTrait
 				return $cols;
 			}
 		}
+
 		return null;
 	}
 
@@ -69,6 +70,8 @@ trait UpdaterTrait
 		}
 
 		$this->_key = $key;
+
+		$this->_generateSql();
 	}
 
 	public function getUniqueConstraint()
