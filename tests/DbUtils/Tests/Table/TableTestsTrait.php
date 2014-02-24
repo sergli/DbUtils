@@ -2,11 +2,43 @@
 
 namespace DbUtils\Tests\Table;
 
-trait TestTableTrait
+trait TableTestsTrait
 {
+	private $_db;
+	private $_tableName = 'test.documents';
 	private $_table;
 
-	private $_tableName = 'test.documents';
+	abstract protected function _newPdo(array $config);
+	abstract protected function _newAdapter(array $config);
+	abstract protected function _newTable($db, $tableName);
+
+	public function setUp()
+	{
+		parent::setUp();
+
+		$config = (new \DbUtils\DiContainer)['config'];
+
+		$this->_db = $this->_newAdapter($config);
+		$this->_table = $this->_newTable(
+			$this->_db, $this->_tableName);
+	}
+
+	public function tearDown()
+	{
+		parent::tearDown();
+
+		$this->_db = null;
+		$this->_table = null;
+	}
+
+	public function getConnection()
+	{
+		$config = (new \DbUtils\DiContainer)['config'];
+
+		$pdo = $this->_newPdo($config);
+
+		return $this->createDefaultDbConnection($pdo);
+	}
 
 	public function testGetConnection()
 	{
@@ -14,6 +46,13 @@ trait TestTableTrait
 			'\DbUtils\Adapter\AdapterInterface',
 			$this->_table->getConnection());
 	}
+
+	public function getDataSet()
+	{
+		$xml = __DIR__ . '/../../../_files/documents.xml';
+		return $this->createFlatXmlDataSet($xml);
+	}
+
 
 	public function testGetName()
 	{
