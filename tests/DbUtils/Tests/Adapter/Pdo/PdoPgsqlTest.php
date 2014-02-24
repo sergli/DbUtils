@@ -36,11 +36,4 @@ class PdoPgsqlTest extends \PHPUnit_Extensions_Database_TestCase
 		return $this->createFlatXMLDataSet(
 			__DIR__ . '/../../../../_files/documents.xml');
 	}
-
-	public function testQuote()
-	{
-		$str = "prover'ka";
-		$this->assertEquals("'prover''ka'",
-			$this->_db->quote($str));
-	}
 }

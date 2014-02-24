@@ -81,7 +81,7 @@ trait TestTableTrait
 		$this->assertContains('int', $arr['id']);
 		$this->assertContains('int', $arr['group_id']);
 		$this->assertContains('var', $arr['name']);
-		$this->assertEquals('text', $arr['content']);
+		$this->assertContains('text', $arr['content']);
 	}
 
 	public function testTruncate()

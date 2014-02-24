@@ -52,4 +52,30 @@ trait BaseFeaturesTestsTrait
 	{
 		$this->_db->getTable('non_existing_table');
 	}
+
+	public function quotesProvider()
+	{
+		return [
+			[ "провер'ка" ],
+			[ "провер''ка" ],
+			[ "провер\\ка" ],
+			[ "провер\"ка" ],
+			[ "провер\nка" ],
+			[ "провер`ка" ],
+			[ "провер\"\"ка" ],
+//			[ "провер\000ка" ],
+			[ "провер\rка" ],
+		];
+	}
+
+	/**
+	 * @dataProvider quotesProvider
+	 */
+	public function testQuote($str)
+	{
+		$sql = 'SELECT ' . $this->_db->quote($str);
+
+		$this->assertEquals($str,
+			$this->_db->fetchOne($sql));
+	}
 }

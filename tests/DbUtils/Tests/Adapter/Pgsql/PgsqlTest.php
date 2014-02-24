@@ -37,10 +37,4 @@ class PgsqlTest extends \PHPUnit_Extensions_Database_TestCase
 			__DIR__ . '/../../../../_files/documents.xml');
 	}
 
-	public function testQuote()
-	{
-		$str = "prover'ka";
-		$this->assertEquals("E'prover''ka'",
-			$this->_db->quote($str));
-	}
 }
