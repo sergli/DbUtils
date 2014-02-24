@@ -26,6 +26,27 @@ trait RealtimeTestsTrait
 		$this->_saver->setBatchSize(8);
 	}
 
+	public function tearDown()
+	{
+		parent::tearDown();
+		$this->_db = null;
+		$this->_saver = null;
+	}
+
+	public function getConnection()
+	{
+		$config = (new \DbUtils\DiContainer)['config'];
+
+		$pdo = $this->_newPdo($config);
+
+		return $this->createDefaultDbConnection($pdo);
+	}
+
+	public function getDataSet()
+	{
+		$xml = __DIR__ . '/../../../_files/documents-empty.xml';
+		return $this->createFlatXmlDataSet($xml);
+	}
 	protected function _fetchAll(array $columns)
 	{
 		$pdo = $this->getDatabaseTester()
@@ -69,20 +90,6 @@ trait RealtimeTestsTrait
 			$this->_fetchAll($columns));
 	}
 
-	public function getConnection()
-	{
-		$config = (new \DbUtils\DiContainer)['config'];
-
-		$pdo = $this->_newPdo($config);
-
-		return $this->createDefaultDbConnection($pdo);
-	}
-
-	public function getDataSet()
-	{
-		$xml = __DIR__ . '/../../../_files/documents-empty.xml';
-		return $this->createFlatXmlDataSet($xml);
-	}
 
 	public function newProvider(array $cols = null)
 	{
