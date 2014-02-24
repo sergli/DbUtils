@@ -144,6 +144,11 @@ abstract class AbstractSaver implements SaverInterface,
 	{
 	}
 
+	/**
+	 * Возвращает набор колонок, в кот. сохраняются данные
+	 *
+	 * @return string[]|null (null - если ещё не определены)
+	 */
 	public function getColumns()
 	{
 		return $this->_columns
