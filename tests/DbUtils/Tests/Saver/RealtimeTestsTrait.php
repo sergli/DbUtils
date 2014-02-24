@@ -51,11 +51,16 @@ trait RealtimeTestsTrait
 		return $ret;
 	}
 
-	protected function _verifyColumns(array $columns)
+	protected function _verifyColumns(
+		array $columns, \Closure $modiFy = null)
 	{
 		$dataSet = [];
 		foreach ($this->newProvider($columns) as $row)
 		{
+			if (isset($modiFy))
+			{
+				$modiFy($row);
+			}
 			$this->_saver[] = $dataSet[] = $row;
 		}
 		$this->_saver->save();
@@ -102,24 +107,12 @@ trait RealtimeTestsTrait
 	 */
 	public function testBinDataWithNullBytes()
 	{
-		$columns = [
-		//	'id',
-			'name',
-			'bindata'
-		];
-		$dataSet = [];
-
-		foreach ($this->newProvider($columns) as $record)
-		{
-			$record['bindata'][5] = "\000";
-			$dataSet[] = $record;
-			$this->_saver[] = $record;
-		}
-
-		$this->_saver->save();
-
-		$this->assertEquals($dataSet,
-			$this->_fetchAll($columns));
+		$columns = [ 'name', 'bindata' ];
+		$this->_verifyColumns($columns,
+			function(array &$row)
+			{
+				$row['bindata'][5] = "\000";
+			});
 	}
 
 	/**
@@ -127,35 +120,60 @@ trait RealtimeTestsTrait
 	 */
 	public function testBinDataWithTabsAndNewLinesAnsSlashes()
 	{
-		$columns = [
-	//		'id',
-			'name',
-			'bindata'
-		];
-		$dataSet = [];
-		foreach ($this->newProvider($columns) as $record)
-		{
-			$record['bindata'][2] = "\t";
-			$record['bindata'][5] = "\n";
-			$record['bindata'][7] = '\\';
-			$dataSet[] = $record;
-			$this->_saver[] = $record;
-		}
+		$columns = [ 'name', 'bindata' ];
+		$this->_verifyColumns($columns,
+			function (array &$row)
+			{
+				$row['bindata'][2] = "\t";
+				$row['bindata'][5] = "\n";
+				$row['bindata'][7] = '\\';
+			});
+	}
 
-		$this->_saver->save();
+	/**
+	 * @group nulls1
+	 */
+	public function testNullValuesInGroupidAndContent()
+	{
+		$columns = [ 'group_id', 'name', 'content' ];
+		$this->_verifyColumns($columns,
+			function (array &$row)
+			{
+				$row['group_id'] = $row['content'] = null;
+			});
+	}
 
-		$this->assertEquals($dataSet,
-			$this->_fetchAll($columns));
+	/**
+	 * @group nulls
+	 */
+	public function testSlashNInContent()
+	{
+		$columns = [ 'name', 'content' ];
+		$this->_verifyColumns($columns,
+			function (array &$row)
+			{
+				$row['content'] = '\N';
+			});
+	}
+	/**
+	 * @group nulls
+	 */
+	public function testSlashNInBindata()
+	{
+		$columns = [ 'name', 'content', 'bindata' ];
+		$this->_verifyColumns($columns,
+			function (array &$row)
+			{
+				$bin = $row['bindata'];
+				$bin = substr($bin, 0, 3) . '\N' .
+					substr($bin, 3);
+				$row['bindata'] = $bin;
+			});
 	}
 
 	public function testColumnsGroupidNameContent()
 	{
-		$cols = [
-	//		'id',
-			'group_id',
-			'name',
-			'content'
-		];
+		$cols = [ 'group_id', 'name', 'content' ];
 		$this->_verifyColumns($cols);
 	}
 
@@ -164,13 +182,13 @@ trait RealtimeTestsTrait
 	 */
 	public function testColumnsName()
 	{
-		$cols = [
-	//		'id',
-			'name',
-		];
+		$cols = [ 'name', ];
 		$this->_verifyColumns($cols);
 	}
 
+	/**
+	 * @group date
+	 */
 	public function testColumnsNameDate()
 	{
 		$cols = [ 'name', 'date' ];
