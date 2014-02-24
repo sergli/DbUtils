@@ -45,15 +45,7 @@ trait LoadFileTrait
 
 		pcntl_signal_dispatch();
 
-		if ($this->_options & self::OPT_ASYNC)
-		{
-			$this->_db->wait();
-			$this->_db->asyncExec($this->_sql);
-		}
-		else
-		{
-			$this->_db->query($this->_sql);
-		}
+		$this->_execSql($this->_sql);
     }
 
 	public function __destruct()

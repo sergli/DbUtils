@@ -582,4 +582,17 @@ abstract class AbstractSaver implements SaverInterface,
 	{
 		return $this->getSize();
 	}
+
+	protected function _execSql($sql)
+	{
+		if ($this->_options & static::OPT_ASYNC)
+		{
+			$this->_db->wait();
+			$this->_db->asyncExec($sql);
+		}
+		else
+		{
+			$this->_db->query($sql);
+		}
+	}
 }

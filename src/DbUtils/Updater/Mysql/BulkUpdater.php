@@ -36,15 +36,8 @@ class BulkUpdater extends MysqlBulkInsertSaver implements
 			implode(",\n\t", $this->_values) . "\n" .
 			$this->_sqlEnding;
 
-		if ($this->_options & static::OPT_ASYNC)
-		{
-			$this->_db->wait();
-			$this->_db->asyncExec($sql);
-		}
-		else
-		{
-			$this->_db->query($sql);
-		}
+		$this->_execSql($sql);
+
 		unset($sql);
 	}
 }

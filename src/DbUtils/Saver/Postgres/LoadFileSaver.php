@@ -39,7 +39,7 @@ EOT;
 
 	protected function _quote($column, $value)
 	{
-		if (null === $value)
+		if (!isset($value))
 		{
 			return '';
 		}

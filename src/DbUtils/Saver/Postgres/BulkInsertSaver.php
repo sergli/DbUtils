@@ -18,7 +18,7 @@ class BulkInsertSaver extends AbstractPostgresSaver
 
 	protected function _quote($column, $value)
 	{
-		if (null === $value)
+		if (!isset($value))
 		{
 			return 'NULL';
 		}
@@ -50,8 +50,7 @@ class BulkInsertSaver extends AbstractPostgresSaver
 
 	protected function _generateSql()
 	{
-		$sql = 'INSERT';
-		$sql .= ' INTO ' . $this->_table->getFullName();
+		$sql = 'INSERT INTO ' . $this->_table->getFullName();
 		$sql .= "\n(\n\t" . implode(",\n\t",
 			array_keys($this->_columns)) . "\n)";
 
@@ -81,15 +80,7 @@ class BulkInsertSaver extends AbstractPostgresSaver
 			"\nVALUES \n\t" .
 			implode(",\n\t", $this->_values) . ";";
 
-		if ($this->_options & static::OPT_ASYNC)
-		{
-			$this->_db->wait();
-			$this->_db->asyncExec($sql);
-		}
-		else
-		{
-			$this->_db->query($sql);
-		}
+		$this->_execSql($sql);
 		unset($sql);
 	}
 }
