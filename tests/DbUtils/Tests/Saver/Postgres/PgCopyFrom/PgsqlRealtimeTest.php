@@ -32,4 +32,19 @@ class PgsqlRealtimeTest extends
 	{
 		return new Saver($db, $tableName);
 	}
+
+	/**
+	 * @group bindata
+	 */
+	public function testBinDataWithNullBytes()
+	{
+		$i = 1;
+		$this->_verifyColumns(null,
+			function(array &$row) use ($i)
+			{
+				$row['id'] = $i++;
+				$row['bindata'][5] = "\000";
+			});
+	}
+
 }

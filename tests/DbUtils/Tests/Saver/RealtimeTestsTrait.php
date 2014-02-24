@@ -73,7 +73,7 @@ trait RealtimeTestsTrait
 	}
 
 	protected function _verifyColumns(
-		array $columns, \Closure $modiFy = null)
+		array $columns = null, \Closure $modiFy = null)
 	{
 		$dataSet = [];
 		foreach ($this->newProvider($columns) as $row)
@@ -91,7 +91,7 @@ trait RealtimeTestsTrait
 	}
 
 
-	public function newProvider(array $cols = null)
+	public function newProvider(array &$cols = null)
 	{
 		$cols = $cols ?: [
 	//		'id',
@@ -125,7 +125,7 @@ trait RealtimeTestsTrait
 	/**
 	 * @group bindata
 	 */
-	public function testBinDataWithTabsAndNewLinesAnsSlashes()
+	public function testBinDataWithTabsAndNewLinesAndSlashes()
 	{
 		$columns = [ 'name', 'bindata' ];
 		$this->_verifyColumns($columns,

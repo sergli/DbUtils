@@ -357,29 +357,37 @@ abstract class AbstractSaver implements SaverInterface,
 	 */
 	protected function _setColumns(array $columns)
 	{
-		if (empty($columns))
-		{
-			throw new SaverException('Пустой массив полей');
-		}
-
 		$all = $this->_table->getColumns();
 		$columns = array_unique($columns);
-		foreach ($columns as $column)
-		{
-			if (!is_string($column))
-			{
-				throw new SaverException(sprintf(
-					'Поле не является строкой: %s', $column));
-			}
-			if (!isset($all[$column]))
-			{
-				throw new SaverException(sprintf(
-					'Поле не существует: %s', $column));
-			}
 
-			//	запоминаем тип
-			$this->_columns[$column] = $all[$column];
+		$ret = [];
+		foreach ($all as $column => $dataType)
+		{
+			if (false === (
+				$j = array_search($column, $columns))
+			)
+			{
+				continue;
+			}
+			$ret[$column] = $dataType;
+			unset($columns[$j]);
 		}
+
+		if (empty($ret))
+		{
+			throw new SaverException('An empty set of columns');
+		}
+
+		if (!empty($columns))
+		{
+			throw new SaverException(sprintf(
+				"These columns does not exist:\n%s",
+				print_r($columns, true))
+			);
+		}
+
+		//	запоминаем тип
+		$this->_columns = $ret;
 
 		$this->_generateSql();
 	}

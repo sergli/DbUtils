@@ -145,7 +145,7 @@ trait GeneralFunctionalityTestsTrait
 		$columns = [ 'group_id', 'id', 'id', 'name' ];
 		$saver = $this->newSaver($columns);
 		$this->assertEquals(
-			[ 'group_id', 'id', 'name' ],
+			[ 'id', 'group_id', 'name' ],
 			$saver->getColumns()
 		);
 	}

@@ -20,7 +20,7 @@ class GeneralFunctionalityTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @expectedException \DbUtils\Saver\SaverException
-	 * @expectedExceptionMessage Необходимо указать полный набор колонок
+	 * @expectedExceptionMessage You could not specify a partial set of columns for this saver
 	 */
 	public function testCreateSaverWithNotFullSetOfColumns()
 	{
@@ -30,7 +30,7 @@ class GeneralFunctionalityTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @expectedException \DbUtils\Saver\SaverException
-	 * @expectedExceptionMessage Необходимо указать полный набор колонок
+	 * @expectedExceptionMessage You could not specify a partial set of columns for this saver
 	 */
 	public function testCreateSaverWithRepeatedColumns()
 	{
