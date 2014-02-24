@@ -72,51 +72,55 @@ class MysqlTable extends AbstractTable
 	{
 		//	корявый sql из-за того, что
 		//	mysql не может нормально выполнить join без ключей
-		$sql = <<<SQL
-SELECT
-	k.CONSTRAINT_NAME,
-	k.COLUMN_NAME,
-	k.REFERENCED_TABLE_NAME,
-	k.REFERENCED_COLUMN_NAME,
-	c.CONSTRAINT_TYPE
-FROM
-	INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
-	INNER JOIN (
+		$sql = "
 		SELECT
-			CONSTRAINT_NAME,
-			CONSTRAINT_TYPE
+			k.constraint_name,
+			k.column_name,
+			k.referenced_table_name,
+			k.referenced_column_name,
+			c.constraint_type
 		FROM
-			INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+			information_schema.key_column_usage k
+			INNER JOIN (
+				SELECT
+					constraint_name,
+					constraint_type
+				FROM
+					information_schema.table_constraints
+				WHERE
+					table_name = ':tableName'
+					AND table_schema = ':tableSchema'
+			) c
+		USING (constraint_name)
 		WHERE
-			TABLE_NAME = ?
-			AND TABLE_SCHEMA = ?
-	) c
-USING (CONSTRAINT_NAME)
-WHERE
-	k.TABLE_NAME = ?
-	AND k.TABLE_SCHEMA = ?
-ORDER BY
-	k.CONSTRAINT_NAME ASC,
-	k.ORDINAL_POSITION ASC;
-SQL;
-		$stmt = $this->_db->prepare($sql);
-		$stmt->bind_param('ssss',
-			$this->_name, $this->_schema, $this->_name, $this->_schema);
-		$stmt->execute();
-		$stmt->bind_result_array($row);
+			k.table_name = ':tableName'
+			AND k.table_schema = ':tableSchema'
+		ORDER BY
+			k.constraint_name ASC,
+			k.ordinal_position ASC
+		";
+
+		$sql = strtr($sql,
+			[
+				':tableName'	=> $this->_name,
+				':tableSchema'	=> $this->_schema
+			]
+		);
+
+		$result = $this->_db->fetchAll($sql);
 
 		$constraints = array();
-		while ($stmt->fetch())
+		foreach ($result as $row)
 		{
 			$con = [];
-			$name = $row['CONSTRAINT_NAME'];
+			$name = $row['constraint_name'];
 
 			if (!isset($constraints[$name]))
 			{
 				$con['name'] = $name;
 				$con['columns'] = [];
 				$con['ref_columns'] = [];
-				switch ($row['CONSTRAINT_TYPE'])
+				switch ($row['constraint_type'])
 				{
 					case 'UNIQUE':
 						$con['type'] = self::CONTYPE_UNIQUE;
@@ -126,16 +130,16 @@ SQL;
 						break;
 					case 'FOREIGN KEY':
 						$con['type'] = self::CONTYPE_FOREIGN;
-						$con['ref_table'] = $row['REFERENCED_TABLE_NAME'];
+						$con['ref_table'] = $row['referenced_table_name'];
 						break;
 				}
 				$constraints[$name] = $con;
 			}
 
 			//	соберём имена колонок, участвующих в ограничении
-			$constraints[$name]['columns'][] = $row['COLUMN_NAME'];
+			$constraints[$name]['columns'][] = $row['column_name'];
 			//	для внешних ключей соберём и связанные колонки
-			if ($ref_col = $row['REFERENCED_COLUMN_NAME'])
+			if ($ref_col = $row['referenced_column_name'])
 			{
 				$constraints[$name]['ref_columns'][] = $ref_col;
 			}
