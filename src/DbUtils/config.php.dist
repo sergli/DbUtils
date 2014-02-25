@@ -7,7 +7,7 @@ return [
 		'password'	=>	'12345',
 		'dbname'	=>	'test',
 	],
-	'postgres'	=>	[
+	'pgsql'	=>	[
 		'host'		=>	'127.0.0.1',
 		'user'		=>	'sergli',
 		'password'	=>	'12345',
