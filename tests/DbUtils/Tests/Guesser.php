@@ -38,7 +38,7 @@ class Guesser extends \Faker\Guesser\Name
 			{
 				//	в timestamp нули не нужны,
 				//	тк mysql не допускает
-				return $generator->datetime
+				return $generator->dateTimeThisYear
 					->format('Y-m-d H:i:s');
 			};
 		case 'bindata':
