@@ -4,6 +4,8 @@ namespace DbUtils\Tests;
 
 class Guesser extends \Faker\Guesser\Name
 {
+	private $_autoIncrement = 1;
+
 	public function guessFormat($name)
 	{
 		$generator = $this->generator;
@@ -11,9 +13,9 @@ class Guesser extends \Faker\Guesser\Name
 		switch ($name)
 		{
 		case 'id':
-			return function() use ($generator)
+			return function()
 			{
-				return $generator->unique()->randomNumber;
+				return $this->_autoIncrement++;
 			};
 		case 'group_id':
 			return function() use ($generator)

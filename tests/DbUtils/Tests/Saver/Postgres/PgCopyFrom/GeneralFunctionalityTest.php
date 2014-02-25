@@ -6,10 +6,8 @@ class GeneralFunctionalityTest extends \PHPUnit_Framework_TestCase
 {
 	use \DbUtils\Tests\Saver\GeneralFunctionalityTestsTrait;
 
-
 	protected function _getAdapterClass()
 	{
-		//		return '\DbUtils\Adapter\PostgresAdapterInterface';
 		return '\DbUtils\Adapter\Pgsql\Pgsql';
 	}
 
@@ -18,35 +16,36 @@ class GeneralFunctionalityTest extends \PHPUnit_Framework_TestCase
 		return '\DbUtils\Saver\Postgres\PgCopyFromSaver';
 	}
 
-	/**
-	 * @expectedException \DbUtils\Saver\SaverException
-	 * @expectedExceptionMessage Необходимо указать полный набор колонок
-	 */
-	public function testCreateSaverWithNotFullSetOfColumns()
+	public function testCreateSaverWithNoColumns1()
 	{
-		$columns = [ 'id', 'name' ];
-		$saver = $this->newSaver($columns);
+		$this->markTestSkipped();
 	}
 
-	/**
-	 * @expectedException \DbUtils\Saver\SaverException
-	 * @expectedExceptionMessage Необходимо указать полный набор колонок
-	 */
-	public function testCreateSaverWithRepeatedColumns()
+	public function testCreateSaverWithNoColumns2()
 	{
-		$columns = [ 'group_id', 'id', 'id', 'name' ];
-		$saver = $this->newSaver($columns);
-		$this->assertEquals(
-			[ 'group_id', 'id', 'name' ],
-			$saver->getColumns()
-		);
+		$this->markTestSkipped();
 	}
 
 	public function testCreateSaverWithConcreteColumns()
 	{
+		$this->markTestSkipped();
 	}
 
-	public function testCreateSaverWithNoColumns1()
+	/**
+     * @expectedException \DbUtils\Saver\SaverException
+	 * @expectedExceptionMessage partial set of columns
+	 */
+	public function testCreateSaverWithNotFullSetOfColumns()
 	{
+		$saver = $this->newSaver(['id','name']);
+	}
+
+	public function testColumnsReordering()
+	{
+		$saver = $this->newSaver(['name', 'group_id',
+			'id', 'content', 'name', 'bindata', 'date' ]);
+		$this->assertEquals(
+			[ 'id', 'group_id', 'name', 'content',
+				'date', 'bindata' ], $saver->getColumns());
 	}
 }

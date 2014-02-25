@@ -25,7 +25,8 @@ trait GeneralFunctionalityTestsTrait
 					'group_id'	=> 'int(11)',
 					'name'		=> 'varchar(100)',
 					'content'	=> 'text',
-					'date'		=> 'timestamp'
+					'date'		=> 'timestamp',
+					'bindata'	=> 'blob/bytea',
 				]));
 		$table->expects($this->any())
 			->method('getFullName')
@@ -72,16 +73,10 @@ trait GeneralFunctionalityTestsTrait
 		return $saver;
 	}
 
-	public function newProvider(array $cols = null)
+	public function newProvider(array $columns = null)
 	{
-		$cols = $cols ?:
-			[ 'id', 'group_id', 'name',
-			'content', 'date', ];
-
-		return new \DbUtils\Tests\DataProvider($cols);
+		return new \DbUtils\Tests\DataProvider($columns);
 	}
-
-
 
 	/**
 	 * @group grain
@@ -118,6 +113,7 @@ trait GeneralFunctionalityTestsTrait
 			'name',
 			'content',
 			'date',
+			'bindata',
 		], $saver->getColumns());
 	}
 
@@ -142,10 +138,12 @@ trait GeneralFunctionalityTestsTrait
 
 	public function testCreateSaverWithRepeatedColumns()
 	{
-		$columns = [ 'group_id', 'id', 'id', 'name' ];
+		$columns = [ 'group_id', 'id', 'id', 'name',
+			'bindata', 'group_id', 'content', 'date' ];
 		$saver = $this->newSaver($columns);
 		$this->assertEquals(
-			[ 'group_id', 'id', 'name' ],
+			[ 'id', 'group_id', 'name',
+				'content', 'date', 'bindata' ],
 			$saver->getColumns()
 		);
 	}
@@ -170,10 +168,12 @@ trait GeneralFunctionalityTestsTrait
 
 		$row = $prov->getRecord();
 		$saver->add($row);
+
 		$this->assertCount(1, $saver);
+
 		for ($i = 2; $i <= 100; $i++)
 		{
-			$saver->add($prov->getRecord($i));
+			$saver->add($prov->getRecord());
 		}
 		$this->assertCount(100, $saver);
 	}
@@ -234,18 +234,16 @@ trait GeneralFunctionalityTestsTrait
 	{
 		$saver = $this->newSaver();
 		$saver->setBatchSize(100);
-
 		$prov = $this->newProvider();
+
 
 		$this->assertCount(0, $saver);
 		$this->assertEquals(0, $this->getSize());
-
 		for ($i = 1; $i <= 90; $i++)
 		{
 			$saver->add($prov->getRecord());
 		}
 		$this->assertCount(90, $saver);
-		$this->assertEquals(90, $saver->getSize());
 
 		for ($i = 91; $i <= 110; $i++)
 		{
@@ -331,8 +329,8 @@ trait GeneralFunctionalityTestsTrait
 	 */
 	public function testPushRow()
 	{
-		$saver = $this->newSaver(null, [ '_add' ]);
 		$prov = $this->newProvider();
+		$saver = $this->newSaver(null, [ '_add' ]);
 
 		$rows = [];
 		for ($i = 0; $i < 42; $i++)
@@ -351,9 +349,8 @@ trait GeneralFunctionalityTestsTrait
 
 	public function testOffsetGet()
 	{
-		$saver = $this->newSaver(null, [ '_add' ]);
 		$prov = $this->newProvider();
-
+		$saver = $this->newSaver(null, [ '_add' ]);
 		for ($i = 0; $i < 17; $i++)
 		{
 			$saver[] = $prov->getRecord();
@@ -379,8 +376,8 @@ trait GeneralFunctionalityTestsTrait
 
 	public function testAddRowInTheMiddle()
 	{
-		$saver = $this->newSaver(null, [ '_add' ]);
 		$prov = $this->newProvider();
+		$saver = $this->newSaver(null, [ '_add' ]);
 
 		for ($i = 0; $i < 17; $i++)
 		{
@@ -409,21 +406,21 @@ trait GeneralFunctionalityTestsTrait
 			$this->fail($this->_exceptionMsg);
 		}
 	}
-
 	/**
 	 * @group ok
 	 */
+
 	public function testAddRowInTheEnd()
 	{
-		$saver = $this->newSaver(null, [ '_add' ]);
 		$prov = $this->newProvider();
+		$saver = $this->newSaver(null, [ '_add' ]);
 
 		for ($i = 0; $i < 17; $i++)
 		{
 			$saver[] = $prov->getRecord();
 		}
 
-		$row = $prov->current();
+		$row = $prov->getRecord();
 
 		$saver->expects($this->once())
 			->method('_add')
@@ -435,13 +432,14 @@ trait GeneralFunctionalityTestsTrait
 
 	public function testOffsetExists()
 	{
-		$saver = $this->newSaver(null, [ '_add' ]);
 		$prov = $this->newProvider();
+		$saver = $this->newSaver();
 
 		for ($i = 0; $i < 17; $i++)
 		{
 			$saver[] = $prov->getRecord();
 		}
+
 
 		for ($i = -2; $i <= 20; $i++)
 		{

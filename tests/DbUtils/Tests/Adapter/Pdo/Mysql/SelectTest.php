@@ -1,6 +1,6 @@
 <?php
 
-namespace DbUtils\Tests\Adapter\Pgsql;
+namespace DbUtils\Tests\Adapter\Pdo\Mysql;
 
 class SelectTest extends \PHPUnit_Extensions_Database_TestCase
 {
@@ -10,17 +10,17 @@ class SelectTest extends \PHPUnit_Extensions_Database_TestCase
 
 	protected function _getAdapterClass()
 	{
-		return '\DbUtils\Adapter\Pgsql\Pgsql';
+		return '\DbUtils\Adapter\Pdo\Mysql';
 	}
 
 	protected function _getPdoDriverName()
 	{
-		return 'pgsql';
+		return 'mysql';
 	}
 
 	public function testGetResource()
 	{
-		$this->assertInternalType('resource',
+		$this->assertInstanceOf('\PDOStatement',
 			$this->_select->getResource());
 	}
 }

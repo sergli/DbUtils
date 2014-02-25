@@ -2,34 +2,30 @@
 
 namespace DbUtils\Tests\Saver\Postgres\LoadFile;
 
-use \DbUtils\Adapter\Pgsql\Pgsql as Adapter;
-use \DbUtils\Saver\Postgres\LoadFileSaver as Saver;
+use \DbUtils\Tests\DatabaseTestCaseTrait as DbTrait;
+use \DbUtils\Tests\Saver\RealtimeTestsTrait as RtTrait;
 
-class PgsqlRealtimeTest extends
+class PdoRealtimeTest extends
 	\PHPUnit_Extensions_Database_TestCase
 {
-	use \DbUtils\Tests\Saver\RealtimeTestsTrait;
-
-	protected function _newPdo(array $config)
+	use DbTrait,
+		RtTrait
 	{
-		$config = $config['postgres'];
-		$dsn = sprintf('pgsql:host=%s;dbname=%s',
-			$config['host'], $config['dbname']);
-		$pdo = new \PDO($dsn,
-			$config['user'],
-			$config['password']);
-		$pdo->query('SET client_encoding TO UTF8');
-
-		return $pdo;
+		RtTrait::_getXmlBaseName insteadof DbTrait;
 	}
 
-	protected function _newAdapter(array $config)
+	protected function _getAdapterClass()
 	{
-		return new Adapter($config['postgres']);
+		return '\DbUtils\Adapter\Pdo\Pgsql';
 	}
 
-	protected function _newSaver($db, $tableName)
+	protected function _getPdoDriverName()
 	{
-		return new Saver($db, $tableName);
+		return 'pgsql';
+	}
+
+	protected function _getSaverClass()
+	{
+		return '\DbUtils\Saver\Postgres\LoadFileSaver';
 	}
 }

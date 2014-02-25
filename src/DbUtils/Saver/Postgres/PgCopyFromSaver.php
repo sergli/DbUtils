@@ -38,7 +38,7 @@ class PgCopyFromSaver extends AbstractPostgresSaver
 		if (count($this->_columns) !== count($all))
 		{
 			throw new SaverException(
-				'Необходимо указать полный набор колонок');
+				'You should not specify a partial set of columns for this saver');
 		}
 	}
 

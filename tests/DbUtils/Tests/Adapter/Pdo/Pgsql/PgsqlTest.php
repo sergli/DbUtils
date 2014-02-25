@@ -1,8 +1,8 @@
 <?php
 
-namespace DbUtils\Tests\Adapter\Mysqli;
+namespace DbUtils\Tests\Adapter\Pdo\Pgsql;
 
-class MysqliTest extends \PHPUnit_Extensions_Database_TestCase
+class PgsqlTest extends \PHPUnit_Extensions_Database_TestCase
 {
 	use \DbUtils\Tests\DatabaseTestCaseTrait;
 
@@ -10,11 +10,11 @@ class MysqliTest extends \PHPUnit_Extensions_Database_TestCase
 
 	protected function _getAdapterClass()
 	{
-		return '\DbUtils\Adapter\Mysqli\Mysqli';
+		return '\DbUtils\Adapter\Pdo\Pgsql';
 	}
 
 	protected function _getPdoDriverName()
 	{
-		return 'mysql';
+		return 'pgsql';
 	}
 }

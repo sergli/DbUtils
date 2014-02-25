@@ -33,26 +33,7 @@ class LoadFileSaver extends AbstractMysqlSaver
 			return $value;
 		}
 
-
 		return addcslashes($value, "\n\t\\");
-
-		if ('\N' === $value)
-		{
-			return '\\\N';
-		}
-
-		//	Эти символы экранируем.
-		//	todo: это весь список ?
-		$chars = [
-			"\n",
-			"\t",
-			'\\',
-			"\000",
-		];
-
-		$value = addcslashes($value, implode('', $chars));
-
-		return $value;
     }
 
 

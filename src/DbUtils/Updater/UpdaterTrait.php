@@ -2,7 +2,8 @@
 
 namespace DbUtils\Updater;
 
-trait UpdaterTrait {
+trait UpdaterTrait
+{
 
 	/**
 	 * Колонки уник. ключа
@@ -12,7 +13,8 @@ trait UpdaterTrait {
 	 */
 	protected $_key = [];
 
-	public function update() {
+	public function update()
+	{
 		return $this->save();
 	}
 
@@ -26,36 +28,54 @@ trait UpdaterTrait {
 	 * @access protected
 	 * @return string[]|null
 	 */
-	private function _findKey() {
+	private function _findKey()
+	{
+		//TODO а not null разве не нужно проверять ?
 		$pk = $this->_table->getPrimaryKey();
 		$columns = array_keys($this->_columns);
-		if ($pk) {
+		if ($pk)
+		{
 			$cols = $pk['columns'];
 			if (count(array_intersect(
-				$cols, $columns)) == count($cols)) {
+				$cols, $columns)) == count($cols))
+			{
 				return $cols;
 			}
 		}
 
-		foreach ($this->_table->getUniques() as $unique) {
+		foreach ($this->_table->getUniques() as $unique)
+		{
 			$cols = $unique['columns'];
 			if (count(array_intersect(
-				$cols, $columns)) == count($cols)) {
+				$cols, $columns)) == count($cols))
+			{
 				return $cols;
 			}
 		}
+
 		return null;
 	}
 
 
-	protected function _setColumns(array $columns) {
+	protected function _setColumns(array $columns)
+	{
 		parent::_setColumns($columns);
+
 		$key = $this->_findKey();
 
-		if (!$key) {
-			throw new \Exception('Нет подходящего ключа',
-				self::E_NONE_KEY);
+		if (!$key)
+		{
+			throw new UpdaterException(sprintf(
+				'There is no unique constraint found in this set of columns: %s', implode(array_keys($this->_columns))));
 		}
+
 		$this->_key = $key;
+
+		$this->_generateSql();
+	}
+
+	public function getUniqueConstraint()
+	{
+		return $this->_key ?: null;
 	}
 }
