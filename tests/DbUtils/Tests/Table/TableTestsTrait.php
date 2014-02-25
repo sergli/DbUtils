@@ -4,40 +4,29 @@ namespace DbUtils\Tests\Table;
 
 trait TableTestsTrait
 {
-	private $_db;
 	private $_tableName = 'test.documents';
+	private $_db;
 	private $_table;
 
-	abstract protected function _newPdo(array $config);
-	abstract protected function _newAdapter(array $config);
-	abstract protected function _newTable($db, $tableName);
+	abstract protected function _getTableClass();
 
 	public function setUp()
 	{
 		parent::setUp();
 
-		$config = (new \DbUtils\DiContainer)['config'];
+		$this->_tableName = $this->getTableName();
+		$this->_db = $this->newAdapter();
 
-		$this->_db = $this->_newAdapter($config);
-		$this->_table = $this->_newTable(
-			$this->_db, $this->_tableName);
+		$class = $this->_getTableClass();
+		$this->_table = new $class($this->_db, $this->_tableName);
 	}
 
-	public function tearDown()
+	public function assertPreConditions()
 	{
-		parent::tearDown();
-
-		$this->_db = null;
-		$this->_table = null;
-	}
-
-	public function getConnection()
-	{
-		$config = (new \DbUtils\DiContainer)['config'];
-
-		$pdo = $this->_newPdo($config);
-
-		return $this->createDefaultDbConnection($pdo);
+		$this->assertInstanceOf(
+			'\DbUtils\Table\TableInterface', $this->_table);
+		$this->assertTableRowCount(
+			$this->_tableName, 5);
 	}
 
 	public function testGetConnection()
@@ -47,13 +36,6 @@ trait TableTestsTrait
 			$this->_table->getConnection());
 	}
 
-	public function getDataSet()
-	{
-		$xml = __DIR__ . '/../../../_files/documents.xml';
-		return $this->createFlatXmlDataSet($xml);
-	}
-
-
 	public function testGetName()
 	{
 		$this->assertEquals('documents',
@@ -62,7 +44,8 @@ trait TableTestsTrait
 
 	public function testGetSchema()
 	{
-		$this->assertEquals('test', $this->_table->getSchema());
+		$this->assertEquals('test',
+			$this->_table->getSchema());
 	}
 
 	public function testGetFullName()
@@ -92,7 +75,8 @@ trait TableTestsTrait
 		$this->assertCount(2, $arr);
 		$this->assertArrayHasKey('uidx_name', $arr);
 		//	primary key
-		$this->assertEquals('id', array_shift($arr)['columns'][0]);
+		$this->assertEquals('id',
+			array_shift($arr)['columns'][0]);
 	}
 
 	public function testGetIndices()

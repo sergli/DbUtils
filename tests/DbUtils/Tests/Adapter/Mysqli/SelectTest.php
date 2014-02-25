@@ -2,35 +2,25 @@
 
 namespace DbUtils\Tests\Adapter\Mysqli;
 
-class SelectTest extends \PHPUnit_Framework_TestCase
+class SelectTest extends \PHPUnit_Extensions_Database_TestCase
 {
-	private $_select;
+	use \DbUtils\Tests\DatabaseTestCaseTrait;
 
-	public function setUp()
+	use \DbUtils\Tests\Adapter\SelectTestsTrait;
+
+	protected function _getAdapterClass()
 	{
-		$db = (new \DbUtils\DiContainer)['db.mysqli'];
-		$sql = "select * from information_schema.tables
-		where table_schema='information_schema' limit 20";
-		$this->_select = $db->query($sql);
+		return '\DbUtils\Adapter\Mysqli\Mysqli';
+	}
+
+	protected function _getPdoDriverName()
+	{
+		return 'mysql';
 	}
 
 	public function testGetResource()
 	{
-		$this->assertInstanceOf(
-			'\DbUtils\Adapter\SelectInterface', $this->_select);
 		$this->assertInstanceOf('\mysqli_result',
 			$this->_select->getResource());
-	}
-
-	public function testTraverse()
-	{
-		$this->assertContainsOnly('array', $this->_select);
-	}
-
-	public function testCount()
-	{
-		$this->assertCount(20,
-			iterator_to_array($this->_select));
-		$this->assertCount(20, $this->_select);
 	}
 }

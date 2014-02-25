@@ -38,7 +38,7 @@ class PgCopyFromSaver extends AbstractPostgresSaver
 		if (count($this->_columns) !== count($all))
 		{
 			throw new SaverException(
-				'You could not specify a partial set of columns for this saver');
+				'You should not specify a partial set of columns for this saver');
 		}
 	}
 

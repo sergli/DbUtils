@@ -4,76 +4,59 @@ namespace DbUtils\Tests\Saver;
 
 trait RealtimeTestsTrait
 {
-	private $_db;
 	private $_tableName = 'test.documents';
+	private $_db;
 	private $_saver;
 	private $_limit = 200;
 
-	abstract protected function _newPdo(array $config);
-	abstract protected function _newAdapter(array $config);
-	abstract protected function _newSaver($db, $tableName);
+	private $_allColumns = [
+		'id',
+		'group_id',
+		'name',
+		'content',
+		'date',
+		'bindata',
+	];
+
+	abstract protected function _getSaverClass();
+
+	protected function _getXmlBaseName()
+	{
+		return 'documents-empty.xml';
+	}
 
 	public function setUp()
 	{
 		parent::setUp();
 
-		$config = (new \DbUtils\DiContainer)['config'];
+		$this->_tableName = $this->getTableName();
+		$this->_db = $this->newAdapter();
 
-		$this->_db = $this->_newAdapter($config);
+		$class = $this->_getSaverClass();
+		$this->_saver = new $class(
+			$this->_db,
+			$this->_tableName);
 
-		$this->_saver = $this->_newSaver(
-			$this->_db, $this->_tableName);
 		$this->_saver->setBatchSize(8);
 	}
 
-	public function tearDown()
+	public function assertPreConditions()
 	{
-		parent::tearDown();
-		$this->_db = null;
-		$this->_saver = null;
+		$this->assertInstanceOf(
+			'\DbUtils\Saver\SaverInterface', $this->_saver);
+		$this->assertTableRowCount($this->_tableName, 0);
 	}
 
-	public function getConnection()
-	{
-		$config = (new \DbUtils\DiContainer)['config'];
-
-		$pdo = $this->_newPdo($config);
-
-		return $this->createDefaultDbConnection($pdo);
-	}
-
-	public function getDataSet()
-	{
-		$xml = __DIR__ . '/../../../_files/documents-empty.xml';
-		return $this->createFlatXmlDataSet($xml);
-	}
-	protected function _fetchAll(array $columns)
-	{
-		$pdo = $this->getDatabaseTester()
-			->getConnection()
-			->getConnection();
-
-		$sql = 'select ' . implode(',', $columns) .
-			' from ' . $this->_tableName  .
-			' order by id asc';
-
-		$stmt = $pdo->query($sql, \PDO::FETCH_ASSOC);
-		$ret = [];
-		foreach ($stmt as $row)
-		{
-			if (isset($row['bindata'])
-				&& is_resource($row['bindata']))
-			{
-				$row['bindata'] = stream_get_contents($row['bindata']);
-			}
-			$ret[] = $row;
-		}
-
-		return $ret;
-	}
-
+	/**
+	 * Загружаем в таблицу данные и проверяем, что все верно.
+	 * Данные генерируются на лету с помощью Faker
+	 *
+	 * @param string[] $columns какие колонки используем
+	 * @param \Closure $modiFy доп-но обрабатываем этой ф-ей
+	 */
 	protected function _verifyColumns(
-		array $columns = null, \Closure $modiFy = null)
+		array $columns = null,
+		\Closure $modiFy = null)
 	{
 		$dataSet = [];
 		foreach ($this->newProvider($columns) as $row)
@@ -91,31 +74,25 @@ trait RealtimeTestsTrait
 	}
 
 
-	public function newProvider(array &$cols = null)
+	protected function _testCols($col /*, ... */)
 	{
-		$cols = $cols ?: [
-	//		'id',
-			'group_id',
-			'name',
-			'content',
-			'date',
-			'bindata'
-		];
+		$cols = [];
+		$all = array_values($this->_allColumns);
 
-		return new \LimitIterator(
-			new \DbUtils\Tests\DataProvider($cols),
-			0, $this->_limit
-		);
+		foreach (func_get_args() as $arg)
+		{
+			$cols[] = $all[$arg - 1];
+		}
+
+		$this->_verifyColumns($cols);
 	}
-
 
 	/**
 	 * @group bindata
 	 */
 	public function testBinDataWithNullBytes()
 	{
-		$columns = [ 'name', 'bindata' ];
-		$this->_verifyColumns($columns,
+		$this->_verifyColumns(null,
 			function(array &$row)
 			{
 				$row['bindata'][5] = "\000";
@@ -127,8 +104,7 @@ trait RealtimeTestsTrait
 	 */
 	public function testBinDataWithTabsAndNewLinesAndSlashes()
 	{
-		$columns = [ 'name', 'bindata' ];
-		$this->_verifyColumns($columns,
+		$this->_verifyColumns(null,
 			function (array &$row)
 			{
 				$row['bindata'][2] = "\t";
@@ -143,8 +119,7 @@ trait RealtimeTestsTrait
 	 */
 	public function testNullValuesInGroupidAndContent()
 	{
-		$columns = [ 'group_id', 'name', 'content' ];
-		$this->_verifyColumns($columns,
+		$this->_verifyColumns(null,
 			function (array &$row)
 			{
 				$row['group_id'] = $row['content'] = null;
@@ -156,8 +131,7 @@ trait RealtimeTestsTrait
 	 */
 	public function testSlashNInContent()
 	{
-		$columns = [ 'name', 'content' ];
-		$this->_verifyColumns($columns,
+		$this->_verifyColumns(null,
 			function (array &$row)
 			{
 				$row['content'] = '\N';
@@ -168,8 +142,7 @@ trait RealtimeTestsTrait
 	 */
 	public function testSlashNInBindata()
 	{
-		$columns = [ 'name', 'content', 'bindata' ];
-		$this->_verifyColumns($columns,
+		$this->_verifyColumns(null,
 			function (array &$row)
 			{
 				$bin = $row['bindata'];
@@ -179,51 +152,37 @@ trait RealtimeTestsTrait
 			});
 	}
 
-	public function testColumnsGroupidNameContent()
-	{
-		$cols = [ 'group_id', 'name', 'content' ];
-		$this->_verifyColumns($cols);
-	}
-
-	/**
-	 * @group ok
-	 */
-	public function testColumnsName()
-	{
-		$cols = [ 'name', ];
-		$this->_verifyColumns($cols);
-	}
-
-	/**
-	 * @group date
-	 */
-	public function testColumnsNameDate()
-	{
-		$cols = [ 'name', 'date' ];
-		$this->_verifyColumns($cols);
-	}
-
-	/**
-	 * @group bindata
-	 */
-	public function testColumnsNameContentBindata()
-	{
-		$cols = [ 'name', 'content', 'bindata' ];
-		$this->_verifyColumns($cols);
-	}
-
-	/**
-	 * @group allcols
-	 */
 	public function testAllColumns()
 	{
-		$cols = [
-			'name',
-			'content',
-			'group_id',
-			'date',
-			'bindata',
-		];
-		$this->_verifyColumns($cols);
+		$this->_verifyColumns($this->_allColumns);
+	}
+
+
+	public function testCols1_3()
+	{
+		$this->_testCols(1,3);
+	}
+
+	public function testCols1_2_3()
+	{
+		$this->_testCols(1,2,3);
+	}
+
+	/**
+	 * @group oki
+	 */
+	public function testCols1_3_4()
+	{
+		$this->_testCols(1,3,4);
+	}
+
+	public function testCols1_3_4_6()
+	{
+		$this->_testCols(1,3,4,6);
+	}
+
+	public function testCols1_3_5_6()
+	{
+		$this->_testCols(1,3,5,6);
 	}
 }

@@ -2,34 +2,30 @@
 
 namespace DbUtils\Tests\Saver\Mysql\LoadFile;
 
-use \DbUtils\Adapter\Mysqli\Mysqli as Adapter;
-use \DbUtils\Saver\Mysql\LoadFileSaver as Saver;
+use \DbUtils\Tests\DatabaseTestCaseTrait as DbTrait;
+use \DbUtils\Tests\Saver\RealtimeTestsTrait as RtTrait;
 
 class MysqliRealtimeTest extends
 	\PHPUnit_Extensions_Database_TestCase
 {
-	use \DbUtils\Tests\Saver\RealtimeTestsTrait;
-
-	protected function _newPdo(array $config)
+	use DbTrait,
+		RtTrait
 	{
-		$config = $config['mysql'];
-		$dsn = sprintf('mysql:host=%s;dbname=%s',
-			$config['host'], $config['dbname']);
-		$pdo = new \PDO($dsn,
-			$config['user'],
-			$config['password']);
-		$pdo->query('SET NAMES utf8');
-
-		return $pdo;
+		RtTrait::_getXmlBaseName insteadof DbTrait;
 	}
 
-	protected function _newAdapter(array $config)
+	protected function _getAdapterClass()
 	{
-		return new Adapter($config['mysql']);
+		return '\DbUtils\Adapter\Mysqli\Mysqli';
 	}
 
-	protected function _newSaver($db, $tableName)
+	protected function _getPdoDriverName()
 	{
-		return new Saver($db, $tableName);
+		return 'mysql';
+	}
+
+	protected function _getSaverClass()
+	{
+		return '\DbUtils\Saver\Mysql\LoadFileSaver';
 	}
 }

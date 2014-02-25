@@ -11,6 +11,7 @@ class DataProvider implements \Iterator
 		'name',
 		'content',
 		'date',
+		'bindata',
 	];
 
 	private $_position = 0;

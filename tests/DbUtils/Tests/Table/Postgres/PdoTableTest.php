@@ -2,35 +2,26 @@
 
 namespace DbUtils\Tests\Table\Postgres;
 
-use \DbUtils\Adapter\Pdo\Pgsql as Adapter;
-use \DbUtils\Table\PostgresTable as Table;
 
-class PdoTableTest extends
-	\PHPUnit_Extensions_Database_TestCase
+class PdoTableTest extends \PHPUnit_Extensions_Database_TestCase
 {
+	use \DbUtils\Tests\DatabaseTestCaseTrait;
+
 	use \DbUtils\Tests\Table\TableTestsTrait;
 
-	protected function _newPdo(array $config)
+	protected function _getAdapterClass()
 	{
-		$config = $config['postgres'];
-		$dsn = sprintf('pgsql:host=%s;dbname=%s',
-			$config['host'], $config['dbname']);
-		$pdo = new \PDO($dsn,
-			$config['user'],
-			$config['password']);
-		$pdo->query('SET client_encoding TO utf8');
-
-		return $pdo;
+		return '\DbUtils\Adapter\Pdo\Pgsql';
 	}
 
-	protected function _newAdapter(array $config)
+	protected function _getTableClass()
 	{
-		return new Adapter($config['postgres']);
+		return '\DbUtils\Table\PostgresTable';
 	}
 
-	protected function _newTable($db, $tableName)
+	protected function _getPdoDriverName()
 	{
-		return new Table($db, $tableName);
+		return 'pgsql';
 	}
 
 	public function testGetConnection()
