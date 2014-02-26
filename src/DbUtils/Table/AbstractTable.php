@@ -35,6 +35,11 @@ abstract class AbstractTable implements TableInterface {
 	abstract protected function _getColumns();
 	abstract protected function _getConstraints();
 
+	public function __destruct()
+	{
+		$this->_db = null;
+	}
+
 	public static function factory(AdapterInterface $db,
 		$tableName)
 	{
