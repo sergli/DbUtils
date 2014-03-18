@@ -1,8 +1,8 @@
 <?php
 
-namespace Dbutils\Tests\Updater\Mysql;
+namespace DbUtils\Tests\Updater;
 
-class BulkUpdaterTest extends \PHPUnit_Extensions_Database_TestCase
+trait UpdaterTestsTrait
 {
 	use \DbUtils\Tests\DatabaseTestCaseTrait;
 
@@ -18,27 +18,33 @@ class BulkUpdaterTest extends \PHPUnit_Extensions_Database_TestCase
 		'bindata',
 	];
 
-	protected function _getPdoDriverName()
+	protected function _getXmlBaseName()
 	{
-		return 'mysql';
-	}
-
-	protected function _getAdapterClass()
-	{
-		return '\DbUtils\Adapter\Mysqli\Mysqli';
-	}
-
-	protected function _getUpdaterClass()
-	{
-		return '\DbUtils\Updater\Mysql\BulkUpdater';
+		return 'documents-large.xml';
 	}
 
 	public function setUp()
 	{
+		parent::setUp();
+
 		$this->_db = $this->newAdapter();
 		$this->_tableName = $this->getTableName();
+
+		$this->_data = $this->_fetchAll(
+			$this->_allColumns);
 	}
 
+	public function assertPreConditions()
+	{
+		$this->assertNotEmpty($this->_data);
+	}
+
+	/**
+	 * Создаёт экземпляр Updater от указанных колонок
+	 *
+	 * @param array $columns
+	 * @return Updater
+	 */
 	public function newUpdater(array $columns = null)
 	{
 		$class = $this->_getUpdaterClass();
@@ -116,36 +122,68 @@ class BulkUpdaterTest extends \PHPUnit_Extensions_Database_TestCase
 		$this->newUpdater(func_get_args());
 	}
 
-	protected function _testCols($col /*, ... */)
+	/**
+	 * @group Oki2
+	 */
+	public function testUpdateById()
 	{
-		$cols = [];
-		$all = array_values($this->_allColumns);
+		$cols = [ 'id', 'content', 'bindata' ];
+		//	обновим content в первых 30 записях
+		$updater = $this->newUpdater($cols);
+		$limit = 30;
+		$prov = new \DbUtils\Tests\DataProvider($cols);
 
-		foreach (func_get_args() as $arg)
+		for ($j = 1; $j <= $limit; $j++)
 		{
-			$cols[] = $all[$arg - 1];
+			$row = $prov->getRecord();
+
+			if ($j > 5 && $j <= 10)
+			{
+				$row['bindata'][2] = "\t";
+				$row['bindata'][5] = "\n";
+				$row['bindata'][7] = '\\';
+				$row['bindata'][11] = "\r";
+			}
+
+			$this->_data[$j - 1]['content'] = $row['content'];
+			$this->_data[$j - 1]['bindata'] = $row['bindata'];
+
+			$updater->add($row);
 		}
 
-		$this->_verifyColumns($cols);
+		$updater->update();
+
+		$this->assertEquals(
+			$this->_data,
+			$this->_fetchAll()
+		);
 	}
 
-	protected function _verifyColumns(
-		array $columns = null,
-		\Closure $modiFy = null)
+	public function testUpdateByName()
 	{
-		$updater = $this->newUpdater();
-		$dataSet = [];
-		foreach ($this->newProvider($columns) as $row)
+		$cols = [ 'name', 'content', 'bindata' ];
+		$updater = $this->newUpdater($cols);
+		$limit = 30;
+		$prov = new \DbUtils\Tests\DataProvider($cols);
+
+		for ($j = 1; $j <= $limit; $j++)
 		{
-			if (isset($modiFy))
-			{
-				$modiFy($row);
-			}
-			$updater[] = $dataSet[] = $row;
+			$name = "Name #$j";
+
+			$row = $prov->getRecord();
+			$this->_data[$j - 1]['content'] = $row['content'];
+			$this->_data[$j - 1]['bindata'] = $row['bindata'];
+
+			$row['name'] = $name;
+
+			$updater->add($row);
 		}
 		$updater->update();
 
-		$this->assertEquals($dataSet,
-			$this->_fetchAll($columns));
+		$this->assertEquals(
+			$this->_data,
+			$this->_fetchAll()
+		);
 	}
 }
+
