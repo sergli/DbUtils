@@ -87,6 +87,29 @@ trait RealtimeTestsTrait
 		$this->_verifyColumns($cols);
 	}
 
+	protected function _testOption($option,
+		$method, $regexp = null)
+	{
+		$s = $this->_saver;
+		$this->assertEquals(0, $s->getOptions());
+
+		call_user_func( [$s, $method] );
+		$this->assertTrue( boolval(
+			$s->getOptions() &
+			$option));
+
+		$s->genSqlSkel();
+		if (!is_null($regexp))
+		{
+			$this->assertRegexp($regexp, $s->getSqlSkel());
+		}
+
+		call_user_func( [$s, $method], 0);
+		$this->assertFalse( boolval(
+			$s->getOptions() &
+			$option));
+	}
+
 	/**
 	 * @group bindata
 	 */

@@ -28,4 +28,14 @@ class PgsqlRealtimeTest extends
 	{
 		return '\DbUtils\Saver\Postgres\BulkInsertSaver';
 	}
+
+	/**
+	 * @group options
+	 */
+	public function testSetOptAsync()
+	{
+		$s = $this->_saver;
+		$this->_testOption($s::OPT_ASYNC,
+			'setOptAsync');
+	}
 }

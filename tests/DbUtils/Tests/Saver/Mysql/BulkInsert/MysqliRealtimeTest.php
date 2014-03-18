@@ -28,4 +28,35 @@ class MysqliRealtimeTest extends
 	{
 		return '\DbUtils\Saver\Mysql\BulkInsertSaver';
 	}
+
+	/**
+	 * @group options
+	 */
+	public function testSetOptIgnore()
+	{
+		$s = $this->_saver;
+		$this->_testOption($s::OPT_IGNORE,
+			'setOptIgnore', '/INSERT.* IGNORE/i');
+	}
+
+	/**
+	 * @group options
+	 */
+	public function testSetOptDelayed()
+	{
+		$s = $this->_saver;
+		$this->_testOption($s::OPT_DELAYED,
+			'setOptDelayed',
+			'/INSERT.* DELAYED/i');
+	}
+
+	/**
+	 * @group options
+	 */
+	public function testSetOptAsync()
+	{
+		$s = $this->_saver;
+		$this->_testOption($s::OPT_ASYNC,
+			'setOptAsync');
+	}
 }

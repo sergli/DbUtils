@@ -28,4 +28,24 @@ class MysqliRealtimeTest extends
 	{
 		return '\DbUtils\Saver\Mysql\LoadFileSaver';
 	}
+
+	/**
+	 * @group options
+	 */
+	public function testSetOptIgnore()
+	{
+		$s = $this->_saver;
+		$this->_testOption($s::OPT_IGNORE,
+			'setOptIgnore', '/LOAD DATA.* IGNORE/i');
+	}
+
+	/**
+	 * @group options
+	 */
+	public function testSetOptAsync()
+	{
+		$s = $this->_saver;
+		$this->_testOption($s::OPT_ASYNC,
+			'setOptAsync');
+	}
 }
