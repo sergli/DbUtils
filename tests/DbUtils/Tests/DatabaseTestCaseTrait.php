@@ -12,10 +12,10 @@ trait DatabaseTestCaseTrait
 
 	public function tearDown()
 	{
-		$this->_db = null;
-		$this->_saver = null;
-		$this->_table = null;
-		$this->_select = null;
+		unset($this->_db);
+		unset($this->_saver);
+		unset($this->_table);
+		unset($this->_select);
 	}
 
 	public function getTableName()
