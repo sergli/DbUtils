@@ -48,11 +48,14 @@ class BulkInsertSaver extends AbstractPostgresSaver
 		$this->_count = 0;
 	}
 
-	protected function _generateSql()
+	public function genSqlSkel()
 	{
-		$sql = 'INSERT INTO ' . $this->_table->getFullName();
-		$sql .= "\n(\n\t" . implode(",\n\t",
-			array_keys($this->_columns)) . "\n)";
+		$sql = 'INSERT INTO ' . $this->_table->getFullName() . ' ';
+		if (!is_null($this->_columns))
+		{
+			$sql .= "\n(\n\t" . implode(",\n\t",
+				array_keys($this->_columns)) . "\n)";
+		}
 
 		$this->_sql = $sql;
 		unset($sql);

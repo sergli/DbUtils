@@ -47,7 +47,7 @@ class BulkInsertSaver extends AbstractMysqlSaver
 		$this->_count = 0;
 	}
 
-	protected function _generateSql()
+	public function genSqlSkel()
 	{
 		$sql = 'INSERT';
 		if ($this->_options & static::OPT_DELAYED)
@@ -58,9 +58,14 @@ class BulkInsertSaver extends AbstractMysqlSaver
 		{
 			$sql .= ' IGNORE';
 		}
-		$sql .= ' INTO ' . $this->_table->getFullName();
-		$sql .= "\n(\n\t" . implode(",\n\t",
-			array_keys($this->_columns)) .  "\n)";
+		$sql .= ' INTO ' . $this->_table->getFullName()
+			. ' ';
+
+		if (!is_null($this->_columns))
+		{
+			$sql .= "\n(\n\t" . implode(",\n\t",
+				array_keys($this->_columns)) .  "\n)";
+		}
 
 		$this->_sql = $sql;
 		unset($sql);

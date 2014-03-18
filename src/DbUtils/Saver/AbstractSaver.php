@@ -117,11 +117,10 @@ abstract class AbstractSaver implements SaverInterface,
 	 * Формирует скелет sql-запроса.
 	 *
 	 * @abstract
-	 * @access protected
 	 * @return void
 	 * @see $_sql
 	 */
-	abstract protected function _generateSql();
+	abstract public function genSqlSkel();
 
 	/**
 	 * Сохраняет буфер
@@ -136,12 +135,17 @@ abstract class AbstractSaver implements SaverInterface,
 
 	/**
 	 * Дополнительный действия по инициализации класса
-	 * до первого вызова _setColumns() и _generateSql()
+	 * до первого вызова _setColumns() и getSqlSkel()
 	 *
 	 * @return void
 	 */
 	protected function _initBeforeSql()
 	{
+	}
+
+	public function getSqlSkel()
+	{
+		return $this->_sql;
 	}
 
 	/**
@@ -204,6 +208,11 @@ abstract class AbstractSaver implements SaverInterface,
 		}
 	}
 
+	public function getOptions()
+	{
+		return $this->_options;
+	}
+
 	/**
 	 * Установить или снять опцию
 	 *
@@ -228,7 +237,7 @@ abstract class AbstractSaver implements SaverInterface,
 		//	пересчитываем $_sql (кроме первого запуска)
 		if (!$this->_sql && !empty($this->_columns))
 		{
-			$this->_generateSql();
+			$this->genSqlSkel();
 		}
 
 		return $this;
@@ -352,7 +361,7 @@ abstract class AbstractSaver implements SaverInterface,
 	 * @param string[] $columns названия полей
 	 * @access protected
 	 * @return void
-	 * @see _generateSql()
+	 * @see genSqlSkel()
 	 * @throws \Exception
 	 */
 	protected function _setColumns(array $columns)
@@ -389,7 +398,7 @@ abstract class AbstractSaver implements SaverInterface,
 		//	запоминаем тип
 		$this->_columns = $ret;
 
-		$this->_generateSql();
+		$this->genSqlSkel();
 	}
 
 	/**
@@ -603,4 +612,5 @@ abstract class AbstractSaver implements SaverInterface,
 			$this->_db->query($sql);
 		}
 	}
+
 }
