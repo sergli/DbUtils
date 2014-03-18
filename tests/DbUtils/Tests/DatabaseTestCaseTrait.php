@@ -46,7 +46,7 @@ trait DatabaseTestCaseTrait
 	{
 		if ($this->_conn === null)
 		{
-			if (static::$_pdo === null)
+			if (self::$_pdo === null)
 			{
 				$driver = $this->_getPdoDriverName();
 				$config = $this->_getConfig();
@@ -57,12 +57,12 @@ trait DatabaseTestCaseTrait
 					$config['dbname']
 				);
 
-				static::$_pdo = new \PDO($dsn,
+				self::$_pdo = new \PDO($dsn,
 					$config['user'], $config['password']);
 			}
 
 			$this->_conn =
-				$this->createDefaultDbConnection(static::$_pdo);
+				$this->createDefaultDbConnection(self::$_pdo);
 		}
 
 		return $this->_conn;

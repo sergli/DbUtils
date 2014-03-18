@@ -1,6 +1,6 @@
 <?php
 
-namespace Dbutils\Tests\Updater\Mysql;
+namespace DbUtils\Tests\Updater\Postgres;
 
 class PgsqlBulkUpdaterTest extends \PHPUnit_Extensions_Database_TestCase
 {
