@@ -58,7 +58,7 @@ class BulkUpdater extends PostgresBulkInsertSaver implements
 	}
 
 
-	protected function _generateSql()
+	public function genSqlSkel()
 	{
 		$keyExpr = [];
 

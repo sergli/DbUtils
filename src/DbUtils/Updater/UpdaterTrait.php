@@ -72,7 +72,7 @@ trait UpdaterTrait
 
 		$this->_key = $key;
 
-		$this->_generateSql();
+		$this->genSqlSkel();
 	}
 
 	public function getUniqueConstraint()

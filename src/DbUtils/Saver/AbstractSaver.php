@@ -169,11 +169,12 @@ abstract class AbstractSaver implements SaverInterface,
 	/**
 	 * Сохраняет буфер, обнуляет его
 	 *
+	 * @param boolean $wait выполнить запрос и дождаться его выполнения
 	 * @access public
 	 * @return void
 	 * @throws SaverException
 	 */
-	public function save()
+	public function save($wait = true)
 	{
 		if (0 === $this->_count)
 		{
@@ -192,6 +193,11 @@ abstract class AbstractSaver implements SaverInterface,
 					preg_replace('/[\n\t]/', ' ', $this->_sql),
 				'time'	=> round(microtime(true) - $ts, 3)
 			]);
+
+			if ($this->_options & static::OPT_ASYNC)
+			{
+				$this->_db->wait();
+			}
 
 			$this->reset();
 		}
@@ -349,7 +355,7 @@ abstract class AbstractSaver implements SaverInterface,
 		if (0 !== $this->_batchSize
 			&& $this->_count >= $this->_batchSize)
 		{
-			$this->save();
+			$this->save(false);
 		}
 
 		return true;
