@@ -11,7 +11,7 @@ class PgCopyFromSaver extends AbstractPostgresSaver
 {
 	protected $_values = [];
 
-	protected function _generateSql()
+	public function genSqlSkel()
 	{
 	}
 

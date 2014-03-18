@@ -10,14 +10,17 @@ class LoadFileSaver extends AbstractPostgresSaver
 {
 	use LoadFileTrait;
 
-	protected function _generateSql()
+	public function genSqlSkel()
 	{
-		$sql = <<<'EOT'
-COPY {tableName}
-(
-	{columns}
-)
-FROM '{fileName}'
+		$sql = 'COPY ' . $this->_table->getFullName() . ' ';
+		if (!is_null($this->_columns))
+		{
+			$sql .= "\n(\n" .
+				implode(",\n\t", array_keys($this->_columns)) .
+				"\n)";
+		}
+		$sql .= "\nFROM '" . $this->getFileName() . "'";
+		$sql .= <<<'EOT'
 WITH
 (
 	FORMAT CSV,
@@ -27,13 +30,6 @@ WITH
 	ESCAPE '"'
 );
 EOT;
-		$sql = strtr($sql, [
-			'{tableName}'	=> $this->_table->getFullName(),
-			'{columns}'		=>
-				implode(",\n\t", array_keys($this->_columns)),
-			'{fileName}'	=> $this->getFileName()
-		]);
-
 		$this->_sql = $sql;
 	}
 

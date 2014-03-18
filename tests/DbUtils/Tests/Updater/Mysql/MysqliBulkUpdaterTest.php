@@ -1,6 +1,6 @@
 <?php
 
-namespace Dbutils\Tests\Updater\Mysql;
+namespace DbUtils\Tests\Updater\Mysql;
 
 class MysqliBulkUpdaterTest extends \PHPUnit_Extensions_Database_TestCase
 {

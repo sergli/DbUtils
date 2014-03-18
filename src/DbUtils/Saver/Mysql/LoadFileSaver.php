@@ -37,18 +37,10 @@ class LoadFileSaver extends AbstractMysqlSaver
     }
 
 
-	protected function _generateSql()
+	public function genSqlSkel()
 	{
 
         $sql = 'LOAD DATA';
-		if ($this->_options & static::OPT_LOW_PRIORITY)
-		{
-            $sql .= ' LOW_PRIORITY';
-        }
-		else if ($this->_options & static::OPT_CONCURRENT)
-		{
-            $sql .= ' CONCURRENT';
-        }
 
         $sql .= " INFILE '" . $this->getFileName() . "'";
 
@@ -58,8 +50,14 @@ class LoadFileSaver extends AbstractMysqlSaver
 		}
 
 		$sql .= ' INTO TABLE ' . $this->_table->getFullName();
-		$sql .= ' CHARACTER SET binary';
-		$sql .= ' (' . implode(', ', array_keys($this->_columns)) . ')';
+		$sql .= ' CHARACTER SET binary ';
+
+		if (!is_null($this->_columns))
+		{
+			$sql .= ' (' .
+				implode(', ', array_keys($this->_columns)) .
+				')';
+		}
 
 		$this->_sql = $sql;
 		unset($sql);

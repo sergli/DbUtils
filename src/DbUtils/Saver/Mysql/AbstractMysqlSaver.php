@@ -12,11 +12,7 @@ abstract class AbstractMysqlSaver extends AbstractSaver
 
 	const OPT_DELAYED 		= 0b00010;
 
-	const OPT_LOW_PRIORITY	= 0b00100;
-
-	const OPT_CONCURRENT	= 0b01000;
-
-	const OPT_ASYNC			= 0b10000;
+	const OPT_ASYNC			= 0b00100;
 
 	/**
 	 * Опции запросов.
@@ -40,16 +36,5 @@ abstract class AbstractMysqlSaver extends AbstractSaver
 	public function setOptDelayed($val = true)
 	{
 		return $this->_setOption(static::OPT_DELAYED, $val);
-	}
-
-	public function setOptLowPriority($val = true)
-	{
-		return $this->_setOption(
-			static::OPT_LOW_PRIORITY, $val);
-	}
-
-	public function setOptConcurrent($val = true)
-	{
-		return $this->_setOption(static::OPT_CONCURRENT, $val);
 	}
 }

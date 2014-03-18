@@ -4,10 +4,10 @@ namespace DbUtils\Tests\Saver;
 
 trait RealtimeTestsTrait
 {
-	private $_tableName = 'test.documents';
-	private $_db;
-	private $_saver;
-	private $_limit = 200;
+	protected $_tableName = 'test.documents';
+	protected $_db;
+	protected $_saver;
+	protected $_limit = 200;
 
 	private $_allColumns = [
 		'id',
@@ -59,7 +59,8 @@ trait RealtimeTestsTrait
 		\Closure $modiFy = null)
 	{
 		$dataSet = [];
-		foreach ($this->newProvider($columns) as $row)
+		foreach ($this->newProvider($columns, $this->_limit)
+			as $row)
 		{
 			if (isset($modiFy))
 			{
@@ -85,6 +86,27 @@ trait RealtimeTestsTrait
 		}
 
 		$this->_verifyColumns($cols);
+	}
+
+	protected function _testOption($option,
+		$method, $regexp = null)
+	{
+		$s = $this->_saver;
+		call_user_func( [$s, $method] );
+		$this->assertTrue( boolval(
+			$s->getOptions() &
+			$option));
+
+		$s->genSqlSkel();
+		if (!is_null($regexp))
+		{
+			$this->assertRegexp($regexp, $s->getSqlSkel());
+		}
+
+		call_user_func( [$s, $method], 0);
+		$this->assertFalse( boolval(
+			$s->getOptions() &
+			$option));
 	}
 
 	/**
@@ -152,6 +174,9 @@ trait RealtimeTestsTrait
 			});
 	}
 
+	/**
+	 * @group allcols
+	 */
 	public function testAllColumns()
 	{
 		$this->_verifyColumns($this->_allColumns);

@@ -13,9 +13,9 @@ class BulkUpdater extends MysqlBulkInsertSaver implements
 
 	private $_sqlEnding  = '';
 
-	protected function _generateSql()
+	public function genSqlSkel()
 	{
-		parent::_generateSql();
+		parent::genSqlSkel();
 
 		$sql = 'ON DUPLICATE KEY UPDATE';
 
