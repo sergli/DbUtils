@@ -78,9 +78,6 @@ trait GeneralFunctionalityTestsTrait
 		return new \DbUtils\Tests\DataProvider($columns);
 	}
 
-	/**
-	 * @group grain
-	 */
 	public function testCreateSaverWithNoColumns1()
 	{
 		$saver = $this->newSaver();

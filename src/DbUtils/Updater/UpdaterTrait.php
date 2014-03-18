@@ -66,7 +66,8 @@ trait UpdaterTrait
 		if (!$key)
 		{
 			throw new UpdaterException(sprintf(
-				'There is no unique constraint found in this set of columns: %s', implode(array_keys($this->_columns))));
+				'There is no unique constraint found in this set of columns: %s',
+					implode(array_keys($this->_columns))));
 		}
 
 		$this->_key = $key;

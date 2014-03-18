@@ -2,6 +2,8 @@
 
 namespace DbUtils\Updater;
 
-class UpdaterException extends \Exception
+use DbUtils\Saver\SaverException;
+
+class UpdaterException extends SaverException
 {
 }

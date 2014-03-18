@@ -92,8 +92,8 @@ FROM ";
 WHERE
 	" . $this->_keyExpr;
 
-	$this->_execSql($sql);
+		$this->_execSql($sql);
 
-	unset($sql);
+		unset($sql);
 	}
 }

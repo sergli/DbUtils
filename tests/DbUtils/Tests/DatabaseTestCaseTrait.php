@@ -4,15 +4,18 @@ namespace DbUtils\Tests;
 
 trait DatabaseTestCaseTrait
 {
+	private $_conn = null;
+	private static $_pdo = null;
+
 	abstract protected function _getPdoDriverName();
 	abstract protected function _getAdapterClass();
 
 	public function tearDown()
 	{
-		unset($this->_db);
-		unset($this->_saver);
-		unset($this->_table);
-		unset($this->_select);
+		$this->_db = null;
+		$this->_saver = null;
+		$this->_table = null;
+		$this->_select = null;
 	}
 
 	public function getTableName()
@@ -41,16 +44,28 @@ trait DatabaseTestCaseTrait
 
 	public function getConnection()
 	{
-		$driver = $this->_getPdoDriverName();
-		$config = $this->_getConfig();
+		if ($this->_conn === null)
+		{
+			if (static::$_pdo === null)
+			{
+				$driver = $this->_getPdoDriverName();
+				$config = $this->_getConfig();
 
-		$dsn = sprintf('%s:host=%s;dbname=%s',
-			$driver, $config['host'], $config['dbname']);
+				$dsn = sprintf('%s:host=%s;dbname=%s',
+					$driver,
+					$config['host'],
+					$config['dbname']
+				);
 
-		$pdo = new \PDO($dsn,
-			$config['user'], $config['password']);
+				static::$_pdo = new \PDO($dsn,
+					$config['user'], $config['password']);
+			}
 
-		return $this->createDefaultDbConnection($pdo);
+			$this->_conn =
+				$this->createDefaultDbConnection(static::$_pdo);
+		}
+
+		return $this->_conn;
 	}
 
 	public function getDataSet()
