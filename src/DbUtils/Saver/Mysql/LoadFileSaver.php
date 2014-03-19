@@ -34,15 +34,15 @@ class LoadFileSaver extends AbstractMysqlSaver
 		}
 
 		return addcslashes($value, "\n\t\\");
-    }
+	}
 
 
 	public function genSqlSkel()
 	{
 
-        $sql = 'LOAD DATA';
+		$sql = 'LOAD DATA';
 
-        $sql .= " INFILE '" . $this->getFileName() . "'";
+		$sql .= " INFILE '" . $this->getFileName() . "'";
 
 		if ($this->_options & static::OPT_IGNORE)
 		{

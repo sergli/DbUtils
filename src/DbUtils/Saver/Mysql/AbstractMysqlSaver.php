@@ -8,9 +8,9 @@ use DbUtils\Saver\AbstractSaver;
 
 abstract class AbstractMysqlSaver extends AbstractSaver
 {
-	const OPT_IGNORE 		= 0b00001;
+	const OPT_IGNORE		= 0b00001;
 
-	const OPT_DELAYED 		= 0b00010;
+	const OPT_DELAYED		= 0b00010;
 
 	const OPT_ASYNC			= 0b00100;
 

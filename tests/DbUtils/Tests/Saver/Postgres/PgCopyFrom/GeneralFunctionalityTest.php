@@ -32,7 +32,7 @@ class GeneralFunctionalityTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-     * @expectedException \DbUtils\Saver\SaverException
+	 * @expectedException \DbUtils\Saver\SaverException
 	 * @expectedExceptionMessage partial set of columns
 	 */
 	public function testCreateSaverWithNotFullSetOfColumns()

@@ -150,7 +150,7 @@ class MysqlTable extends AbstractTable
 
 	protected function _getIndices()
 	{
-        $sql = "SHOW INDEX FROM {$this->getFullName()};";
+		$sql = "SHOW INDEX FROM {$this->getFullName()};";
 		$rows = $this->_db->fetchAll($sql);
 		$indices = array();
 		foreach ($rows as $row)
@@ -171,7 +171,7 @@ class MysqlTable extends AbstractTable
 		}
 
 		return $indices;
-    }
+	}
 
 
 	public function _getColumns()

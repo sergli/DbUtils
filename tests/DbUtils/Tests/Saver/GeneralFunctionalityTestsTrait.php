@@ -21,7 +21,7 @@ trait GeneralFunctionalityTestsTrait
 		$table->expects($this->any())
 			->method('getColumns')
 			->will($this->returnValue([
-					'id' 		=> 'int(11)',
+					'id'		=> 'int(11)',
 					'group_id'	=> 'int(11)',
 					'name'		=> 'varchar(100)',
 					'content'	=> 'text',

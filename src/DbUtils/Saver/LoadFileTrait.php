@@ -24,14 +24,14 @@ trait LoadFileTrait
 	protected function _reset()
 	{
 		$this->_file->ftruncate(0);
-        $this->_count = 0;;
-    }
+		$this->_count = 0;;
+	}
 
 	protected function _add(array $record)
 	{
 		$line = implode($this->_delimiter, $record);
 		$this->_file->fwrite($line . "\n");
-    }
+	}
 
 	protected function _save()
 	{
@@ -46,11 +46,11 @@ trait LoadFileTrait
 		pcntl_signal_dispatch();
 
 		$this->_execSql($this->_sql);
-    }
+	}
 
 	public function __destruct()
 	{
-        parent::__destruct();
+		parent::__destruct();
 
 		if (!is_object($this->_file))
 		{
@@ -61,11 +61,11 @@ trait LoadFileTrait
 
 		$fileName = $this->_file->getPathName();
 		$this->_file = null;
-        @unlink($fileName);
+		@unlink($fileName);
 
 		$this->_logger->addNotice(sprintf(
 			'Remove temp file: %s', $fileName));
-    }
+	}
 
 	/**
 	 * Создаёт и открывает для записи файл

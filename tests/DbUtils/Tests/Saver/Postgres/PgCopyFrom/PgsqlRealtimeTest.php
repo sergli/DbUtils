@@ -45,7 +45,7 @@ class PgsqlRealtimeTest extends
 	}
 
 	/**
-     * @expectedException \DbUtils\Saver\SaverException
+	 * @expectedException \DbUtils\Saver\SaverException
 	 * @expectedExceptionMessage partial set
 	 */
 	public function testCols1_3_4_6()

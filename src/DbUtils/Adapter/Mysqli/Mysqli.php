@@ -115,12 +115,12 @@ class Mysqli extends \Mysqli implements
 			->fetch_all(MYSQLI_ASSOC);
 	}
 
-    /**
-     * Обертка \mysqli::$info
+	/**
+	 * Обертка \mysqli::$info
 	 *
-     * @return array|null
-     * @access public
-     */
+	 * @return array|null
+	 * @access public
+	 */
 	public function info()
 	{
 		$info = $this->info;

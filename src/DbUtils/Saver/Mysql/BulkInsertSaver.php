@@ -23,7 +23,7 @@ class BulkInsertSaver extends AbstractMysqlSaver
 
 	protected function _quote($column, $value)
 	{
-		if (null === $value)
+		if (!isset($value))
 		{
 			return 'NULL';
 		}
@@ -64,7 +64,7 @@ class BulkInsertSaver extends AbstractMysqlSaver
 		if (!is_null($this->_columns))
 		{
 			$sql .= "\n(\n\t" . implode(",\n\t",
-				array_keys($this->_columns)) .  "\n)";
+				array_keys($this->_columns)) .	"\n)";
 		}
 
 		$this->_sql = $sql;
