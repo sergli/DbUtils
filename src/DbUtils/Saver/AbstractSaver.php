@@ -194,7 +194,7 @@ abstract class AbstractSaver implements SaverInterface,
 				'time'	=> round(microtime(true) - $ts, 3)
 			]);
 
-			if ($this->_options & static::OPT_ASYNC)
+			if ($wait && $this->_options & static::OPT_ASYNC)
 			{
 				$this->_db->wait();
 			}
@@ -347,10 +347,10 @@ abstract class AbstractSaver implements SaverInterface,
 
 		$this->_count++;
 
-		$this->_logger->addDebug('Add record', [
-			'record' => $record,
-			'count' => $this->_count
-		]);
+//		$this->_logger->addDebug('Add record', [
+//			'record' => $record,
+//			'count' => $this->_count
+//		]);
 
 		if (0 !== $this->_batchSize
 			&& $this->_count >= $this->_batchSize)
