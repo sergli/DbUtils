@@ -1,4 +1,4 @@
-DbUtils - bulk insert/load data into mysql/postgres (php 5.4+)
+DbUtils - bulk load/update data into mysql/postgres (php 5.4+)
 ==============================
 
 **Версия 0.1.3**
